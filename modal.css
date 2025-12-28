@@ -1,0 +1,365 @@
+/* modal.css - стили для всех модальных окон */
+
+/* Общие стили модальных окон */
+.character-modal,
+.materials-setup-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--dark0-5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+
+.modal-content {
+  background-color: var(--dark);
+  padding: 3vw;
+  border-radius: 6vw;
+  display: flex; flex-direction: column;
+  max-width: 90%;
+  max-height: 80%;
+  overflow-y: auto;
+  position: relative; gap: 2vw;
+}
+
+/* Кнопка закрытия */
+.close-btn {
+  
+  top: 15px;
+  right: 15px;
+  border: none;
+  font-size: 28px;
+  cursor: pointer;
+  background-color: var(--light);
+  color: var(--dark);
+  z-index: 2;
+  width: 8vw;
+  height: 8vw;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4vw;
+  transition: all 0.3s ease;
+}
+
+.close-btn:hover {
+  background-color: var(--white);
+}
+
+/* Модальное окно персонажа */
+.character-modal .modal-content {
+  text-align: left; 
+}
+
+.character-modal .avatar-container {
+  background-color: var(--light); 
+  border-radius: 3vw; padding: 1vw;
+}
+
+.character-modal .avatar-container img {
+  width: 100%; aspect-ratio: 16/9; background-position: top;
+  height: 100%;
+  border-radius: 2vw;
+  object-fit: cover;
+  background-color: var(--dark);
+}
+
+.character-modal h2 {
+  line-height: 0;
+  color: var(--dark);
+}
+
+/* Кнопки выбора раздела */
+.section-btn {
+  padding: 15px 20px;
+  border: 2px solid #dee2e6;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.section-btn:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.section-btn:last-child {
+  margin-bottom: 0;
+}
+
+/* Модальное окно настроек материалов */
+.materials-setup-modal .modal-content {
+  max-width: 800px;
+  padding: 20px;
+}
+
+.materials-setup-modal .header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #eee;
+}
+
+.materials-setup-modal .header img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.materials-setup-modal .header h2 {
+  margin: 0;
+  color: #333;
+}
+
+/* Секции настроек */
+.characters.sec {
+  text-align: center;
+  margin: 20px 0;
+}
+
+#char-icon img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 15px;
+}
+
+#char-name {
+  margin: 0;
+  color: #333;
+}
+
+/* Слайдер уровня */
+.current-level-display {
+  font-size: 36px;
+  color: #4CAF50;
+  margin: 10px 0;
+}
+
+.range {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  flex-wrap: wrap;
+  margin: 25px 0;
+}
+
+#minus-range,
+#plus-range {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#plus-range {
+  background: #28a745;
+}
+
+#range {
+  width: 200px;
+}
+
+#range-value {
+  font-size: 18px;
+  font-weight: bold;
+  min-width: 30px;
+  text-align: center;
+}
+
+/* Таланты */
+.basic_stat {
+  margin-top: 30px;
+}
+
+.basic_stat h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.section {
+  margin: 15px 0;
+  padding: 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  background: #f9f9f9;
+  text-align: center;
+}
+
+.section img {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 10px;
+}
+
+.section p {
+  margin: 5px 0;
+}
+
+.section p:first-of-type {
+  font-weight: bold;
+  color: #333;
+}
+
+.section p:last-of-type {
+  color: #666;
+}
+
+.level-group {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.arrow {
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  min-width: 40px;
+}
+
+.arrow.right {
+  background: #28a745;
+}
+
+.level-value {
+  font-size: 20px;
+  font-weight: bold;
+  min-width: 30px;
+  text-align: center;
+}
+
+/* Описание персонажа */
+#char-description {
+  margin: 30px 0;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  border-left: 4px solid #4CAF50;
+}
+
+#char-description h3 {
+  margin-top: 0;
+  color: #333;
+}
+
+#char-description p {
+  margin: 0;
+  line-height: 1.6;
+  color: #555;
+}
+
+/* Кнопки действий */
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #eee;
+  gap: 15px;
+}
+
+.button-container button {
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.button-container button:first-child {
+  background: #6c757d;
+  color: white;
+  flex: 1;
+}
+
+.button-container button:last-child {
+  background: #28a745;
+  color: white;
+  font-weight: bold;
+  flex: 2;
+}
+
+.button-container button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Адаптивность модальных окон */
+@media (max-width: 768px) {
+  
+  
+  .materials-setup-modal .modal-content {
+    max-width: 95%;
+  }
+  
+  #range {
+    width: 150px;
+  }
+  
+  .section {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  
+  
+  .character-modal .avatar-container img {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .section-btn {
+    padding: 12px 15px;
+    font-size: 14px;
+  }
+  
+  .current-level-display {
+    font-size: 28px;
+  }
+  
+  #range {
+    width: 120px;
+  }
+  
+  .button-container {
+    flex-direction: column;
+  }
+  
+  .button-container button {
+    width: 100%;
+  }
+}

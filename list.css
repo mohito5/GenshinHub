@@ -1,0 +1,175 @@
+.cards-container { display: grid; 
+  width: 100%; height:100%;
+  grid-template-columns: repeat(auto-fill, minmax(24vw, 1fr));
+  justify-content: start;
+  align-content: start; 
+  gap: 2vw; 
+}
+.cards-container .card-avatar {  
+  height: min-content;
+  aspect-ratio: 4/6; 
+  flex-direction: column;
+  position: relative; 
+  border-radius: 2vh; 
+  overflow: hidden;
+  transition: 1s ease;
+  opacity: 1;
+  padding: 1vh;
+  border:1px solid var(--dark);
+  margin: 0;
+}
+.cards-container .card-avatar a {
+  display: flex; 
+  flex-direction: column; 
+  gap: 1vh; 
+  height: 100%;
+}
+
+.cards-container .card-avatar a .avatar { 
+  flex-grow: 1; border: var(--dark) 1px solid;
+ width: 100%; 
+ border-radius: 1vh; 
+ overflow: hidden;
+position: relative;
+transition: all 450ms ease-in-out; background:var(--geo); 
+}
+.cards-container .card-avatar .avatar img { 
+  width: 100%; 
+  height: 100%;
+  
+  
+  object-fit: cover; 
+}
+.cards-container .card-avatar .name{ 
+  display: flex; 
+  border: #000 1px solid;
+  border-radius: 1vh;
+  text-align: center; 
+   padding: 1vh;
+  white-space: nowrap; 
+  text-overflow: ellipsis; 
+  overflow: hidden; background: radial-gradient(#976B44,#DE9350);
+}
+.cards-container .card-avatar .name p { margin: 0; width: 100%;}
+
+.cards-container .show {display: flex; }
+
+.Electro::after{
+  content: "";
+  background-image: url(./assets/Element_Electro.webp); 
+  background-size: cover;
+  width: 3vh; height: 3vh;
+  position: absolute; top: 1.5vh; left: 1.5vh;
+}
+
+
+.section {display: flex;}
+
+
+.modal-tabs {border: #DE9350 1px solid;}
+
+
+
+
+/* Добавьте в ваш CSS файл */
+.filter-button { border:#000 1px solid;
+  position: relative;
+}
+
+.filter-button.active {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%) !important;
+}
+
+.filter-indicator {
+  fill: #ff4757;
+  stroke: none;
+  animation: pulse 1.5s infinite;
+}
+
+.filter-clear {
+  margin-left: 5px;
+  background: #ff4757;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+
+
+
+
+.no-results {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+  font-size: 16px;
+  grid-column: 1 / -1;
+}
+
+.character-counter {
+  font-size: 16px;
+  color: #666;
+  font-weight: normal;
+  margin-left: 10px;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Стили для иконок элементов */
+.filter-option[data-type="element"] {
+  position: relative;
+  padding-left: 40px;
+}
+
+.filter-option[data-type="element"]::before {
+  content: '';
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+
+.filter-option[data-value="Pyro"]::before {
+  background-image: url('assets/elements/pyro.png');
+}
+
+.filter-option[data-value="Hydro"]::before {
+  background-image: url('assets/elements/hydro.png');
+}
+
+.filter-option[data-value="Electro"]::before {
+  background-image: url('assets/elements/electro.svg');
+}
+
+.filter-option[data-value="Cryo"]::before {
+  background-image: url('assets/elements/cryo.png');
+}
+
+.filter-option[data-value="Anemo"]::before {
+  background-image: url('assets/elements/anemo.png');
+}
+
+.filter-option[data-value="Geo"]::before {
+  background-image: url('assets/elements/geo.png');
+}
+
+.filter-option[data-value="Dendro"]::before {
+  background-image: url('assets/elements/dendro.png');
+}
+
+
+.svg { color: #45a049;}
