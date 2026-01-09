@@ -1,0 +1,31 @@
+.character-detail-page {
+    margin: 0; 
+    width: 100%;
+  min-height: 100vh;
+}
+#character-content{display: flex; flex-direction: column; gap: 2vw;}
+.character-detail-page #char-icon { width: 100%;
+  border: var(--dark) 1px solid;
+}
+#out{display: none;}
+.character-detail-page #char-icon img { width: 100%; height: 100%;
+  object-fit: cover; aspect-ratio: 16/9; background-color: var(--dark);
+  transition: transform 0.3s ease;
+}
+
+.characters{display: flex;flex-direction: column; width: 100%; margin: 0;}
+
+.character-detail-page #char-name {
+  font-size: 2rem;
+  
+  color: var(--dark);
+}
+
+.sec{display: flex; flex-direction: column;}
+
+.stat-row{display: flex; justify-content: space-between;}
+#plus, #minus{border: none; margin: 0; aspect-ratio: 1/1; align-items: center; padding: 1vw;}
+#plus svg, #minus svg{width: 4vw; height: 4vw;}
+
+
+.talent-header{display: flex; align-items: center;}

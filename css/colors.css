@@ -22,17 +22,12 @@ body{background-color: var(--light);}
 .nav-links {
   background-color: var(--dark)
 }
-.nav-item:hover {
-  background: var(--light0-5);
-  
-}
+
 .nav-item.active {
   
   color: var(--dark);
 }
 .section{background-color: var(--light);}
-
-#content {border-color: #2f2a24 ;}
 
 .language-switcher {background-color: var(--dark);}
 
@@ -46,85 +41,4 @@ body{background-color: var(--light);}
 .language-switcher .lang-btn.active {
   background: var(--light);
   color: var(--dark);
-}
-
-
-
-/* Иконки наследуют цвет от родителя */
-
-
-/* Стили для кнопок сохранения */
-.save-button-container {
-  display: flex;
-  justify-content: center;
-  margin: 30px 0;
-  padding: 20px;
-}
-
-.save-btn {
-  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
-  color: white;
-  border: none;
-  padding: 12px 30px;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  transition: all 0.3s ease;
-}
-
-.save-btn:hover:not(:disabled) {
-  transform: scale(1.05);
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-}
-
-.save-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.save-btn.update-btn {
-  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
-}
-
-.save-notification {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 12px 24px;
-  background: #4CAF50;
-  color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  z-index: 10000;
-  animation: slideIn 0.3s ease;
-}
-
-.save-notification.error {
-  background: #f44336;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideOut {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(100%);
-    opacity: 0;
-  }
 }

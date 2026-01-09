@@ -1,65 +1,117 @@
-.cards-container { display: grid; 
+/* Список персонажей*/ 
+
+@media only screen and (orientation: portrait) {
+  .characters-cards-container,
+  .weapons-cards-container { 
+    grid-template-columns: repeat(auto-fill, minmax(24vw, 1fr));
+    gap: 2vw; 
+  }
+  .characters-cards-container .card-character,
+  .weapons-cards-container .card-weapon{
+    border-radius: 4vw;
+    padding: 1vw;
+  }
+}
+@media only screen and (orientation: landscape) {
+  .cards-container,
+  .weapons-cards-container { 
+    grid-template-columns: repeat(auto-fill, minmax(12vw, 1fr));
+    gap: 1vw; 
+  }
+  .cards-container .card-avatar{
+    border-radius: 2vw;
+    padding: 0.5vw;
+  }
+}
+
+.page.characters,
+.page.weapon {
+  gap: 2vw; 
+  width:100%; 
+  margin:0;
+}
+
+.page.characters h1 { line-height: 0; }
+
+.characters-cards-container,
+.weapons-cards-container { 
+  display: grid;
   width: 100%; height:100%;
-  grid-template-columns: repeat(auto-fill, minmax(24vw, 1fr));
   justify-content: start;
   align-content: start; 
-  gap: 2vw; 
 }
-.cards-container .card-avatar {  
+.characters-cards-container .card-character,
+.weapons-cards-container .card-weapon {  
   height: min-content;
   aspect-ratio: 4/6; 
   flex-direction: column;
   position: relative; 
-  border-radius: 2vh; 
   overflow: hidden;
   transition: 1s ease;
   opacity: 1;
-  padding: 1vh;
-  border:1px solid var(--dark);
+  border: 1px solid var(--dark);
   margin: 0;
 }
-.cards-container .card-avatar a {
-  display: flex; 
-  flex-direction: column; 
-  gap: 1vh; 
-  height: 100%;
-}
 
-.cards-container .card-avatar a .avatar { 
-  flex-grow: 1; border: var(--dark) 1px solid;
- width: 100%; 
- border-radius: 1vh; 
- overflow: hidden;
-position: relative;
-transition: all 450ms ease-in-out; background:var(--geo); 
-}
-.cards-container .card-avatar .avatar img { 
+
+.characters-cards-container .card-character a,
+.weapons-cards-container .card-weapon a { 
+  height: 100%;
   width: 100%; 
-  height: 100%;
-  
-  
-  object-fit: cover; 
-}
-.cards-container .card-avatar .name{ 
   display: flex; 
-  border: #000 1px solid;
-  border-radius: 1vh;
-  text-align: center; 
-   padding: 1vh;
-  white-space: nowrap; 
-  text-overflow: ellipsis; 
-  overflow: hidden; background: radial-gradient(#976B44,#DE9350);
+  border-radius: 3vw; 
+  gap: 1vw;
+  overflow: hidden;
+  position: relative; 
+  flex-direction: column;
+  transition: all 450ms ease-in-out; 
 }
-.cards-container .card-avatar .name p { margin: 0; width: 100%;}
 
-.cards-container .show {display: flex; }
+.characters-cards-container .card-character .card-avatar,
+.weapons-cards-container .card-weapon .weapon-avatar { 
+  position: relative; border: var(--dark) 1px solid;
+  width: 100%; border-radius: 3vw;
+  flex: 1; /* Ключевое изменение - занимает всё доступное пространство */
+  min-height: 0; /* Важно для правильной работы flex: 1 */
+  overflow: hidden;
+}
+.characters-cards-container .card-character .card-avatar img ,
+.weapons-cards-container .card-weapon .weapon-avatar img{
+  width: 100%;
+  height: 100%; 
+  object-fit: cover;
+}
+.characters-cards-container .card-character .name,
+.weapons-cards-container .card-weapon .weapon-name{ 
+  display: flex; padding: 1vw;
+  border-radius: 3vw;
+  text-align: center; 
+  white-space: nowrap; 
+  text-overflow: ellipsis; color: var(--light);
+  overflow: hidden; background: var(--dark);
+}
+.characters-cards-container .card-character .name p,
+.weapons-cards-container .card-weapon .weapon-name p { margin: 0; width: 100%; text-decoration: none;}
 
-.Electro::after{
-  content: "";
-  background-image: url(./assets/Element_Electro.webp); 
+.characters-cards-container .rarity-5.card-character .card-avatar,
+.weapons-cards-container .rarity-5.card-weapon .weapon-avatar{
+  background-color: var(--geo);
+}
+.characters-cards-container .rarity-4.card-character .card-avatar,
+.weapons-cards-container .rarity-4.card-weapon .weapon-avatar{
+  background-color: var(--electro);
+}
+.element-Electro::after{
+  content: '';
+  background-image: url('/assets/elements/Element_Electro.svg'); 
   background-size: cover;
-  width: 3vh; height: 3vh;
-  position: absolute; top: 1.5vh; left: 1.5vh;
+  width: 5vw; height: 5vw; 
+  filter: 
+    drop-shadow(var(--dark) -2px 0px 0px)
+    drop-shadow(var(--dark)  2px 0px 0px)
+    drop-shadow(var(--dark) 0px -2px 0px)
+    drop-shadow(var(--dark)  0px 2px 0px);
+  position: absolute; top: 2vw; left: 2vw;
 }
 
 
@@ -125,17 +177,11 @@ transition: all 450ms ease-in-out; background:var(--geo);
   100% { opacity: 1; }
 }
 
-/* Стили для иконок элементов */
-.filter-option[data-type="element"] {
-  position: relative;
-  padding-left: 40px;
-}
-
-.filter-option[data-type="element"]::before {
+.filter-option[data-type="element"]::after {
   content: '';
   position: absolute;
   left: 10px;
-  top: 50%;
+  top: 15px;
   transform: translateY(-50%);
   width: 20px;
   height: 20px;
@@ -151,8 +197,8 @@ transition: all 450ms ease-in-out; background:var(--geo);
   background-image: url('assets/elements/hydro.png');
 }
 
-.filter-option[data-value="Electro"]::before {
-  background-image: url('assets/elements/electro.svg');
+.filter-option[data-value="Electro"]::after {
+  background-image: url('/assets/elements/Element_Electro.svg');
 }
 
 .filter-option[data-value="Cryo"]::before {

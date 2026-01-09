@@ -1,9 +1,7 @@
 /* characters/mat page styles */
 .character-detail-page {
-  padding: 2vw 0;
-  
+  width: 100%; margin: 0;
   min-height: 100vh;
-  
 }
 .character-detail-page #char-icon { width: 100%;
   border: var(--dark) 1px solid;
@@ -241,16 +239,9 @@ section.all .material-amount {
   box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
-.character-detail-page #save-materials-btn {
-  background: linear-gradient(135deg, #4CAF50, #45a049);
-  color: white;
-}
 
-.character-detail-page #save-materials-btn:hover {
-  background: linear-gradient(135deg, #45a049, #3d8b40);
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
-}
+
+
 
 /* Animation for material items */
 @keyframes fadeInUp {
@@ -323,90 +314,4 @@ section.all .material-amount {
   background: rgba(255, 255, 255, 0.5);
 }
 
-
-
-/* Стили для кнопок сохранения/обновления */
-.save-btn {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 24px;
-  background-color: var(--dark);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
-}
-
-.save-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
-}
-
-.save-btn:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.save-btn:disabled {
-  background: linear-gradient(135deg, #cccccc 0%, #aaaaaa 100%);
-  cursor: not-allowed;
-  opacity: 0.5;
-  box-shadow: none;
-}
-
-.save-btn.update-btn {
-  background: linear-gradient(135deg, #2196F3 0%, #1976D2 100%);
-  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
-}
-
-.save-btn.update-btn:hover:not(:disabled) {
-  box-shadow: 0 6px 16px rgba(33, 150, 243, 0.4);
-}
-
-/* Стили для уведомлений */
-.save-notification {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  padding: 12px 24px;
-  color: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-  z-index: 10000;
-  animation: slideIn 0.3s ease;
-}
-
-.save-notification.success {
-  background-color: var(--dendro);
-}
-
-.save-notification.error {
-  background: #f44336;
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateX(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideOut {
-  from {
-    transform: translateX(0);
-    opacity: 1;
-  }
-  to {
-    transform: translateX(100%);
-    opacity: 0;
-  }
-}
 

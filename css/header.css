@@ -3,6 +3,7 @@
   --light0-5:rgba(171, 187, 192,0.5);
   --dark: #2f2a24;
   --dark0-5:rgba(47, 42, 36,0.5);
+  --dark0-8:rgba(47, 42, 36,0.8);
   --pyro: #ff957a;
   --hydro: #7999c3; 
   --anemo: #79c3b2; 
@@ -10,46 +11,23 @@
   --dendro: #87c379; 
   --cryo: #79bdc3; 
   --geo: #c3b279;
-
-  --icon-color: var(--electro);
+  --star5: #f4bb60;
+  --star4: #9b60f4;
+  --star51: #daa520;
 }
 
 @media only screen and (orientation: portrait) {
   header {
-    bottom: 0; 
+    bottom: 0; width: 100%; 
   }
   .main-nav { 
     flex-direction: column; 
     padding: 2vw; 
-    gap: 1vw;
+    gap: 1vw; width: 100%; 
   }
-}
-@media only screen and (orientation: landscape) {
-  header {
-    top: 0; 
-  }
-  .main-nav { 
-    flex-direction: column-reverse; 
-    padding: 1vw; 
-    gap: 0.5vw;
-  }
-}
-header {
-  position: sticky; 
-  width:100%;
-  display: flex; 
-  margin: 0;transform: translateZ(0); 
-}
-/* Навигация */
-.main-nav { 
-  position: relative;
-  display: flex;
-  width: 100%;
-}
-
-.nav-links {
-  position: relative;
-  display: flex;
+  .nav-links {
+  
+  display: flex; flex-direction: row;
   justify-content: space-between;
   align-items: center;
   border-radius: 4vw;
@@ -58,7 +36,6 @@ header {
   overflow: hidden;
   box-sizing: border-box;
 }
-
 .nav-item {
   position: relative;
   display: flex;
@@ -72,6 +49,102 @@ header {
   transition: all 0.3s ease;
   flex: 1 1 auto;
   height: auto;
+  box-sizing: border-box;
+  z-index: 1; 
+  color: var(--light);
+}
+  /* Стили для переключателя языка */
+.language-switcher {
+  flex-direction: row;
+  gap: 1vw;
+  
+  border-radius: 4vw;
+  padding: 1vw;
+}
+
+.language-switcher .lang-btn {
+  padding: 1vw 2vw; 
+  border-radius: 3vw;
+}
+
+}
+@media only screen and (orientation: landscape) {
+  /* Навигация */
+  header {
+    top: 0; 
+    height: 100vh; 
+  }
+  .main-nav { 
+    flex-direction: row-reverse;  
+    gap: 0.5vw; padding:1vw 0vw 1vw 1vw;
+  }
+  .nav-links {
+    display: flex;
+    flex-direction: column;
+    border-radius: 2vw;
+    gap: 0.5vw;
+    padding: 0.5vw;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+  .nav-item {
+    justify-content: center;
+    align-items: center;
+    gap: 2vw;
+    width: 100%;
+    padding: 1vw 2vw;
+    text-decoration: none;
+    border-radius: 1.5vw;
+    transition: all 0.3s ease;
+    flex: 1 1 auto;
+    height: min-content;
+    box-sizing: border-box;
+    z-index: 1; 
+    color: var(--light);
+  }
+  /* Стили для переключателя языка */
+  .language-switcher {
+    flex-direction: column;top: 0;
+    gap: 0.5vw;
+    border-radius: 1.5vw;
+    padding: 0.5vw;
+  }
+
+  .language-switcher .lang-btn {
+    padding: 0.5vw;
+    border-radius: 1.5vw;
+  }
+}
+header { 
+  position: sticky; 
+  display: flex; 
+  margin: 0;
+  transform: translateZ(0); 
+}
+/* Навигация */
+.main-nav {
+  position: relative;
+  display: flex;
+}
+
+.nav-links {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.nav-item {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  flex: 1 1 auto;
   box-sizing: border-box;
   z-index: 1; 
   color: var(--light);
@@ -105,8 +178,8 @@ header {
   display: flex; 
   justify-content: space-between;
   align-items: center;
-  gap: 10px;
-  flex-wrap: wrap; border:1px solid black;
+  
+  flex-wrap: wrap; 
 }
 
 .nav-left-area {
@@ -117,31 +190,26 @@ header {
 
 /* Стили для переключателя языка */
 .language-switcher {
-  display: flex; width: min-content; left: 0;
-  gap: 5px;
+  display: flex;  
+  left: 0;
   background-color: var(--dark);
-  border-radius: 4vw;
-  padding: 1vw;
 }
 
 .language-switcher .lang-btn {
-  padding: 1vw 2vw;
-  background: transparent;
-  color: white;
+  background-color: var(--dark);
+  color: var(--light);
   border: none;
-  border-radius: 4vw;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
+  font-weight: bold;
   transition: all 0.3s ease;
-  
 }
 
-.language-switcher .lang-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
+.lang-btn:hover {
+  background-color: var(--light0-5);
 }
-
 .language-switcher .lang-btn.active {
+  background-color: var(--light);
+  color: var(--dark);
   font-weight: bold;
 }
 
@@ -207,37 +275,9 @@ header {
   flex-shrink: 0;
 }
 
-/* Переключатель языка */
-.language-switcher {
-  display: flex;
-  gap: 10px;
-}
 
-.lang-btn {
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-  padding: 6px 12px;
-  border-radius: 15px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  min-width: 40px;
-  text-align: center;
-}
 
-.lang-btn:hover {
-  background: var(--electro);
-  color: white;
-  border-color: var(--electro);
-}
 
-.lang-btn.active {
-  background: var(--anemo);
-  color: white;
-  border-color: var(--anemo);
-}
 
 @keyframes pulse {
   0% { opacity: 1; }
@@ -343,11 +383,7 @@ header {
     font-size: 12px;
   }
   
-  .lang-btn {
-    padding: 5px 10px;
-    font-size: 12px;
-    min-width: 35px;
-  }
+  
 }
 
 @media (max-width: 480px) {
@@ -371,15 +407,41 @@ header {
     margin: 0;
   }
   
-  .lang-btn {
-    padding: 4px 8px;
-    font-size: 11px;
-    min-width: 30px;
-  }
+  
   
   .filter-clear {
     width: 16px;
     height: 16px;
     font-size: 10px;
   }
+}
+
+
+/* Добавьте в ваш CSS файл */
+.modal-content-updating {
+  animation: modalUpdate 0.3s ease;
+}
+
+@keyframes modalUpdate {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+/* Добавьте в ваш CSS файл */
+.language-switcher {
+  display: flex;
+  gap: 5px;
+}
+
+
+
+/* Анимация для плавного перехода */
+.lang-btn {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0.7; }
+  to { opacity: 1; }
 }

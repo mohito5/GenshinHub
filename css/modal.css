@@ -1,14 +1,18 @@
 /* modal.css - стили для всех модальных окон */
 
 /* Общие стили модальных окон */
+.character-filter-modal,
+.weapon-filter-modal,
+.weapon-modal,
 .character-modal,
-.materials-setup-modal {
+.materials-setup-modal,
+.weapon-materials-setup-modal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: var(--dark0-5);
+  background: var(--light0-5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -20,17 +24,18 @@
   padding: 3vw;
   border-radius: 6vw;
   display: flex; flex-direction: column;
-  max-width: 90%;
+  max-width: max-content; width: 90%;
   max-height: 80%;
   overflow-y: auto;
-  position: relative; gap: 2vw;
+  position: relative; 
+  gap: 2vw;
+  outline: var(--dark) 3px dashed; outline-offset: 5px;
 }
 
 /* Кнопка закрытия */
-.close-btn {
-  
-  top: 15px;
-  right: 15px;
+.character-modal .close-btn {
+  top:6vw; position:absolute;
+  right: 6vw;
   border: none;
   font-size: 28px;
   cursor: pointer;
@@ -55,17 +60,17 @@
   text-align: left; 
 }
 
-.character-modal .avatar-container {
+.character-modal .character-avatar-container {
   background-color: var(--light); 
   border-radius: 3vw; padding: 1vw;
 }
 
-.character-modal .avatar-container img {
+.character-modal .character-avatar-container img {
   width: 100%; aspect-ratio: 16/9; background-position: top;
   height: 100%;
   border-radius: 2vw;
   object-fit: cover;
-  background-color: var(--dark);
+  background-color: var(--dark); outline: var(--light) 2px dashed; outline-offset: -1vw;
 }
 
 .character-modal h2 {
@@ -74,20 +79,19 @@
 }
 
 /* Кнопки выбора раздела */
-.section-btn {
-  padding: 15px 20px;
-  border: 2px solid #dee2e6;
-  border-radius: 10px;
+.section-btn { 
+  padding: 15px 20px; border: none;
+  border-radius: 3vw;
   cursor: pointer;
   font-weight: 500;
-  color: #495057;
+  color: var(--dark);
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   transition: all 0.3s ease;
   width: 100%;
-  margin-bottom: 10px;
+  margin-bottom: 10px; background-color: var(--light);
 }
 
 .section-btn:hover {
@@ -102,126 +106,99 @@
 /* Модальное окно настроек материалов */
 .materials-setup-modal .modal-content {
   max-width: 800px;
-  padding: 20px;
+  padding: 3vw;
 }
 
-.materials-setup-modal .header {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 25px;
-  padding-bottom: 15px;
-  border-bottom: 2px solid #eee;
+.materials-setup-modal .modal-header {
+  display: flex; height: min-content;
+  border-radius: 3vw; padding: 1vw; align-items: center; gap: 2vw;
+  border: var(--light) 1px solid;
 }
 
-.materials-setup-modal .header img {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
+.materials-setup-modal .modal-header .close-btn2 { border: none;
+  background-color: var(--light); padding: 1vw; 
+  position: relative; 
+}
+
+.materials-setup-modal .modal-header .close-btn2 svg {width: 3vw; height: 3vw;}
+
+.materials-setup-modal .modal-header img {
+  width: 12vw; 
+  height: 12vw; background-color:var(--light);
+  border-radius: 3vw;
   object-fit: cover;
 }
 
-.materials-setup-modal .header h2 {
-  margin: 0;
-  color: #333;
+.materials-setup-modal .modal-header h3 {
+ display: flex;  border: #28a745 1px solid; 
+  color: var(--light);
 }
 
-/* Секции настроек */
-.characters.sec {
-  text-align: center;
-  margin: 20px 0;
-}
+.level-text{
+  display:flex; 
+  justify-content:space-between; 
+  line-height:1; 
+  align-items:center;color:var(--light);} 
+  /* Слайдер уровня */
+.current-level-display {color:var(--dendro);}
 
-#char-icon img {
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  object-fit: cover;
-  margin-bottom: 15px;
-}
-
-#char-name {
-  margin: 0;
-  color: #333;
-}
-
-/* Слайдер уровня */
-.current-level-display {
-  font-size: 36px;
-  color: #4CAF50;
-  margin: 10px 0;
-}
-
+div.level{border:var(--light) 1px solid;}
 .range {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 15px;
+  width:100%;justify-content: space-between;
+  gap: 2vw; border:1px solid #000;
   flex-wrap: wrap;
-  margin: 25px 0;
 }
 
 #minus-range,
-#plus-range {
-  background: #6c757d;
-  color: white;
+#plus-range { background-color:var(--light);
+  color: var(--dark);
   border: none;
-  padding: 10px 15px;
-  border-radius: 5px;
+  padding: 1vw;
+  border-radius: 2vw;
   cursor: pointer;
-  font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+#minus-range svg,
+#plus-range svg {width:4vw;height:4vw;}
 
-#plus-range {
-  background: #28a745;
-}
 
-#range {
-  width: 200px;
+#range { display:flex;
+  flex:1;position: relative; height: 4vw;
 }
 
 #range-value {
-  font-size: 18px;
-  font-weight: bold;
-  min-width: 30px;
-  text-align: center;
+  text-align: center; display:none;
 }
 
 /* Таланты */
 .basic_stat {
-  margin-top: 30px;
+  gap:2vw; display:flex; flex-direction:column;
 }
 
 .basic_stat h2 {
-  text-align: center;
-  margin-bottom: 20px;
-  color: #333;
+  color: var(--light);
 }
 
-.section {
-  margin: 15px 0;
-  padding: 20px;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
-  background: #f9f9f9;
-  text-align: center;
+.section { display:flex; gap:2vw; background:none;
+  padding: 2vw; justify-content: space-between;
+  border: 1px solid var(--light);
+  border-radius: 3vw;
 }
 
 .section img {
-  width: 40px;
-  height: 40px;
-  margin-bottom: 10px;
+  aspect-ratio:1/1;
 }
 
-.section p {
-  margin: 5px 0;
+.section p { width:100%;border: 1px solid var(--dark);
+  margin: 0;
 }
 
 .section p:first-of-type {
-  font-weight: bold;
+  font-weight: bold;width:100%;
   color: #333;
 }
 
@@ -230,54 +207,32 @@
 }
 
 .level-group {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 15px;
-  margin-top: 15px;
+  display: flex; flex-direction:column;
+  justify-content: space-between;
+  align-items: center; padding:1vw; border-radius:2vw;
+  gap: 1vw; background-color:var(--light);
 }
 
 .arrow {
   background: #6c757d;
   color: white;
   border: none;
-  padding: 8px 12px;
-  border-radius: 5px;
+  padding: 2vw;
+  border-radius: 1vw;
   cursor: pointer;
   font-size: 16px;
-  min-width: 40px;
 }
 
 .arrow.right {
   background: #28a745;
 }
 
-.level-value {
+.level-value { color:var(--dark);
   font-size: 20px;
   font-weight: bold;
-  min-width: 30px;
   text-align: center;
 }
 
-/* Описание персонажа */
-#char-description {
-  margin: 30px 0;
-  padding: 20px;
-  background: #f8f9fa;
-  border-radius: 10px;
-  border-left: 4px solid #4CAF50;
-}
-
-#char-description h3 {
-  margin-top: 0;
-  color: #333;
-}
-
-#char-description p {
-  margin: 0;
-  line-height: 1.6;
-  color: #555;
-}
 
 /* Кнопки действий */
 .button-container {
@@ -317,49 +272,160 @@
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
-/* Адаптивность модальных окон */
-@media (max-width: 768px) {
-  
-  
-  .materials-setup-modal .modal-content {
-    max-width: 95%;
-  }
-  
-  #range {
-    width: 150px;
-  }
-  
-  .section {
-    padding: 15px;
-  }
+
+/* модальное окно подтверждения перезаписи */
+.overwrite-confirm-modal{
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--light0-5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+.overwrite-content-modal{
+  background-color: var(--dark);
+  padding: 3vw;
+  border-radius: 4vw;
+  max-width: max-content;
+  width: 90%;
+  text-align: center;
+  outline: var(--dark) 3px dashed; outline-offset: 5px;
 }
 
-@media (max-width: 480px) {
-  
-  
-  .character-modal .avatar-container img {
-    width: 80px;
-    height: 80px;
+.overwrite-content-modal h3 {
+  color: var(--light);
+  margin-bottom: 10px;
+  font-size: 20px;
+}
+
+.overwrite-content-modal p {
+  color: var(--light);
+}
+
+.overwrite-content-modal .info-box {
+  padding: 2vw;
+  border-radius: 2vw;
+  margin: 10px 0;
+  border: 1px solid var(--light);
+  text-align: left;
+}
+
+.overwrite-content-modal .warning-box {
+  color: var(--light);
+  font-size: 14px;
+  padding: 10px;
+  background: var(--light0-5);
+  border-radius: 5px;
+}
+
+.overwrite-content-modal .button-group {
+  display: flex;
+  gap: 2vw;
+  justify-content: center;
+}
+
+.overwrite-content-modal .action-button {
+  padding: 2vw 4vw;
+  color: var(--light);
+  border: none;
+  border-radius: 1vw;
+  cursor: pointer;
+  font-weight: 600;
+  flex: 1;
+  transition: all 0.3s ease;
+}
+
+.overwrite-content-modal .action-button.cancel {
+  background: none; border: var(--light) 1px solid;
+}
+
+.overwrite-content-modal .action-button.cancel:hover {
+  border: var(--light) 1px dashed;
+}
+
+.overwrite-content-modal .action-button.confirm {
+  background: var(--geo); color: var(--dark);
+}
+
+.overwrite-content-modal .action-button.confirm:hover {
+  outline: var(--dark) 3px dashed; outline-offset: -5px;
+}
+
+
+/* Модальное окно фильтра */
+
+.filter-modal{
+  background:var(--dark0-8);
+}
+.filter-modal-content{ 
+  padding: 3vw;
+  display:flex; 
+  flex-direction:column; 
+  gap:2vw;
+  outline: 3px dashed var(--light); 
+  outline-offset: 5px;
+}
+.filter-modal-content h2,
+.filter-modal-content h3{
+  color:var(--light);
+}
+.filter-modal-header{ 
+  display: flex;
+  margin: 0;
+  line-height: 0; 
+  justify-content: space-between;
+}
+.filter-options{
+  display: flex; 
+  flex-wrap: wrap;
+  gap: 2vw;}
+.filter-option{
+  border:1px solid var(--light);
+  background: none; 
+  color: var(--light);
   }
-  
-  .section-btn {
-    padding: 12px 15px;
-    font-size: 14px;
+.filter-close-btn svg{height: 4vw;width: 4vw; color:var(--light);}
+.filter-actions{ display: flex; gap: 2vw;}
+.filter-action-btn{
+   width: 100%;
+   padding: 1vw 2vw; 
+   border-radius: 1vw; 
   }
-  
-  .current-level-display {
-    font-size: 28px;
-  }
-  
-  #range {
-    width: 120px;
-  }
-  
-  .button-container {
-    flex-direction: column;
-  }
-  
-  .button-container button {
-    width: 100%;
-  }
+
+  .filter-action-btn.reset{
+    background: none;
+    color: var(--light);
+    border: 1px solid var(--light);}
+  .filter-action-btn.apply{
+    background-color: var(--dendro); 
+    color: var(--dark);
+    border: none;}
+
+
+/* окно выбора */
+.load-save-option-modal{
+  position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: var(--light0-5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;}
+.load-save-content{
+  background-color: var(--dark);
+      padding: 3vw;
+      border-radius: 6vw;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      outline: var(--dark) 3px dashed; outline-offset: 5px;
+      position: relative;
+
 }

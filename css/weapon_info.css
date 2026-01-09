@@ -1,0 +1,2 @@
+.page.weapon-info{margin: 0; width: 100%; }
+#weapon-info-content{display: flex; flex-direction: column; gap: 2vw;}

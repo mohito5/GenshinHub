@@ -1,0 +1,115 @@
+/* 
+    Стили для кнопок 
+*/
+
+/* save */
+
+/* Контейнер для кнопок */
+.save-button-container {
+  display: flex;
+  justify-content: center; border: 1px solid black;
+}
+/* Общие стили для всех кнопок сохранения */
+.save-btn {
+  border: var(--dark) 1px solid; 
+  padding: 2vw 4vw;
+  border-radius: 2vw;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+  cursor: pointer; opacity: 1;
+}
+.save-btn:disabled {
+  cursor: not-allowed; opacity: 1;
+  background-color: none; border: var(--white) 1px solid; color: var(--white);
+}
+
+
+/* Кнопка "Сохранить" (синяя) */
+.save-btn.primary {
+  background-color: var(--dark);
+  color: var(--hydro); 
+}
+
+.save-btn.primary:not(:disabled):hover {
+  background: var(--hydro);
+  color: var(--dark);
+}
+
+/* Кнопка "Обновить" (зеленая) */
+.save-btn.update {
+  background-color: var(--dark);
+  color: var(--dendro);
+}
+
+.save-btn.update:disabled {
+  background-color: var(--light); color: var(--white); opacity: 1;
+}
+
+.save-btn.update:not(:disabled):hover {
+  background-color: var(--dendro); color: var(--dark); opacity: 1;
+}
+
+/* Кнопка "Перезаписать" (оранжевая) */
+.save-btn.overwrite {
+  background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%);
+  color: white;
+}
+
+.save-btn.overwrite:not(:disabled):hover {
+  background: linear-gradient(135deg, #F57C00 0%, #e56c00 100%);
+}
+
+/* Иконки в кнопках */
+.save-btn svg {
+  width: 4vw;
+  height: 4vw;
+  display: flex;
+}
+
+/* Уведомления */
+.save-notification {
+  position: fixed;
+  top: 3vw;
+  right: 3vw;
+  padding: 3vw 5vw;
+  border-radius: 4vw;
+  
+  z-index: 10000;
+  animation: slideIn 0.3s ease;
+}
+
+.save-notification.success {
+  background: var(--dendro);
+  color: var(--dark);
+}
+
+.save-notification.error {
+  background: #f44336;
+  color: white;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
