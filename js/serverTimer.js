@@ -64,36 +64,40 @@ export class ServerTimer {
   }
 
   /**
-   * Правильный расчет времени сброса в UTC
-   */
-  calculateResetUTC(server) {
-    const now = new Date();
-    const nowUTC = now.getTime();
-    
-      // ПРОСТОЙ И ПРАВИЛЬНЫЙ РАСЧЕТ:
-      // Для GMT+8 (Азия): 04:00 GMT+8 = 20:00 UTC предыдущего дня (4 - 8 = -4 → 20:00)
-      // Для GMT+1 (Европа): 04:00 GMT+1 = 03:00 UTC (4 - 1 = 3)
-      // Для GMT-5 (Америка): 04:00 GMT-5 = 09:00 UTC (4 - (-5) = 9)
+ * Правильный расчет времени сброса в UTC
+ */
+calculateResetUTC(server) {
+  const now = new Date();
+  const nowUTC = now.getTime();
   
-    // Вычисляем час сброса в UTC
-    const resetHourUTC = 4 - server.gmtOffset; // gmtOffset: +8, +1, -5
+  // Вычисляем час сброса в UTC
+  const resetHourUTC = 4 - server.gmtOffset; // gmtOffset: +8, +1, -5
   
-    // Получаем текущую дату в UTC
-    const todayUTC = new Date(Date.UTC(
-      now.getUTCFullYear(),
-      now.getUTCMonth(),
-      now.getUTCDate(),
-      resetHourUTC,
-      0, 0, 0
-    ));
+  // Получаем текущую дату в UTC
+  const resetUTC = new Date(Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate(),
+    resetHourUTC,
+    0, 0, 0
+  ));
   
-    // Если время уже прошло, добавляем 1 день
-    if (todayUTC.getTime() <= nowUTC) {
-      todayUTC.setUTCDate(todayUTC.getUTCDate() + 1);
-    }
-  
-    return todayUTC;
+  // Для Азиатского сервера (GMT+8) resetHourUTC будет -4 → 20:00 предыдущего дня UTC
+  // Если resetHourUTC отрицательный, значит время сброса было вчера
+  if (resetHourUTC < 0) {
+    resetUTC.setUTCDate(resetUTC.getUTCDate() - 1);
   }
+  
+  // Теперь прибавляем 24 часа, чтобы получить следующее время сброса
+  resetUTC.setUTCHours(resetUTC.getUTCHours() + 24);
+  
+  // Если следующее время сброса уже прошло, добавляем еще 24 часа
+  if (resetUTC.getTime() <= nowUTC) {
+    resetUTC.setUTCHours(resetUTC.getUTCHours() + 24);
+  }
+  
+  return resetUTC;
+}
 
   /**
    * Получает смещение часового пояса в миллисекундах
@@ -176,29 +180,34 @@ getTimeLeft(resetTime) {
     };
   }
 
-  /**
+  /*
    * Простой и понятный расчет для отладки
    */
   debugTimeCalculation(server) {
-    console.log(`=== Расчет для ${server.name} (GMT${server.offset}) ===`);
-    
-    // Ваш часовой пояс
-    const userOffset = -new Date().getTimezoneOffset() / 60;
-    console.log('Ваш GMT:', `GMT${userOffset >= 0 ? '+' : ''}${userOffset}`);
-    
-    // Разница между вашим и серверным часовым поясом
-    const serverOffset = server.gmtOffset;
-    const diffHours = userOffset - serverOffset;
-    console.log('Разница:', diffHours, 'часов');
-    
-    // Время сброса в вашем поясе
-    const localResetHour = (4 + diffHours + 24) % 24;
-    console.log('Сброс у вас:', localResetHour.toString().padStart(2, '0') + ':00');
-    
-    // Москва GMT+3, Европа GMT+1: 4 + (3 - 1) = 6:00 ✓
-    // Москва GMT+3, Азия GMT+8: 4 + (3 - 8) = -1 → 23:00 ✓
-    // Москва GMT+3, Америка GMT-5: 4 + (3 - (-5)) = 12:00 ✓
+  console.log(`=== Расчет для ${server.name} (GMT${server.offset}) ===`);
+  
+  // Ваш часовой пояс
+  const userOffset = -new Date().getTimezoneOffset() / 60;
+  console.log('Ваш GMT:', `GMT${userOffset >= 0 ? '+' : ''}${userOffset}`);
+  
+  // Разница между вашим и серверным часовым поясом
+  const serverOffset = server.gmtOffset;
+  const diffHours = userOffset - serverOffset;
+  console.log('Разница:', diffHours, 'часов');
+  
+  // Время сброса в вашем поясе
+  let localResetHour = (4 + diffHours) % 24;
+  if (localResetHour < 0) {
+    localResetHour += 24;
   }
+  
+  console.log('Сброс у вас сегодня:', localResetHour.toString().padStart(2, '0') + ':00');
+  
+  // Пример для Москвы (GMT+3):
+  // - Азия (GMT+8): 4 + (3 - 8) = -1 → 23:00 предыдущего дня ✓
+  // - Европа (GMT+1): 4 + (3 - 1) = 6:00 сегодня ✓
+  // - Америка (GMT-5): 4 + (3 - (-5)) = 12:00 сегодня ✓
+}
 
   /**
  * Генерирует HTML для сервера

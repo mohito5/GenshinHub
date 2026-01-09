@@ -263,146 +263,282 @@ export const materialCategories = {
 
 export const materialsInfo = {
   mora: {
-    name: "Мора",
+    name: {
+      ru: "Мора",
+      en: "Mora"
+    },
     icon: "assets/mora.png"
   },
   
   sliver: {
-    name: "Серебряный кусок",
+    name: {
+      ru: "Серебряный кусок",
+      en: "Silver Sliver"
+    },
     icon: "assets/unknown.png",
     Electro: { 
-      name: "Серебряный кусок Электро",
+      name: {
+        ru: "Серебряный кусок Электро",
+        en: "Electro Silver Sliver"
+      },
       icon: "assets/tmp256.png"
     }
   },
   
   fragment: {
-    name: "Фрагмент",
+    name: {
+      ru: "Фрагмент",
+      en: "Fragment"
+    },
     icon: "assets/unknown.png",
     Electro: { 
-      name: "Фрагмент Электро",
+      name: {
+        ru: "Фрагмент Электро",
+        en: "Electro Fragment"
+      },
       icon: "assets/tmp256 (1).png"
     }
   },
   
   chunk: {
-    name: "Кусок",
+    name: {
+      ru: "Кусок",
+      en: "Chunk"
+    },
     icon: "assets/unknown.png",
     Electro: { 
-      name: "Кусок Электро",
+      name: {
+        ru: "Кусок Электро",
+        en: "Electro Chunk"
+      },
       icon: "assets/tmp256 (2).png"
     }
   },
   
   gemstone: {
-    name: "Самоцвет",
+    name: {
+      ru: "Самоцвет",
+      en: "Gemstone"
+    },
     icon: "assets/unknown.png",
     Electro: { 
-      name: "Самоцвет Электро",
+      name: {
+        ru: "Самоцвет Электро",
+        en: "Electro Gemstone"
+      },
       icon: "assets/tmp256 (3).png"
     }
   },
   
   EnemyDropsSt1: {
-    name: "Дропы уровня 1",
+    name: {
+      ru: "Дропы уровня 1",
+      en: "Level 1 Drops"
+    },
     icon: "assets/unknown.png",
     Shaft: {
-      name: "Сломанный приводной вал",
+      name: {
+        ru: "Сломанный приводной вал",
+        en: "Broken Drive Shaft"
+      },
       icon: "assets/drops/brokenShaft.webp"
     }
   },
   
   EnemyDropsSt2: {
-    name: "Дропы уровня 2",
+    name: {
+      ru: "Дропы уровня 2",
+      en: "Level 2 Drops"
+    },
     icon: "assets/unknown.png",
     Shaft: {
-      name: "Усиленный приводной вал",
+      name: {
+        ru: "Усиленный приводной вал",
+        en: "Reinforced Drive Shaft"
+      },
       icon: "assets/drops/ReinforcedShaft.webp"
     }
   },
   
   EnemyDropsSt3: {
-    name: "Дропы уровня 3",
+    name: {
+      ru: "Дропы уровня 3",
+      en: "Level 3 Drops"
+    },
     icon: "assets/unknown.png",
     Shaft: {
-      name: "Точный приводной вал",
+      name: {
+        ru: "Точный приводной вал",
+        en: "Precision Drive Shaft"
+      },
       icon: "assets/drops/PrecisionShaft.webp"
     }
   },
   
   teachings: {
-    name: "Учения",
+    name: {
+      ru: "Учения",
+      en: "Teachings"
+    },
     icon: "assets/unknown.png",
     vagrancy: {
-      name: "Учения странствий",
+      name: {
+        ru: "Учения странствий",
+        en: "Teachings of Vagrancy"
+      },
       icon: "assets/talent/teaching_of_vagrancy.webp"
     }
   },
   
   guide: {
-    name: "Руководство",
+    name: {
+      ru: "Руководство",
+      en: "Guide"
+    },
     icon: "assets/unknown.png",
     vagrancy: {
-      name: "Руководство по странствиям",
+      name: {
+        ru: "Руководство по странствиям",
+        en: "Guide to Vagrancy"
+      },
       icon: "assets/talent/teaching_of_vagrancy.webp"
     }
   },
   
   philosophies: {
-    name: "Философия",
+    name: {
+      ru: "Философия",
+      en: "Philosophies"
+    },
     icon: "assets/unknown.png",
     vagrancy: {
-      name: "Философия странствий",
+      name: {
+        ru: "Философия странствий",
+        en: "Philosophies of Vagrancy"
+      },
       icon: "assets/talent/teaching_of_vagrancy.webp"
     }
   },
   
   weeklyBossDrops: {
-    name: "Дропы еженедельного босса",
+    name: {
+      ru: "Дропы еженедельного босса",
+      en: "Weekly Boss Drops"
+    },
     icon: "assets/unknown.png",
     AscendedSampleQueen: {
-      name: "Вознесённый образец: Королева",
+      name: {
+        ru: "Вознесённый образец: Королева",
+        en: "Ascended Sample: Queen"
+      },
       icon: "assets/unknown.png"
     }
   },
   
   crown: {
-    name: "Корона прозрения",
+    name: {
+      ru: "Корона прозрения",
+      en: "Crown of Insight"
+    },
     icon: "assets/unknown.png"
   },
   
   bossMaterial: {
-    name: "Материал босса",
+    name: {
+      ru: "Материал босса",
+      en: "Boss Material"
+    },
     icon: "assets/unknown.png",
     nodkray1: {
-      name: "Штамповочная форма Кууваяки",
+      name: {
+        ru: "Штамповочная форма Кууваяки",
+        en: "Kuuvayaki Stamp Mold"
+      },
       icon: "assets/SHtampovochnaya-forma-kuuvyaki.webp"
     },
     drugkrumkake: {
-      name: "Другкрумкаке",
+      name: {
+        ru: "Другкрумкаке",
+        en: "Drugkrumkake"
+      },
       icon: "assets/drugkrumkake.png"
     },
     kuuvyaka: {
-      name: "Кууваяка",
+      name: {
+        ru: "Кууваяка",
+        en: "Kuuvayaka"
+      },
       icon: "assets/SHtampovochnaya-forma-kuuvyaki.webp"
     }
   },
   
   localSpecialty: {
-    name: "Местный материал",
+    name: {
+      ru: "Местный материал",
+      en: "Local Specialty"
+    },
     icon: "assets/unknown.png",
     frostlampFlower: {
-      name: "Морозно-лампаданый цветок",
+      name: {
+        ru: "Морозно-лампаданый цветок",
+        en: "Frostlamp Flower"
+      },
       icon: "assets/localSpecial/frostlampFlower.webp"
     },
     local2: {
-      name: "Локальный материал 2",
+      name: {
+        ru: "Локальный материал 2",
+        en: "Local Material 2"
+      },
       icon: "icons/local2.png"
     }
   },
   
   experience: {
-    name: "Опыт",
+    name: {
+      ru: "Опыт",
+      en: "Experience"
+    },
     icon: "assets/unknown.png"
   }
 };
+
+// Вспомогательная функция для получения имени материала на нужном языке
+export function getMaterialName(materialKey, lang = 'ru') {
+  const parts = materialKey.split('.');
+  
+  if (parts.length === 1) {
+    const material = materialsInfo[materialKey];
+    if (material && material.name) {
+      return material.name[lang] || material.name.ru || materialKey;
+    }
+  } else if (parts.length === 2) {
+    const [category, subKey] = parts;
+    const material = materialsInfo[category]?.[subKey];
+    if (material && material.name) {
+      return material.name[lang] || material.name.ru || materialKey;
+    }
+  }
+  
+  return materialKey;
+}
+
+// Вспомогательная функция для получения иконки материала
+export function getMaterialIcon(materialKey) {
+  const parts = materialKey.split('.');
+  
+  if (parts.length === 1) {
+    const material = materialsInfo[materialKey];
+    if (material && material.icon) {
+      return material.icon;
+    }
+  } else if (parts.length === 2) {
+    const [category, subKey] = parts;
+    const material = materialsInfo[category]?.[subKey];
+    if (material && material.icon) {
+      return material.icon;
+    }
+  }
+  
+  return 'assets/unknown.png';
+}
