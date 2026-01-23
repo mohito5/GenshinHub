@@ -1,6 +1,76 @@
 // weaponData.js - данные об оружии
 export const weaponsData = {
   // Одружащие (пример)
+  'flins-polearm': {
+    key: 'aquila-favonia',
+    en_name: 'Aquila Favonia',
+    ru_name: 'Небесное крыло',
+    weaponType: 'polearm',
+    rarity: 5,
+    mainStatType: 'physical',
+    avatar: '/assets/i (10).webp',
+    icon: '/assets/i (10).webp',
+    description: {
+      ru: 'Меч Фавония, древнего рыцарского ордена Мондштадта. Он может призывать ветры защиты.',
+      en: 'The sword of the Knights of Favonius. It can summon the winds of protection.'
+    },
+    ascensionMaterials: {
+      sliver: 'weapon.sliver',
+      fragment: 'weapon.fragment',
+      chunk: 'weapon.chunk',
+      gemstone: 'weapon.gemstone',
+      common: 'weapon.common',
+      elite: 'weapon.elite',
+      boss: 'weapon.boss',
+      mora: 'weapon.mora'
+    },
+    refinementMaterials: {
+      duplicate: 'weapon.duplicate',
+      special: 'weapon.special'
+    },
+    stats: {
+      baseAttack: {
+        1: 48,
+        20: 133,
+        40: 261,
+        50: 341,
+        60: 423,
+        70: 506,
+        80: 590,
+        90: 674
+      },
+      secondaryStat: {
+        type: 'physical',
+        values: {
+          1: 9.0,
+          20: 25.0,
+          40: 49.0,
+          50: 64.0,
+          60: 79.0,
+          70: 94.0,
+          80: 110.0,
+          90: 125.0
+        }
+      }
+    },
+    passiveAbility: {
+      name: {
+        ru: 'Возвращение на крыльях Фавония',
+        en: 'Falcon\'s Return'
+      },
+      description: {
+        ru: 'Увеличивает силу атаки на 20%. При получении урона: душа Фавония пробуждается, призывая знамя сопротивления, восстанавливает HP, равное 100% от силы атаки, и наносит урон, равный 200% от силы атаки, окружающим врагам. Может возникнуть раз в 15 секунд.',
+        en: 'ATK is increased by 20%. Triggers on taking DMG: the soul of the Falcon of the West awakens, holding the banner of the resistance aloft, regenerating HP equal to 100% of ATK and dealing 200% of ATK as DMG to surrounding opponents. This effect can only occur once every 15s.'
+      },
+      refinements: [
+        'ATK +20%/HP恢复100%/DMG 200%',
+        'ATK +25%/HP恢复115%/DMG 230%',
+        'ATK +30%/HP恢复130%/DMG 260%',
+        'ATK +35%/HP恢复145%/DMG 290%',
+        'ATK +40%/HP恢复160%/DMG 320%'
+      ]
+    }
+  },
   'aquila-favonia': {
     key: 'aquila-favonia',
     en_name: 'Aquila Favonia',

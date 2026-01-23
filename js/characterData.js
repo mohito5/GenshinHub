@@ -1,5 +1,31 @@
-// characterData.js
+// characterData.js - обновленная структура с массивами
 export const charsData = {
+  Varka: {
+    key: "Varka",
+    ru_name: "Варка",
+    en_name: "Varka",
+    avatar: "assets/avatar-icon/i (22).webp",
+    avatar_icon: "assets/avatar-icon/i (22).webp",
+    rarity: "5",
+    element: "Anemo",
+    weapon: "Claymore",
+
+    // Материалы для возвышения
+    ascensionMaterials: {
+      sliver: ["Anemo"],
+      fragment: ["Anemo"],
+      chunk: ["Anemo"],
+      gemstone: ["Anemo"],
+      bossMaterial: ["kuuvyaka"],
+      localSpecialty: ["frostlampFlower"],
+      EnemyDropsSt1: ["Shaft"],
+      EnemyDropsSt2: ["Shaft"],
+      EnemyDropsSt3: ["Shaft"],
+      teachings: ["vagrancy"],
+      guide: ["vagrancy"],
+      philosophies: ["vagrancy"]
+    }
+  },
   Flins: {
     key: "Flins",
     ru_name: "Флинс",
@@ -11,153 +37,97 @@ export const charsData = {
     element: "Electro",
     weapon: "Polearm",
     region: "Snezhnaya",
-    description: "Флинс — главный герой, смелый и умный воин, обладающий силой Электро.",
+    description: {
+      ru: "Флинс — главный герой, смелый и умный воин, обладающий силой Электро.",
+      en: "Flins is the main hero, a brave and smart warrior wielding Electro power."
+    },
     bio: {
       ru: "Флинс — опытный воин из Снежной, специализирующийся на владении копьём и контроле над Электро энергией.",
       en: "Flins is an experienced warrior from Snezhnaya, specializing in spear mastery and Electro energy control."
     },
     
-    // Характеристики по уровням
-    hp: {
-      lv1: "1020",
-      lv20: "2642",
-      lv40: "5128",
-      lv50: "6635",
-      lv60: "8389",
-      lv70: "10245",
-      lv80: "12347",
-      lv90: "14695"
-    },
-    
-    atk: {
-      lv1: "27",
-      lv20: "70",
-      lv40: "136",
-      lv50: "176",
-      lv60: "223",
-      lv70: "272",
-      lv80: "328",
-      lv90: "391"
-    },
-    
-    def: {
-      lv1: "62",
-      lv20: "160",
-      lv40: "310",
-      lv50: "402",
-      lv60: "508",
-      lv70: "621",
-      lv80: "749",
-      lv90: "892"
-    },
+    // Характеристики по уровням как массивы
+    // Индексы: 0=1, 1=20, 2=40, 3=50, 4=60, 5=70, 6=80, 7=90
+    hp: [1020, 2642, 5128, 6635, 8389, 10245, 12347, 14695],
+    atk: [27, 70, 136, 176, 223, 272, 328, 391],
+    def: [62, 160, 310, 402, 508, 621, 749, 892],
     
     // Таланты
-    attack: "Демоническое копьё",
-    skill: "Древний обряд: Тайный свет",
-    explosion: "Древний ритуал: Наступает ночь",
+    // Таланты с локализацией
+    attack: {
+      ru: "Демоническое копьё",
+      en: "Demonic Spear"
+    },
+    skill: {
+      ru: "Древний обряд: Тайный свет",
+      en: "Ancient Ritual: Secret Light"
+    },
+    explosion: {
+      ru: "Древний ритуал: Наступает ночь",
+      en: "Ancient Ritual: Night Falls"
+    },
     
     // Описания талантов
-    des_attack: "<span><b>Обычная атака:</b><br>До пяти последовательных ударов копьём.<br><br><b>Заряженная атака:</b><br>Совершает рывок вперёд, нанося урон всем противникам на пути.</span>",
-    des_skill: "Призывает древнюю силу Электро, нанося урон области и накладывая статус «Освещение» на врагов.",
-    des_burst: "Вызывает мощную грозу, которая наносит массовый урон Электро и повышает скорость атаки персонажа.",
+    des_attack: {
+      ru: "<span><b>Обычная атака:</b><br>До пяти последовательных ударов копьём.<br><br><b>Заряженная атака:</b><br>Совершает рывок вперёд, нанося урон всем противникам на пути.</span>",
+      en: "<span><b>Normal Attack:</b><br>Performs up to five consecutive spear strikes.<br><br><b>Charged Attack:</b><br>Dashes forward, damaging all enemies in the path.</span>"
+    },
+    des_skill: {
+      ru: "Призывает древнюю силу Электро, нанося урон области и накладывая статус «Освещение» на врагов.",
+      en: "Summons ancient Electro power, dealing area damage and applying the 'Illumination' status to enemies."
+    },
+    des_burst: {
+      ru: "Вызывает мощную грозу, которая наносит массовый урон Электро и повышает скорость атаки персонажа.",
+      en: "Summons a powerful thunderstorm that deals massive Electro damage and increases the character's attack speed."
+    },
     
-    // Статистика атаки по уровням
+    // Статистика атаки по уровням как массивы
+    // Каждый массив содержит значения для уровней 1-10
     stat_attack: {
       a1: {
-        label: "Удар 1",
+        label: {
+          ru: "Удар 1",
+          en: "Strike 1"
+        },
         value: "множитель урона",
-        levels: {
-          1: "45.6%",
-          2: "49.0%",
-          3: "52.4%",
-          4: "57.4%",
-          5: "60.8%",
-          6: "64.2%",
-          7: "69.2%",
-          8: "74.2%",
-          9: "79.2%",
-          10: "84.2%"
-        }
+        levels: ["45.6%", "49.0%", "52.4%", "57.4%", "60.8%", "64.2%", "69.2%", "74.2%", "79.2%", "84.2%"]
       },
       a2: {
-        label: "Удар 2",
+        label: {
+          ru: "Удар 2",
+          en: "Strike 2"
+        },
         value: "множитель урона",
-        levels: {
-          1: "46.3%",
-          2: "49.8%",
-          3: "53.3%",
-          4: "58.4%",
-          5: "61.9%",
-          6: "65.4%",
-          7: "70.5%",
-          8: "75.6%",
-          9: "80.7%",
-          10: "85.8%"
-        }
+        levels: ["46.3%", "49.8%", "53.3%", "58.4%", "61.9%", "65.4%", "70.5%", "75.6%", "80.7%", "85.8%"]
       },
       a3: {
-        label: "Удар 3",
+        label: {
+          ru: "Удар 3",
+          en: "Strike 3"
+        },
         value: "множитель урона",
-        levels: {
-          1: "56.1%",
-          2: "60.3%",
-          3: "64.5%",
-          4: "70.7%",
-          5: "74.9%",
-          6: "79.1%",
-          7: "85.3%",
-          8: "91.5%",
-          9: "97.7%",
-          10: "103.9%"
-        }
+        levels: ["56.1%", "60.3%", "64.5%", "70.7%", "74.9%", "79.1%", "85.3%", "91.5%", "97.7%", "103.9%"]
       },
       a4: {
-        label: "Удар 4",
+        label: {
+          ru: "Удар 4",
+          en: "Strike 4"
+        },
         value: "множитель урона",
-        levels: {
-          1: "59.8%",
-          2: "64.3%",
-          3: "68.8%",
-          4: "75.4%",
-          5: "79.9%",
-          6: "84.4%",
-          7: "91.0%",
-          8: "97.6%",
-          9: "104.2%",
-          10: "110.8%"
-        }
+        levels: ["59.8%", "64.3%", "68.8%", "75.4%", "79.9%", "84.4%", "91.0%", "97.6%", "104.2%", "110.8%"]
       },
       a5: {
-        label: "Удар 5",
+        label: {
+          ru: "Удар 5",
+          en: "Strike 5"
+        },
         value: "множитель урона",
-        levels: {
-          1: "71.9%",
-          2: "77.3%",
-          3: "82.7%",
-          4: "90.6%",
-          5: "96.0%",
-          6: "101.4%",
-          7: "109.3%",
-          8: "117.2%",
-          9: "125.1%",
-          10: "133.0%"
-        }
+        levels: ["71.9%", "77.3%", "82.7%", "90.6%", "96.0%", "101.4%", "109.3%", "117.2%", "125.1%", "133.0%"]
       },
       charged: {
         label: "Заряженная атака",
         value: "множитель урона",
-        levels: {
-          1: "121%",
-          2: "130%",
-          3: "139%",
-          4: "152%",
-          5: "161%",
-          6: "170%",
-          7: "183%",
-          8: "196%",
-          9: "209%",
-          10: "222%"
-        }
+        levels: ["121%", "130%", "139%", "152%", "161%", "170%", "183%", "196%", "209%", "222%"]
       }
     },
     
@@ -253,60 +223,124 @@ export const charsData = {
     }
   },
   Lauma: {
+    key: "Lauma",
     ru_name: "Лаума",
     en_name: "Lauma",
     rarity: "4",
+    avatar: "assets/avatar/lauma.png",
     avatar_icon: "assets/avatar-icon/lauma_icon.png",
     element: "Dendro",
     weapon: "Catalyst",
     description: "Лаума — главный герой, смелый и умный.",
-    atack: "Демоническое копьё",
+    
+    // Характеристики как массивы
+    hp: [850, 2200, 4300, 5600, 7100, 8700, 10500, 12500],
+    atk: [22, 58, 114, 148, 187, 228, 275, 327],
+    def: [52, 134, 260, 337, 426, 521, 628, 748],
+    
+    attack: "Демоническое копьё",
     skill: "Древний обряд: Тайный свет",
     explosion: "Древний ритуал: Наступает ночь",
-    icon: "images/Lauma.png",
     s1: "assets/lauma_s1.png",
     s2: "assets/lauma_s2.png",
     s3: "assets/lauma_s3.png",
+    
+    // Статистика атаки как массивы
+    stat_attack: {
+      a1: {
+        label: "Удар 1",
+        levels: ["38.2%", "41.0%", "43.9%", "48.1%", "51.0%", "53.9%", "58.1%", "62.3%", "66.5%", "70.7%"]
+      },
+      a2: {
+        label: "Удар 2",
+        levels: ["38.8%", "41.7%", "44.6%", "48.9%", "51.8%", "54.8%", "59.0%", "63.3%", "67.6%", "71.9%"]
+      },
+      a3: {
+        label: "Удар 3",
+        levels: ["47.0%", "50.5%", "54.0%", "59.2%", "62.7%", "66.2%", "71.4%", "76.6%", "81.8%", "87.0%"]
+      }
+    },
+    
     ascensionMaterials: {}
   },
   Chasca: {
+    key: "Chasca",
     ru_name: "Часка",
     en_name: "Chasca",
+    avatar: "assets/avatar/chasca.png",
     avatar_icon: "assets/avatar-icon/chasca_icon.png",
     rarity: "5",
     element: "Anemo",
     weapon: "Bow",
+    description: "Часка — мастер анемо стихии.",
+    
+    // Характеристики как массивы
+    hp: [980, 2540, 4920, 6370, 8060, 9850, 11870, 14120],
+    atk: [26, 68, 131, 170, 215, 263, 317, 377],
+    def: [59, 153, 297, 385, 487, 595, 717, 854]
   },
-  Chiori:{
+  Chiori: {
+    key: "Chiori",
     ru_name: "Тиори",
     en_name: "Chiori",
+    avatar: "assets/avatar/chiori.png",
     avatar_icon: "assets/avatar-icon/chiori_icon.png",
     rarity: "5",
     element: "Geo",
     weapon: "Sword",
+    description: "Тиори — искусный мастер гео.",
+    
+    // Характеристики как массивы
+    hp: [1050, 2720, 5280, 6840, 8650, 10580, 12760, 15190],
+    atk: [28, 73, 141, 183, 231, 283, 341, 406],
+    def: [65, 168, 326, 422, 534, 653, 787, 937]
   },
-  Eula:{
+  Eula: {
+    key: "Eula",
     ru_name: "Эола",
     en_name: "Eula",
+    avatar: "assets/avatar/eula.png",
     avatar_icon: "assets/avatar-icon/eula_icon.png",
     rarity: "5",
     element: "Cryo",
     weapon: "Claymore",
+    description: "Эола — рыцарь крио стихии.",
+    
+    // Характеристики как массивы
+    hp: [1030, 2670, 5180, 6710, 8490, 10380, 12520, 14900],
+    atk: [27, 71, 138, 179, 226, 276, 333, 396],
+    def: [58, 150, 292, 378, 478, 585, 705, 840]
   },
-  Mavuika:{
+  Mavuika: {
+    key: "Mavuika",
     ru_name: "Мавуика",
     en_name: "Mavuika",
+    avatar: "assets/avatar/mavuika.png",
     avatar_icon: "assets/avatar-icon/mavuika_icon.png",
     rarity: "5",
     element: "Pyro",
     weapon: "Claymore",
+    description: "Мавуика — воительница пиро.",
+    
+    // Характеристики как массивы
+    hp: [1080, 2800, 5430, 7030, 8900, 10880, 13120, 15620],
+    atk: [29, 75, 145, 188, 238, 291, 351, 418],
+    def: [54, 140, 272, 352, 445, 545, 657, 782]
   },
-  Ayato:{
+  Ayato: {
+    key: "Ayato",
     ru_name: "Камисато Аято",
     en_name: "Kamisato Ayato",
+    avatar: "assets/avatar/ayato.png",
     avatar_icon: "assets/avatar-icon/ayato-icon.png",
     rarity: "5",
     element: "Hydro",
     weapon: "Sword",
+    description: "Аято — мастер гидро клинка.",
+    
+    // Характеристики как массивы
+    hp: [1060, 2750, 5330, 6900, 8730, 10670, 12870, 15320],
+    atk: [30, 78, 151, 196, 248, 303, 365, 435],
+    def: [61, 158, 307, 397, 502, 614, 741, 882]
   }
 };

@@ -4,10 +4,10 @@ export const pageLayouts = {
     <section class="page home">
       <article>
         <div class="title">
-          <h1 data-i18n="home.title"></h1>
-          <p data-i18n="home.welcome"></p>
+          <h1 data-i18n="pages.home.title"></h1>
+          <p data-i18n="pages.home.welcome"></p>
         </div>
-        <h2 data-i18n="home.birthday">Birsday</h2>
+        <h2 data-i18n="birthdays.imageAlt"></h2>
         <div class="birthday-banner">
           <img id="birthday-image" src="" alt="" class="banner-image">
           <div class="calendar-wrapper">
@@ -41,7 +41,7 @@ export const pageLayouts = {
   `,
   characters: `
     <div class="page characters">
-    <h1 data-i18n="characters.title"></h1>
+    <h1 data-i18n="pages.characters.title"></h1>
     <section class="characters-cards-container">
       <!-- Карточки персонажей будут загружены динамически -->
     </section>
@@ -52,7 +52,7 @@ export const pageLayouts = {
       <div id="character-content">
         <section class="characters">
           <div id="char-icon"></div>
-          <h1  id="char-name">???</h1>
+          <h1 id="char-name">???</h1>
         </section>
         
         <section class="level">
@@ -162,7 +162,7 @@ export const pageLayouts = {
               <p id="char-def">???</p>
             </div>
             <!-- Характеристика при возвышении -->
-            <h3 data-i18n="character.basi">Характеристика при возвышении</h3>
+            <h3 data-i18n="character.basicStats">Базовые характеристики</h3>
             <div class="stat-row">
               <div class="stat-icon">
                 <p data-i18n="character.defense">DEF</p>
@@ -259,29 +259,29 @@ export const pageLayouts = {
   `,
   'characters/guide': `
     <div class="character-guide-page">
-      <h1 data-i18n="guide.title">Гайд по персонажу</h1>
+      <h1 data-i18n="character.guide">Гайд по персонажу</h1>
       <div id="guide-content">
         <section class="characters">
           <div id="guide-icon"></div>
           <h1 id="guide-name">???</h1>
         </section>
         <section class="guide-section">
-          <h2 data-i18n="guide.builds">Билды</h2>
-          <p data-i18n="guide.comingSoon">Скоро...</p>
+          <h2 data-i18n="character.builds">Билды</h2>
+          <p data-i18n="common.comingSoon">Скоро...</p>
         </section>
       </div>
     </div>
   `,
   weapon: `
     <div class="page weapon">
-      <h1 data-i18n="weapon.title">Оружие</h1>
+      <h1 data-i18n="pages.weapon.title">Оружие</h1>
       <div class="weapons-cards-container"></div>
     </div>
   `,
   
   'weapon/mat': `
     <div class="page weapon-materials">
-      <h1 data-i18n="weapon.materialsTitle">Материалы для прокачки оружия</h1>
+      <h1 data-i18n="materials.title">Материалы для прокачки оружия</h1>
       
       <div id="weapon-content">
         <section class="weapons">
@@ -295,7 +295,7 @@ export const pageLayouts = {
         
         <section class="weapon-level">
           <article>
-            <h2 data-i18n="weapon.weaponLevel">Уровень оружия</h2>
+            <h2 data-i18n="character.level">Уровень оружия</h2>
             <div class="level-controls">
               <div class="current-level-display">
                 <span id="weapon-level-value">1</span>
@@ -321,15 +321,15 @@ export const pageLayouts = {
           <article>
             <h2 data-i18n="weapon.refinementLevel">Уровень пробуждения</h2>
             <div class="refinement-controls">
-              <button id="refinement-minus" data-i18n-title="weapon.decreaseRefinement">
-                <img src="./assets/minus.svg" alt="-" data-i18n-alt="weapon.decreaseRefinement">
+              <button id="refinement-minus" data-i18n-title="character.decreaseLevel">
+                <img src="./assets/minus.svg" alt="-" data-i18n-alt="character.decreaseLevel">
               </button>
               <div class="refinement-level-display">
                 <span id="refinement-level">1</span>
                 <span>/5</span>
               </div>
-              <button id="refinement-plus" data-i18n-title="weapon.increaseRefinement">
-                <img src="./assets/plus.svg" alt="+" data-i18n-alt="weapon.increaseRefinement">
+              <button id="refinement-plus" data-i18n-title="character.increaseLevel">
+                <img src="./assets/plus.svg" alt="+" data-i18n-alt="character.increaseLevel">
               </button>
             </div>
             <div class="refinement-description">
@@ -361,7 +361,7 @@ export const pageLayouts = {
         <section class="weapon-header br-drk br-r4 pad-2">
           <div id="weapon-info-icon"></div>
           <div class="weapon-header-info">
-            <h5 data-i18n="weapon.infoTitle">Информация об оружии</h5>
+            <h5 data-i18n="character.info">Информация об оружии</h5>
             <h1 id="weapon-info-name">???</h1>
             <div class="weapon-header-meta">
               <span class="weapon-info-rarity" id="weapon-info-rarity">★★★★★</span>
@@ -372,16 +372,16 @@ export const pageLayouts = {
         </section>
         
         <section class="weapon-description br-drk br-r4 pad-2">
-          <h2 data-i18n="weapon.description">Описание</h2>
+          <h2 data-i18n="character.description">Описание</h2>
           <p id="weapon-info-description">???</p>
         </section>
         
         <section class="weapon-stats br-drk br-r4 pad-2">
-          <h2 data-i18n="weapon.stats">Характеристики</h2>
+          <h2 data-i18n="character.stats">Характеристики</h2>
           
           <div class="stats-level-control br-drk br-r4 pad-2">
             <div class="stats-level-display">
-              <span data-i18n="weapon.level">Уровень:</span>
+              <span data-i18n="character.level">Уровень:</span>
               <span id="stats-weapon-level">1</span>
             </div>
             <div class="stats-range-control">
@@ -399,7 +399,7 @@ export const pageLayouts = {
           
           <div class="weapon-stats-display">
             <div class="stat-item">
-              <span class="stat-label" data-i18n="weapon.baseAttack">Базовая атака:</span>
+              <span class="stat-label" data-i18n="character.attack">Базовая атака:</span>
               <span class="stat-value" id="weapon-base-attack">???</span>
             </div>
             <div class="stat-item">
@@ -414,8 +414,8 @@ export const pageLayouts = {
               <table class="stats-table" id="weapon-stats-table">
                 <thead>
                   <tr>
-                    <th data-i18n="weapon.level">Уровень</th>
-                    <th data-i18n="weapon.baseAttack">Базовая атака</th>
+                    <th data-i18n="character.level">Уровень</th>
+                    <th data-i18n="character.attack">Базовая атака</th>
                     <th data-i18n="weapon.secondaryStat">Вторичная хар-ка</th>
                   </tr>
                 </thead>
@@ -459,7 +459,7 @@ export const pageLayouts = {
         </section>
         
         <section class="weapon-ascension">
-          <h2 data-i18n="weapon.ascensionMaterials">Материалы возвышения</h2>
+          <h2 data-i18n="categories.ascension">Материалы возвышения</h2>
           <div class="ascension-stages" id="ascension-stages-container">
             <!-- Стадии возвышения будут заполнены динамически -->
           </div>
@@ -513,7 +513,7 @@ export const pageLayouts = {
         </section>
         
         <section class="refinement-materials">
-          <h2 data-i18n="weapon.requiredMaterials">Необходимые материалы</h2>
+          <h2 data-i18n="materials.required">Необходимые материалы</h2>
           <div class="materials-summary">
             <div class="material-summary-item">
               <span class="summary-label" data-i18n="weapon.copiesRequired">Требуется копий оружия:</span>
@@ -600,7 +600,7 @@ export const pageLayouts = {
                 <p id="refine-possibility">Да, можете достичь R5!</p>
               </div>
               <div class="result-card info" id="missing-materials-result">
-                <h4 data-i18n="weapon.missingMaterials">Недостающие материалы</h4>
+                <h4 data-i18n="materials.missing">Недостающие материалы</h4>
                 <p id="missing-materials-list">Все материалы есть</p>
               </div>
             </div>
@@ -610,19 +610,118 @@ export const pageLayouts = {
     </div>
   `,
   date: `
-    <div class="page date">
-      <h1 data-i18n="date.title"></h1>
-      <p>Содержание страницы Date</p>
+<div class="page info">
+  <h1 data-i18n="pages.date.title">База знаний</h1>
+  
+  <section class="info-card-container">
+    <article class="date-card" data-page="date/fish">
+      <a href="#/date/fish" class="date-card-link">
+        <div class="date-card-content">
+          <div class="date-card-icon fishing">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              <path d="M9 12h6"></path>
+            </svg>
+          </div>
+          <div class="date-card-text">
+            <h3 data-i18n="pages.date.fishing">Рыбалка</h3>
+          </div>
+        </div>
+      </a>
+    </article>
+    
+    <article class="date-card" data-page="date/creatures">
+      <a href="#/date/creatures" class="date-card-link">
+        <div class="date-card-content">
+          <div class="date-card-icon creature">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+              <line x1="9" y1="9" x2="9.01" y2="9"></line>
+              <line x1="15" y1="9" x2="15.01" y2="9"></line>
+            </svg>
+          </div>
+          <div class="date-card-text">
+            <h3 data-i18n="date.creatures">Существа</h3>
+          </div>
+        </div>
+      </a>
+    </article>
+    
+    <article class="date-card" data-page="date/artifacts">
+      <a href="#/date/artifacts" class="date-card-link">
+        <div class="date-card-content">
+          <div class="date-card-icon artifact">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <path d="M3 9h18M9 21V9"></path>
+            </svg>
+          </div>
+          <div class="date-card-text">
+            <h3 data-i18n="date.artifacts">Артефакты</h3>
+          </div>
+        </div>
+      </a>
+    </article>
+  </section>
+</div>
+`,
+  'date/fish': `
+    <div class="page date-subpage">
+      <div class="date-subpage-header">
+        <h1 data-i18n="pages.date.fishing">Рыбалка</h1>
+      </div>
+    
+      <div class="date-subpage-content" id="fish-content">
+        <!-- Контент будет загружен динамически -->
+        <div class="loading-container">
+          <div class="loading-spinner"></div>
+          <p data-i18n="loading.data">Загрузка данных...</p>
+        </div>
+      </div>
     </div>
   `,
+
+'date/creatures': `
+  <div class="page date-subpage">
+    <div class="date-subpage-header">
+      <h1 data-i18n="date.creatures">Существа</h1>
+      <p data-i18n="date.creaturesDescription">Враги и нейтральные существа с характеристиками</p>
+    </div>
+    
+    <div class="date-subpage-content" id="creatures-content">
+      <!-- Контент будет загружен динамически -->
+      <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p data-i18n="loading.data">Загрузка данных...</p>
+      </div>
+    </div>
+  </div>
+`,
+  'date/artifacts': `
+  <div class="page date-subpage">
+    <div class="date-subpage-header">
+      <h1 data-i18n="date.artifacts">Артефакты</h1>
+      <p data-i18n="date.artifactsDescription">Полные наборы артефактов с детальными статами</p>
+    </div>
+    
+    <div class="date-subpage-content" id="artifacts-content">
+      <!-- Контент будет загружен динамически -->
+      <div class="loading-container">
+        <div class="loading-spinner"></div>
+        <p data-i18n="loading.data">Загрузка данных...</p>
+      </div>
+    </div>
+  </div>
+`,
   profile: `
     <div class="page profile">
-      <h1 data-i18n="profile.title"></h1>
-      <p>Содержание страницы Profile</p>
+      <h1 data-i18n="pages.profile.title"></h1>
+      <p data-i18n="profile.description">Содержание страницы Profile</p>
       <div class="profile-content">
         <div class="profile-info">
-          <h2>Мои сохраненные материалы</h2>
-          <p>Здесь отображаются все ваши сохраненные настройки персонажей.</p>
+          <h2 data-i18n="profile.savedMaterials">Мои сохраненные материалы</h2>
+          <p data-i18n="profile.savedDescription">Здесь отображаются все ваши сохраненные настройки персонажей.</p>
         </div>
         
         <!-- ВАЖНО: Добавьте этот контейнер! -->

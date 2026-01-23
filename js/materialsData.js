@@ -267,7 +267,7 @@ export const materialsInfo = {
       ru: "Мора",
       en: "Mora"
     },
-    icon: "assets/mora.png"
+    icon: "assets/i (3).webp"
   },
   
   sliver: {
@@ -440,7 +440,7 @@ export const materialsInfo = {
       ru: "Корона прозрения",
       en: "Crown of Insight"
     },
-    icon: "assets/unknown.png"
+    icon: "assets/i (4).webp"
   },
   
   bossMaterial: {

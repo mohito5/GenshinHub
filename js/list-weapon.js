@@ -1,13 +1,19 @@
 // list-weapon.js - версия для оружия
 import { weaponsData } from './weaponData.js';
 import { translations } from './translations.js';
-import { materialsInfo } from './materialsData.js';
 
-let weaponFilters = {  // Изменено имя переменной
-  weaponType: null,
-  rarity: null,
-  stats: null
+let weaponFilters = { 
+    weaponType: null,
+    rarity: null,
+    stats: null
 };
+
+// Инициализация глобальных переменных
+window.weaponFilters = weaponFilters;
+window.renderWeaponCards = renderWeaponCards;
+window.createWeaponFilterModal = createWeaponFilterModal;
+window.createWeaponFilterButton = createWeaponFilterButton;
+window.resetWeaponFilters = resetWeaponFilters;
 
 // Добавить функцию для сброса фильтров при инициализации страницы
 function resetWeaponFiltersOnPageLoad() {
@@ -499,73 +505,94 @@ export function createWeaponFilterModal() {
 
 // Функция для создания кнопки фильтра оружия
 // Функция для создания кнопки фильтра оружия
+// Функция для создания кнопки фильтра оружия
 export function createWeaponFilterButton() {
-  const currentLang = getCurrentLang();
-  const translationsObj = translations[currentLang] || translations['ru'];
-  const navTopBar = document.querySelector('.nav-top-bar');
-  if (!navTopBar) return;
-
-  // Сбрасываем фильтры при создании кнопки
-  resetWeaponFiltersOnPageLoad();
-
-  // Удаляем существующую кнопку фильтра, если она есть
-  let existingFilterBtn = document.querySelector('.filter-button');
-  if (existingFilterBtn) {
-    existingFilterBtn.remove();
-  }
-  
-  // Создаем новую кнопку
-  const filterBtn = document.createElement('button');
-  filterBtn.className = 'filter-button weapon-filter';
-  filterBtn.innerHTML = `
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/>
-    </svg>
-    <span>${translationsObj['filter.weaponTitle'] || 'Фильтр оружия'}</span>
-  `;
-  
-  // Добавляем data-атрибут для идентификации
-  filterBtn.dataset.filterType = 'weapon';
-  
-  filterBtn.addEventListener('mouseenter', () => {
-    filterBtn.style.transform = 'translateY(-2px)';
-    filterBtn.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-  });
-  
-  filterBtn.addEventListener('mouseleave', () => {
-    filterBtn.style.transform = 'translateY(0)';
-    filterBtn.style.boxShadow = 'none';
-  });
-  
-  filterBtn.addEventListener('click', (e) => {
-    const clearBtn = e.target.closest('.filter-clear');
-    if (clearBtn) {
-      e.stopPropagation();
-      resetWeaponFilters(currentLang);
-    } else {
-      createWeaponFilterModal();
+    const currentLang = getCurrentLang();
+    const translationsObj = translations[currentLang] || translations['ru'];
+    const navTopBar = document.querySelector('.nav-top-bar');
+    if (!navTopBar) {
+        console.error('nav-top-bar не найден');
+        return;
     }
-  });
-  
-  const navLeftArea = navTopBar.querySelector('.nav-left-area');
-  if (navLeftArea) {
-    navLeftArea.appendChild(filterBtn);
-  } else {
-    const leftArea = document.createElement('div');
-    leftArea.className = 'nav-left-area';
-    leftArea.appendChild(filterBtn);
+
+    // Ищем или создаем область для кнопок
+    let navLeftArea = navTopBar.querySelector('.nav-left-area');
     
-    const langSwitcher = navTopBar.querySelector('.language-switcher');
-    if (langSwitcher) {
-      navTopBar.insertBefore(leftArea, langSwitcher);
-    } else {
-      navTopBar.appendChild(leftArea);
+    if (!navLeftArea) {
+        navLeftArea = document.createElement('div');
+        navLeftArea.className = 'nav-left-area';
+        navLeftArea.style.cssText = 'display: flex; align-items: center; gap: 10px;';
+        
+        const langSwitcher = navTopBar.querySelector('.language-switcher');
+        if (langSwitcher) {
+            navTopBar.insertBefore(navLeftArea, langSwitcher);
+        } else {
+            navTopBar.appendChild(navLeftArea);
+        }
     }
-  }
-  
-  updateWeaponFilterButton(currentLang);
-}
 
+    // Очищаем только кнопки фильтра (оставляем другие элементы если есть)
+    const existingFilterBtn = navLeftArea.querySelector('.filter-button');
+    if (existingFilterBtn) {
+        existingFilterBtn.remove();
+    }
+    
+    // Создаем новую кнопку
+    const filterBtn = document.createElement('button');
+    filterBtn.className = 'filter-button weapon-filter';
+    filterBtn.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/>
+        </svg>
+        <span>${translationsObj['filter.weaponTitle'] || 'Фильтр оружия'}</span>
+    `;
+    
+    // Стили
+    filterBtn.style.cssText = `
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        transition: all 0.3s ease;
+        z-index: 100;
+    `;
+    
+    // Анимации
+    filterBtn.addEventListener('mouseenter', () => {
+        filterBtn.style.background = 'var(--primary-dark)';
+        filterBtn.style.transform = 'translateY(-2px)';
+    });
+    
+    filterBtn.addEventListener('mouseleave', () => {
+        filterBtn.style.background = 'var(--primary)';
+        filterBtn.style.transform = 'translateY(0)';
+    });
+    
+    // Обработчик клика
+    filterBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Открытие фильтра оружия');
+        createWeaponFilterModal();
+    });
+    
+    // Добавляем в DOM
+    navLeftArea.appendChild(filterBtn);
+    
+    // Обновляем внешний вид кнопки
+    updateWeaponFilterButton(currentLang);
+    
+    console.log('Кнопка фильтра оружия создана');
+    return filterBtn;
+}
 // Функция для открытия модального окна оружия
 export function openWeaponModal(weaponKey, weapon, lang = getCurrentLang()) {
   console.log('Открытие модального окна оружия:', weaponKey);
