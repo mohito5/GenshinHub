@@ -14,10 +14,12 @@
   <link rel="stylesheet" href="css/characters_mat.css">
   <link rel="stylesheet" href="css/characters_info.css">
   <link rel="stylesheet" href="css/weapon_info.css">
+  <link rel="stylesheet" href="css/info.css">
   <link rel="stylesheet" href="css/modal.css">
   <link rel="stylesheet" href="css/button.css">
+  <link rel="stylesheet" href="css/calculator.css">
   <!-- JavaScript -->
-  <script type="module" src="js/app.js"></script>
+  <script type="module" src="js/web.js"></script>
 </head>
 <body>
   <main id="content"></main>
@@ -38,23 +40,23 @@
         <div class="nav-highlight"></div>
         <a href="#/home" data-page="home" class="nav-item">
           <svg class="nav-icon" alt="Главная"><use href="#icon-home"></use></svg>
-          <span class="nav-label" data-i18n="nav.home">Home</span>
+          <span class="nav-label" data-i18n="navigation.home">Home</span>
         </a>
         <a href="#/characters" data-page="characters" class="nav-item">
           <svg class="nav-icon" alt="Персонажи"><use href="#icon-characters"></use></svg>
-          <span class="nav-label" data-i18n="nav.characters">Characters</span>
+          <span class="nav-label" data-i18n="navigation.characters">Characters</span>
         </a>
         <a href="#/weapon" data-page="weapon" class="nav-item">
           <svg class="nav-icon" alt="Персонажи"><use href="#icon-weapon"></use></svg>
-          <span class="nav-label" data-i18n="nav.weapon">Weapon</span>
+          <span class="nav-label" data-i18n="navigation.weapon">Weapon</span>
         </a>
         <a href="#/date" data-page="date" class="nav-item">
           <svg class="nav-icon" alt="Данные"><use href="#icon-folder"></use></svg>
-          <span class="nav-label" data-i18n="nav.date">Date</span>
+          <span class="nav-label" data-i18n="navigation.date">Date</span>
         </a>
         <a href="#/profile" data-page="profile" class="nav-item">
           <svg class="nav-icon" alt="Профиль"><use href="#icon-profile"></use></svg>
-          <span class="nav-label" data-i18n="nav.profile">Profile</span>
+          <span class="nav-label" data-i18n="navigation.profile">Profile</span>
         </a>
       </section>
     </nav>
@@ -109,7 +111,50 @@
     <symbol id="icon-update2" width="100%" height="100%" viewBox="0 0 64 64" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
       <path d="M15.4994 18C18.1785 18 20.062 20.8241 23.8295 26.4717L25.1459 28.4443C29.7135 35.2913 31.9978 38.7154 30.5834 41.3574C29.6209 43.1546 27.4078 43.7273 23.4994 43.9111V44C23.4994 45.8856 23.4996 46.8283 24.0853 47.4141C24.6711 47.9998 25.6138 48 27.4994 48H50.9994C53.7997 48 55.2003 48 56.2699 48.5449C57.2105 49.0243 57.9752 49.7898 58.4545 50.7305C58.9993 51.8 58.9994 53.2 58.9994 56C58.9994 58.8 58.9993 60.2 58.4545 61.2695C57.9752 62.2102 57.2105 62.9757 56.2699 63.4551C55.2003 64 53.7997 64 50.9994 64H27.4994C18.0714 64 13.357 64.0002 10.4281 61.0713C7.49922 58.1424 7.49939 53.428 7.49939 44V43.9111C3.59114 43.7273 1.37879 43.1545 0.416382 41.3574C-0.998373 38.7153 1.28514 35.2916 5.85291 28.4443L7.16931 26.4717C10.9368 20.8241 12.8204 18.0001 15.4994 18ZM36.4994 0C45.9274 0 50.6417 -0.000174044 53.5707 2.92871C56.4036 5.76163 56.4944 10.2648 56.4974 19.0879C60.407 19.2716 62.6208 19.8451 63.5834 21.6426C64.9978 24.2846 62.7135 27.7087 58.1459 34.5557L56.8295 36.5283C53.062 42.1759 51.1785 45 48.4994 45C45.8204 44.9999 43.9368 42.1758 40.1693 36.5283L38.8529 34.5557C34.2851 27.7084 32.0016 24.2847 33.4164 21.6426C34.3782 19.8465 36.5885 19.2721 40.4926 19.0879C40.4776 17.7933 40.396 17.0685 39.9135 16.5859C39.3277 16.0002 38.385 16 36.4994 16H12.9994C10.1994 16 8.79937 15.9999 7.72986 15.4551C6.78905 14.9757 6.02368 14.2103 5.54431 13.2695C4.99954 12.2 4.99939 10.7999 4.99939 8C4.99939 5.20008 4.99954 3.79998 5.54431 2.73047C6.02368 1.78966 6.78905 1.02429 7.72986 0.544922C8.79937 0.000102202 10.1994 0 12.9994 0H36.4994Z" fill="currentColor"/>
     </symbol>
+    <symbol id="icon-date" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%" preserveAspectRatio="xMidYMid meet">
+      <!-- Корпус папки -->
+      <rect x="5" y="10" width="90" height="80" rx="5" fill="#333" />
+      <!-- Створка (крышка) -->
+      <path d="M5,10 L95,10 L95,30 L55,10 Z" fill="#555" />
+      <!-- Вставляемое изображение -->
+      <image 
+        xlink:href="assets/tmp256.png" 
+        x="10" y="15" 
+        width="80" height="70" 
+        preserveAspectRatio="xMidYMid slice"
+      />
+    </symbol>
+    
+    <symbol id="date2"xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 24 20"  >
+      <rect x="2" y="0" width="22" height="20" rx="2" ></rect>
+      <image xlink:href="assets/tmp256 (4).png"
+        x="2" y="0"
+        width="22" height="20"
+        preserveAspectRatio="xMidYMid slice" />
+      <path d="M2 8a2 2 0 0 1 2-2h8l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6zm2"  filter="url(#blurBehindPath)"/>
+
+
+    </symbol>
+
+
+
 
   </svg>
+  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <defs>
+    <!-- 1. Фильтр размытия для фона -->
+    <filter id="bgBlur" x="0" y="0" width="100%" height="100%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="4" />
+    </filter>
+
+    <!-- 2. Маска: путь как «окно» в размытом фоне -->
+    <mask id="pathMask">
+      <path 
+        d="M2 8a2 2 0 0 1 2-2h8l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6zm2"
+        fill="white"  
+      />
+    </mask>
+  </defs>
+</svg>
 </body>
 </html>
