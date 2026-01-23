@@ -22,15 +22,6 @@
   .page.home article {
     gap: 2vw;
   }
-  /* calendar */
-  .birthday-banner {
-    padding: 3vw;
-    border-radius: 4vw; 
-    gap: 2vw;
-  }
-  .banner-image {
-    border-radius: 1vw;
-  }
   .server-reset h1{ font-size:16vw; }
   .server-timezone {
   
@@ -47,15 +38,6 @@
   }
   .page.home article {
     gap: 1vw;
-  }
-  /* calendar */
-  .birthday-banner {
-    padding: 1.5vw;
-    border-radius: 2vw; 
-    gap: 1vw;
-  }
-  .banner-image {
-    border-radius: 0.5vw;
   }
   .server-timezone {
   
@@ -84,7 +66,26 @@
 }
 
 /* Birthday calendar*/
-
+@media only screen and (orientation: portrait) {
+  .birthday-banner {
+    padding: 3vw;
+    border-radius: 4vw; 
+    gap: 2vw;
+  }
+  .banner-image {
+    border-radius: 1vw;
+  }
+}
+@media only screen and (orientation: landscape) {
+  .birthday-banner {
+    padding: 1vw;
+    border-radius: 1.33vw; 
+    gap: 1vw;
+  }
+  .banner-image {
+    border-radius: 0.33vw;
+  }
+}
 .birthday-banner {
   display: flex; 
   flex-direction: column;
@@ -127,7 +128,7 @@
 }
 
 .mini-calendar-month { display: flex;
-  font-size: 1.2rem;
+  
 }
 
 .mini-calendar-weekdays {
@@ -165,7 +166,7 @@
 
 .day.today {
   background-color: var(--dark);
-  color: white; border-radius: 2vw;
+  color: var(--light); border-radius: 2vw;
   font-weight: bold;
   position: relative;
 }
@@ -180,22 +181,80 @@
   height: 0;
   border-left: 6px solid transparent;
   border-right: 6px solid transparent;
-  border-bottom: 6px solid white;
+  border-bottom: 6px solid violet
 }
 
 .day.empty {
   background-color: transparent;
 }
 
+@media only screen and (orientation: portrait) {
+  .header-content { gap: 2vw;}
+  /* Часовой пояс пользователя */
+  .user-timezone-display { padding: 2vw 3vw; border-radius: 4vw; }
+  /* Переключатель часового пояса */
+  .timezone-switch-container { padding: 2vw 3vw; border-radius: 4vw; }
+  .timezone-switch { gap: 1vw; }
+  .timezone-switch input[type="checkbox"] { width: 6vw; height: 6vw; }
+  .server-reset h1{ font-size:16vw; }
+  .server-timezone {
+  
+  padding: 1vw 2vw;
+  border-radius: 2vw;
+  }
+  .server{ width: 2vw;  border-radius: 2vw;}
+
+}
+@media only screen and (orientation: landscape) {
+  .header-content { gap: 1vw; }
+  /* Часовой пояс пользователя */
+  .user-timezone-display { padding: 1vw 1.5vw; border-radius: 2vw; }
+  /* Переключатель часового пояса */
+  .timezone-switch-container { padding: 1vw 1.5vw; border-radius: 2vw; }
+  .timezone-switch { gap: 0.5vw; }
+  .timezone-switch input[type="checkbox"] { width: 2vw; height: 2vw; }
+  .server-timezone {
+  
+  padding: 0.5vw 1vw;
+  border-radius: 1vw;
+  }
+  .server-reset h1{ font-size:6vw; }
+  #server-timer-container{grid-column: 1/2; grid-row: 1/2;}
+  .birthday-banner{grid-column: 2/3;}
+
+  .server{ width: 1vw;  border-radius: 1vw;}
+}
+
 .server-timer-header{width: 100%;}
-#server-timer-container{width: 100%;}
+
+/* Контейнер для часового пояса и чекбокса */
+.header-content {
+  display: flex; 
+  width: 100%;
+  align-items: stretch;
+}
+
+/* Часовой пояс пользователя */
+.user-timezone-display {
+  border:1px solid var(--dark) ;
+  color: var(--dark);
+  align-content: center;
+}
+
 /* Переключатель часового пояса */
+.timezone-switch-container {
+  border: 1px solid var(--dark);
+}
 .timezone-switch {
   display: flex;
   align-items: center;
+  cursor: pointer;
 }
 .timezone-switch span {
   cursor: pointer;
+}
+.timezone-switch input[type="checkbox"] {
+  cursor: pointer; accent-color: var(--dark); 
 }
 
 /* Стили для серверного таймера */
@@ -206,10 +265,9 @@
   align-items: center;
 }
 
-.server-name {
-  font-weight: bold; line-height: 0;
-}
 
+.server-name h4 {line-height: 1;  margin: 0;font-weight: bold; }
+.server-timezone p { margin: 0;}
 .server-timezone {
   color: var(--light);
   background-color: var(--dark);
@@ -222,10 +280,10 @@
   font-family: MatrixType-Bold; line-height: 0;
 }
 
-.time-left {border: var(--dark) 1px solid; border-radius: 2vw;
-  font-weight: bold;
-  color: var(--dark);
+.time-left {border: var(--dark) 1px solid; border-radius: 2vw; 
+  color: var(--dark);padding: 1vw 2vw;
 }
+.time-left h4 {margin: 0;}
 
 .time-left.warning {
   color: var(--geo);
@@ -261,74 +319,34 @@
   color: #777;
 }
 
-.timezone-switch { height: 100%;
-  display: flex;
-  align-items: center;
-  gap: 1vw;padding: 2vw;
-  cursor: pointer;
-}
-
 /* Дополнительные стили для серверного таймера */
 
 .server-original-time {
-  font-size: 0.85em;
+  
   color: #6c757d;
   margin-top: 3px;
   font-style: italic;
 }
 /* server-timer.css */
-/* Общий блок для всей верхней части таймера */
+/* сервер */
 
+#server-timer-container{width: 100%; border: #7999c3 1px solid; display: flex; flex-direction: column;
+gap: 2vw;}
 
 .server-timer-header h3 {
   color: var(--dark);
   text-align: left;
 }
 
-/* Контейнер для часового пояса и чекбокса */
-.header-content {
-  display: flex; width: 100%;
-  justify-content: space-between;
-  align-items: center;
-  gap: 2vw;
-  
-}
-
-/* Часовой пояс пользователя */
-
-
-/* Контейнер для чекбокса */
-
-
-.timezone-switch {
-  display: flex;
-  align-items: center;
-  gap: 1vw;
-  cursor: pointer;
-}
-
 .timezone-switch span {
   color: var(--dark);
 }
 
-.timezone-switch-container { padding: 0 2vw;
-  border: 1px solid var(--dark); width: 100%;
-  border-radius: 4vw;
-}
-
-
-
-.timezone-switch input[type="checkbox"] {
-  width: 4vw;
-  height: 4vw;
-  cursor: pointer;accent-color: var(--dark);
-}
-
 .server-item { display: flex; gap:4vw;
   border: 1px solid var(--dark);
-  border-radius: 4vw;
-  padding: 3vw;
-  margin: 2vw 0;
+  
+
+  
 }
 
 .time-info {
@@ -508,12 +526,6 @@ align-items: center; padding: 1vw;
   50% { opacity: 0.7; }
 }
 
-.user-timezone-display {
-  padding: 2vw 4vw; border:1px solid var(--dark) ;
-  border-radius: 4vw;
-  color: var(--dark);
-}
-
 .timezone-calculation {
   margin-top: 5px;
   font-size: 0.85em;
@@ -554,3 +566,10 @@ align-items: center; padding: 1vw;
 
 
 
+.icon-sssv{ border: #27ae60 1px solid;margin: 0;}
+
+
+#date2 rect{ fill:var(--dark);}
+
+
+#date2 path{ fill: var(--dark0-5);  border: #2196F3 1px solid;}

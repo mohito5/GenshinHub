@@ -1,0 +1,1301 @@
+/* calculator.css */
+.calculator-page {
+  margin: 0; width: 100%; display: flex; flex-direction: column;
+  
+}
+
+.calculator-container {
+  display: flex;
+  gap: 30px;
+  
+}
+
+.calculator-left, .calculator-right {
+  flex: 1;
+}
+
+.calculator-section {
+  background: var(--card-bg);
+  border-radius: 15px;
+  padding: 25px;
+  margin-bottom: 25px;
+  border: #333 1px solid;
+}
+
+.calculator-section h2 {
+  margin-bottom: 20px;
+  color: var(--text-color);
+  
+}
+
+.character-selector, .weapon-selector {
+  margin-bottom: 20px;
+}
+
+.select-button {
+  width: 100%;
+  padding: 15px;
+  background: var(--dark);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.select-button:hover {
+  background: var(--primary-dark);
+}
+
+.select-button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.selected-character, .selected-weapon {
+  margin-top: 20px;
+  padding: 20px;
+  background: var(--bg-light);
+  border-radius: 10px;
+  border: 2px dashed #ddd;
+}
+
+.selected-char-info, .selected-weapon-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.char-display-avatar, .weapon-display-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 2vw;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.char-display-avatar img, .weapon-display-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.char-display-details h3, .weapon-display-details h3 {
+  margin: 0 0 10px 0;
+  color: var(--text-color);
+}
+
+.char-display-meta, .weapon-display-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.char-element-badge, .char-weapon-badge, .char-rarity-badge,
+.weapon-rarity-badge, .weapon-type-badge {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.char-element-badge {
+  background: var(--electro);
+  color: white;
+}
+
+.char-weapon-badge {
+  background: #7b6f50;
+  color: white;
+}
+
+.char-rarity-badge, .weapon-rarity-badge {
+  background: linear-gradient(135deg, #ffd700, #ffed4e);
+  color: #333;
+}
+
+.weapon-type-badge {
+  background: #4a6572;
+  color: white;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.stat-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  background: var(--bg-light);
+  border-radius: 8px;
+}
+
+.stat-label {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.stat-value {
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+/* Артефакты */
+.artifacts-slots {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.artifact-slot {
+  background: var(--bg-light);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.3s;
+}
+
+.artifact-slot:hover {
+  transform: translateY(-5px);
+}
+
+.slot-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.slot-icon {
+  font-size: 24px;
+}
+
+.artifact-preview {
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 8px;
+  margin: 15px 0;
+  padding: 15px;
+  border: 2px solid #eee;
+}
+
+.artifact-mini-preview {
+  text-align: left;
+}
+
+.mini-set {
+  font-weight: 600;
+  color: var(--primary-color);
+  margin-bottom: 8px;
+}
+
+.mini-mainstat {
+  color: var(--text-color);
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+
+.mini-substats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #666;
+}
+
+.select-artifact-btn {
+  width: 100%;
+  padding: 10px;
+  background: var(--secondary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.select-artifact-btn:hover {
+  background: var(--secondary-dark);
+}
+
+.select-artifact-btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+/* Итоговые характеристики */
+.final-stats-container {
+  display: flex;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.stats-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.stat-card {
+  background: var(--bg-light);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all 0.3s;
+}
+
+.stat-card.main {
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+}
+
+.stat-card.main .stat-value {
+  color: white;
+  font-size: 2rem;
+}
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.stat-icon {
+  font-size: 24px;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--primary-color);
+}
+
+.stat-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 10px;
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+/* Бонусы наборов */
+.bonus-item {
+  background: var(--bg-light);
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-left: 4px solid var(--primary-color);
+}
+
+.bonus-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.bonus-count {
+  background: var(--primary-color);
+  color: white;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Модальные окна */
+.calculator-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.calculator-modal-content {
+  background: var(--card-bg);
+  width: 90%;
+  max-width: 800px;
+  max-height: 80vh;
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 30px;
+  background: var(--primary-color);
+  color: white;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 30px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.modal-body {
+  padding: 30px;
+  overflow-y: auto;
+}
+
+/* Сетка персонажей и оружия */
+.characters-grid, .weapons-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  max-height: 50vh;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.character-card-select, .weapon-card-select {
+  background: var(--bg-light);
+  border-radius: 12px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border: 2px solid transparent;
+}
+
+.character-card-select:hover, .weapon-card-select:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-3px);
+}
+
+.char-select-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  overflow: hidden;
+  margin: 0 auto 15px;
+}
+
+.char-select-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.char-select-meta {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.char-element {
+  background: var(--element-color);
+  color: white;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+}
+
+.char-weapon, .char-rarity {
+  font-size: 11px;
+  color: #666;
+}
+
+.weapon-select-icon {
+  width: 60px;
+  height: 60px;
+  margin: 0 auto 15px;
+}
+
+.weapon-select-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Слоты сохранения */
+.calculator-save-slots {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.save-slot {
+  background: var(--card-bg);
+  border-radius: 15px;
+  overflow: hidden;
+  border: 3px solid transparent;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+
+.save-slot:hover {
+  border-color: var(--primary-color);
+}
+
+.save-slot.empty {
+  border: 2px dashed #ddd;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 150px;
+}
+
+.slot-header {
+  background: var(--bg-light);
+  padding: 10px 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.slot-number {
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.delete-save {
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slot-content {
+  padding: 20px;
+}
+
+.save-char-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.save-char-info img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.save-stats-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.load-save-btn {
+  width: 100%;
+  padding: 8px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.empty-slot-icon {
+  font-size: 48px;
+  color: #ddd;
+  margin-bottom: 10px;
+}
+
+/* Кнопки управления */
+.calculator-controls {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 40px;
+  padding-top: 30px;
+  border-top: 1px solid #eee;
+}
+
+.calc-btn {
+  padding: 15px 40px;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.calc-btn.primary {
+  background: var(--primary-color);
+  color: white;
+}
+
+.calc-btn.primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+}
+
+.calc-btn.secondary {
+  background: var(--bg-light);
+  color: var(--text-color);
+  border: 2px solid #ddd;
+}
+
+.calc-btn.secondary:hover {
+  background: #e0e0e0;
+}
+
+/* Уведомления */
+.calc-notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 25px;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  z-index: 1001;
+  animation: slideInRight 0.3s ease;
+}
+
+.calc-notification.success {
+  background: #4CAF50;
+}
+
+.calc-notification.info {
+  background: #2196F3;
+}
+
+.calc-notification.error {
+  background: #f44336;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Адаптивность */
+@media (max-width: 1200px) {
+  .calculator-container {
+    flex-direction: column;
+  }
+  
+  .final-stats-container {
+    flex-direction: column;
+  }
+  
+  .calculator-save-slots {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .artifacts-slots {
+    grid-template-columns: 1fr;
+  }
+  
+  .calculator-save-slots {
+    grid-template-columns: 1fr;
+  }
+  
+  .characters-grid, .weapons-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Кнопка на странице профиля */
+.calculator-profile-btn {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  padding: 25px;
+  margin: 30px 0;
+  background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+  color: white;
+  border: none;
+  border-radius: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-align: left;
+}
+
+.calculator-profile-btn:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.btn-icon {
+  font-size: 48px;
+  flex-shrink: 0;
+}
+
+.btn-text {
+  flex: 1;
+}
+
+.btn-text h3 {
+  margin: 0 0 10px 0;
+  font-size: 1.5rem;
+}
+
+.btn-text p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 14px;
+}
+
+.btn-arrow {
+  font-size: 24px;
+  opacity: 0.7;
+}
+
+/* calculator-styles.css */
+.artifact-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.artifact-modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 800px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.artifact-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.artifact-modal-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.3s;
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.artifact-modal-body {
+  padding: 20px;
+}
+
+.artifact-section {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.artifact-section h3 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.section-description {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 15px;
+}
+
+/* Сеты артефактов */
+.sets-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+.set-item {
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: #f9f9f9;
+}
+
+.set-item:hover {
+  border-color: #4CAF50;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.set-item.selected {
+  border-color: #4CAF50;
+  background: #e8f5e9;
+}
+
+.set-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.set-info h4 {
+  margin: 0 0 5px 0;
+  color: #333;
+}
+
+.set-rarity {
+  color: #ff9800;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.set-bonuses {
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.bonus-2pc, .bonus-4pc {
+  margin-top: 5px;
+  padding-left: 10px;
+  border-left: 2px solid #4CAF50;
+}
+
+/* Главные статы */
+.mainstat-selection {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.mainstat-options {
+  flex: 1;
+  min-width: 300px;
+}
+
+.mainstat-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.mainstat-option:hover {
+  border-color: #2196F3;
+  background: #f0f8ff;
+}
+
+.mainstat-option.selected {
+  border-color: #2196F3;
+  background: #e3f2fd;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-name {
+  font-weight: bold;
+  color: #333;
+}
+
+.stat-value {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.checkmark {
+  color: #4CAF50;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* Уровни артефактов */
+.level-selection {
+  flex: 1;
+  min-width: 200px;
+}
+
+.level-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.level-btn {
+  padding: 8px 12px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.level-btn:hover {
+  border-color: #2196F3;
+  background: #f0f8ff;
+}
+
+.level-btn.active {
+  border-color: #2196F3;
+  background: #2196F3;
+  color: white;
+}
+
+/* Субстаты */
+.substats-container {
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  background: #fafafa;
+}
+
+.substats-group {
+  margin-bottom: 20px;
+}
+
+.substats-group h4 {
+  color: #555;
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+.substats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 10px;
+}
+
+.substat-option {
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  background: white;
+  transition: all 0.3s;
+}
+
+.substat-option.selected {
+  border-color: #FF9800;
+  background: #fff3e0;
+}
+
+.substat-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.substat-checkbox {
+  position: relative;
+}
+
+.substat-checkbox input {
+  opacity: 0;
+  position: absolute;
+}
+
+.checkmark {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  position: relative;
+  background: white;
+}
+
+.substat-checkbox input:checked ~ .checkmark {
+  background: #4CAF50;
+  border-color: #4CAF50;
+}
+
+.substat-checkbox input:checked ~ .checkmark::after {
+  content: '✓';
+  position: absolute;
+  color: white;
+  font-weight: bold;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.substat-name {
+  flex: 1;
+  font-weight: bold;
+  color: #333;
+}
+
+.substat-value {
+  color: #666;
+  font-weight: bold;
+}
+
+.substat-controls {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #eee;
+}
+
+.upgrades-control, .roll-control {
+  margin-top: 10px;
+}
+
+.upgrades-control label, .roll-control label {
+  display: block;
+  margin-bottom: 5px;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.upgrade-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.upgrade-btn {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.upgrade-btn:hover {
+  border-color: #2196F3;
+  background: #f0f8ff;
+}
+
+.upgrade-btn.active {
+  border-color: #2196F3;
+  background: #2196F3;
+  color: white;
+}
+
+.roll-select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+}
+
+/* Превью артефакта */
+.artifact-preview {
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  background: #fafafa;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-preview {
+  color: #999;
+  text-align: center;
+}
+
+.preview-content {
+  width: 100%;
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.preview-header h4 {
+  margin: 0;
+  color: #333;
+}
+
+.preview-level {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.preview-mainstat {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  border: 1px solid #eee;
+}
+
+.mainstat-name {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 5px;
+}
+
+.mainstat-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.preview-substats {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.preview-substats h5 {
+  margin: 0 0 10px 0;
+  color: #555;
+}
+
+.substat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.substat-row:last-child {
+  border-bottom: none;
+}
+
+.substat-name {
+  flex: 1;
+  color: #333;
+}
+
+.substat-value {
+  font-weight: bold;
+  color: #2196F3;
+  margin-right: 10px;
+}
+
+.substat-upgrades {
+  color: #666;
+  font-size: 0.8rem;
+}
+
+/* Кнопки действий */
+.artifact-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.save-artifact-btn, .cancel-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.3s;
+}
+
+.save-artifact-btn {
+  background: #4CAF50;
+  color: white;
+}
+
+.save-artifact-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.save-artifact-btn:not(:disabled):hover {
+  background: #45a049;
+}
+
+.cancel-btn {
+  background: #f44336;
+  color: white;
+}
+
+.cancel-btn:hover {
+  background: #da190b;
+}
+
+/* Мини-превью в слоте */
+.artifact-mini-preview {
+  background: white;
+  border-radius: 8px;
+  padding: 10px;
+  border: 2px solid #eee;
+  transition: all 0.3s;
+}
+
+.artifact-mini-preview:hover {
+  border-color: #2196F3;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(33, 150, 243, 0.2);
+}
+
+.mini-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid #eee;
+}
+
+.mini-set {
+  font-weight: bold;
+  color: #333;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mini-level {
+  background: #2196F3;
+  color: white;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+.mini-mainstat {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mini-substats {
+  font-size: 0.8rem;
+  color: #888;
+}
+
+.mini-substat {
+  display: inline-block;
+  margin-right: 5px;
+  margin-bottom: 3px;
+  padding: 2px 6px;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.mini-substat-more {
+  display: inline-block;
+  padding: 2px 6px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .artifact-modal-content {
+    width: 95%;
+    max-height: 95vh;
+  }
+  
+  .mainstat-selection {
+    flex-direction: column;
+  }
+  
+  .sets-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  
+  .substats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .artifact-modal-actions {
+    flex-direction: column;
+  }
+  
+  .save-artifact-btn, .cancel-btn {
+    width: 100%;
+  }
+}

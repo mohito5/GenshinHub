@@ -1,4 +1,20 @@
-
+:root {
+  --light: #abbbc0;
+  --light0-5:rgba(171, 187, 192,0.5);
+  --dark: #2f2a24;
+  --dark0-5:rgba(47, 42, 36,0.5);
+  --dark0-8:rgba(47, 42, 36,0.8);
+  --pyro: #ff957a;
+  --hydro: #7999c3; 
+  --anemo: #79c3b2; 
+  --electro: #c379c0; 
+  --dendro: #87c379; 
+  --cryo: #79bdc3; 
+  --geo: #c3b279;
+  --star5: #f4bb60;
+  --star4: #9b60f4;
+  --star51: #daa520;
+}
 @font-face {
   font-family: "MatrixType-Bold";
   font-style: normal;
@@ -6,8 +22,7 @@
 }
 
 @media only screen and (orientation: portrait) {
-  h1{font-size: 8vw;}
-  h2{font-size: 6vw;}
+ 
   
   body{  
     flex-direction: column; 
@@ -18,7 +33,7 @@
   }
 }
 @media only screen and (orientation: landscape) {
-  h1{font-size: 4vw;}
+  
   body{ 
     flex-direction: row-reverse; 
     gap: 1vw;
@@ -27,9 +42,77 @@
     padding: 1vw;
   }
 }
+@media only screen and (orientation: portrait) {
+/* Базовые размеры для portrait (вертикальная ориентация) */
+h1 {
+  font-size: 12vw;
+  line-height: 1.05;
+}
+
+h2 {
+  font-size: 8vw;
+  line-height: 1.15;
+}
+
+h3 {
+  font-size: 6vw;
+  line-height: 1.25;
+}
+
+h4 {
+  font-size: 4vw;
+  line-height: 1.3;
+}
+
+h5 {
+  font-size: 2.8vw;
+  line-height: 1.35;
+}
+
+h6 {
+  font-size: 2vw; /* Исправлено: было 6.2vw (ошибка) */
+  line-height: 1.4;
+}
+
+p {
+  font-size: 3.5vw;
+  line-height: 1.6;
+}}
+
+
+/* Коррекция для landscape (горизонтальная ориентация) */
+@media (orientation: landscape) {
+  h1 {
+    font-size: 4vw;
+    line-height: 1.1;
+  }
+  h2 {
+    font-size: 2.6vw;
+    line-height: 1.2;
+  }
+  h3 {
+    font-size: 3vw;
+    line-height: 1.25;
+  }
+  h4 {
+    font-size: 1.3vw;
+    line-height: 1.3;
+  }
+  h5 {
+    font-size: 1.4vw;
+    line-height: 1.35;
+  }
+  h6 {
+    font-size: 0.6vw;
+    line-height: 1.4;
+  }
+  p {
+    font-size: 1.16vw;
+    line-height: 1.6;
+  }
+}
 
 body{
-   height: auto;
   box-sizing: border-box; 
   display: flex; 
   width: 100%; height: 100%;
@@ -37,67 +120,8 @@ body{
   font-family: Tahoma, Verdana, Helvetica, sans-serif;
 }
 
-#content { height: 100%; width: 100%; margin: 0;
-  display: flex;
-}
-
-
-
-
-/* Адаптивность */
-@media (max-width: 600px) {
-  .mini-calendar {
-    font-size: 0.9rem;
-  }
-  .day {
-    height: 32px;
-    font-size: 0.85rem;
-  }
-}
-.nav-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  text-decoration: none;
-  color: #333;
-  border-radius: 6px;
-  transition: all 0.3s ease;
-}
-
-/* Неактивные пункты: только иконка */
-.nav-item:not(.active) {
-  opacity: 1;
-}
-
-.nav-item:not(.active) .nav-label {
-  display: none; /* Скрываем название*/
-}
-
-.nav-label {
-  font-size: 14px;
-  white-space: nowrap;
-}
-
-
-.nav-item.active {
-  font-weight: bold;
-}
-
-.nav-icon {
-  width: 24px;
-  height: 24px;
-  transition: transform 0.3s ease;
-}
-
-.nav-item:hover .nav-icon {
-  transform: scale(1.1);
-}
-
-.nav-label {
-  font-size: 12px;
-  font-weight: 500;
-  text-align: center;
+#content {  margin: 0; 
+  display: flex; flex: 1;
 }
 
 
@@ -178,9 +202,26 @@ body{
   color: white;
 }
 
-
+@media only screen and (orientation: portrait) {
+  .br-r4 { border-radius: 4vw;}
+  .pad-3 { padding: 3vw; }
+}
+@media only screen and (orientation: landscape) {
+  .br-r4 { border-radius: 1.33vw;}
+  .pad-3 { padding: 1vw; }
+}
 
 .br-lght { border:var(--light) 1px solid; }
 .br-drk { border: var(--dark) 1px solid; }
-.br-r4 {border-radius: 4vw;}
-.pad-2 {padding: 2vw;}
+
+.bg-lt { background-color: var(--light);}
+.bg-dr { background-color: var(--dark);}
+
+.br-r6 { border-radius: 6vw;}
+
+
+
+
+.pad-2 { padding: 2vw; } 
+
+.gp-2 {gap:2vw;}

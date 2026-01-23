@@ -25,6 +25,10 @@
     padding: 2vw; 
     gap: 1vw; width: 100%; 
   }
+  .nav-item:not(.active) .nav-label {
+  display: none; /* Скрываем название*/
+}
+
   .nav-links {
   
   display: flex; flex-direction: row;
@@ -53,6 +57,11 @@
   z-index: 1; 
   color: var(--light);
 }
+.nav-icon {
+  width: 5vw;
+  height: 5vw;
+  transition: transform 0.3s ease;
+}
   /* Стили для переключателя языка */
 .language-switcher {
   flex-direction: row;
@@ -71,7 +80,7 @@
 @media only screen and (orientation: landscape) {
   /* Навигация */
   header {
-    top: 0; 
+    top: 0; left: 0; 
     height: 100vh; 
   }
   .main-nav { 
@@ -102,6 +111,11 @@
     z-index: 1; 
     color: var(--light);
   }
+  .nav-icon {
+  width: 1.6vw;
+  height: 1.6vw;
+  transition: transform 0.3s ease;
+}
   /* Стили для переключателя языка */
   .language-switcher {
     flex-direction: column;top: 0;
@@ -118,7 +132,7 @@
 header { 
   position: sticky; 
   display: flex; 
-  margin: 0;
+  margin: 0; 
   transform: translateZ(0); 
 }
 /* Навигация */
@@ -149,6 +163,7 @@ header {
   z-index: 1; 
   color: var(--light);
 }
+
 
 .nav-item.active {
   color: var(--dark);
@@ -192,7 +207,7 @@ header {
 .language-switcher {
   display: flex;  
   left: 0;
-  background-color: var(--dark);
+  background-color: var(--dark); outline: var(--light) 5px solid;
 }
 
 .language-switcher .lang-btn {
@@ -212,6 +227,35 @@ header {
   color: var(--dark);
   font-weight: bold;
 }
+
+
+
+/* Неактивные пункты: только иконка */
+.nav-item:not(.active) {
+  opacity: 1;
+}
+
+
+.nav-label {
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+
+.nav-item.active {
+  font-weight: bold;
+}
+
+.nav-item:hover .nav-icon {
+  transform: scale(1.1);
+}
+
+.nav-label {
+  
+  font-weight: 500;
+  text-align: center;
+}
+
 
 
 /* Кнопки фильтра и назад */

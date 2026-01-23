@@ -92,6 +92,8 @@
   color: white;
 }
 
+.filter-button{background-color: black;}
+
 @keyframes slideIn {
   from {
     transform: translateX(100%);
