@@ -16,33 +16,63 @@ export class TelegramStorage {
     }
 
     // Сохранение данных
+    // Исправленный метод setItem для Telegram
     async setItem(key, value) {
         if (this.isTelegram) {
             return new Promise((resolve, reject) => {
                 try {
-                    Telegram.WebApp.CloudStorage.setItem(key, JSON.stringify(value), (error) => {
-                        if (error) {
-                            console.error('Ошибка сохранения в Telegram Cloud:', error);
-                            // Резервный вариант в localStorage
-                            localStorage.setItem(key, JSON.stringify(value));
+                const stringValue = JSON.stringify(value);
+        
+                // Проверяем размер данных
+                if (stringValue.length > 4096) {
+                    console.error(`Данные слишком большие для ключа ${key}: ${stringValue.length} байт (макс. 4096)`);
+                    resolve(false);
+                    return;
+                }
+        
+                Telegram.WebApp.CloudStorage.setItem(key, stringValue, (error) => {
+                    if (error) {
+                        console.error(`Ошибка сохранения ${key} в Telegram Cloud:`, error);
+                        // Пробуем сохранить в localStorage как резерв
+                        try {
+                            localStorage.setItem(key, stringValue);
+                            console.log(`Данные ${key} сохранены локально как резерв`);
+                            resolve(false); // Возвращаем false, т.к. в Cloud не сохранилось
+                        } catch (localError) {
+                            console.error(`Ошибка сохранения ${key} в localStorage:`, localError);
                             resolve(false);
-                        } else {
-                            console.log(`Данные сохранены в Telegram Cloud: ${key}`);
-                            resolve(true);
                         }
-                    });
-                } catch (e) {
-                    console.error('Ошибка Telegram API:', e);
+                    } else {
+                        console.log(`✅ Данные ${key} успешно сохранены в Telegram Cloud (${stringValue.length} байт)`);
+                        // Также сохраняем локально для быстрого доступа
+                        localStorage.setItem(key, stringValue);
+                        resolve(true);
+                    }
+                });
+            } catch (e) {
+                console.error('Ошибка Telegram API:', e);
+                // Пробуем сохранить в localStorage
+                try {
                     localStorage.setItem(key, JSON.stringify(value));
                     resolve(false);
+                } catch (localError) {
+                    console.error('Ошибка сохранения в localStorage:', localError);
+                    resolve(false);
+                    }
                 }
-            });
-        } else {
-            localStorage.setItem(key, JSON.stringify(value));
-            return Promise.resolve(false);
+                });
+            } else {
+            // В браузере просто сохраняем в localStorage
+            try {
+                localStorage.setItem(key, JSON.stringify(value));
+                console.log(`Данные ${key} сохранены в localStorage`);
+                return Promise.resolve(false); // false = не в Telegram Cloud
+            } catch (error) {
+                console.error(`Ошибка сохранения ${key} в localStorage:`, error);
+                return Promise.resolve(false);
+            }
         }
     }
-
     // Получение данных
     async getItem(key, defaultValue = null) {
         if (this.isTelegram) {
@@ -133,108 +163,141 @@ export class TelegramStorage {
     }
 
     // Полная синхронизация всех данных пользователя
+    // Полная синхронизация всех данных пользователя - ИСПРАВЛЕННАЯ
     async syncAllUserData() {
-        if (!this.isTelegram) {
-            console.log('Синхронизация доступна только в Telegram Mini App');
-            return false;
-        }
+  if (!this.isTelegram) {
+    console.log('Синхронизация доступна только в Telegram Mini App');
+    return false;
+  }
 
-        if (this.syncInProgress) {
-            console.log('Синхронизация уже выполняется...');
-            return false;
-        }
+  if (this.syncInProgress) {
+    console.log('Синхронизация уже выполняется...');
+    return false;
+  }
 
-        this.syncInProgress = true;
-        console.log('=== НАЧАЛО ПОЛНОЙ СИНХРОНИЗАЦИИ ДАННЫХ ===');
+  this.syncInProgress = true;
+  console.log('=== НАЧАЛО ПОЛНОЙ СИНХРОНИЗАЦИИ ДАННЫХ ===');
 
+  try {
+    // Получаем уникальный ID пользователя
+    const userId = await this.getUserIdentifier();
+    if (!userId) {
+      console.error('Не удалось получить идентификатор пользователя');
+      this.syncInProgress = false;
+      return false;
+    }
+
+    console.log('Идентификатор пользователя:', userId);
+
+    // Ключи для синхронизации (только важные данные)
+    const syncKeys = [
+      'savedMaterials',
+      'userProfile',
+      'lang'
+    ];
+
+    // Загружаем из локального хранилища
+    const localData = {};
+    let hasData = false;
+
+    for (const key of syncKeys) {
+      const data = localStorage.getItem(key);
+      if (data) {
         try {
-            // Получаем уникальный ID пользователя
-            const userId = await this.getUserIdentifier();
-            if (!userId) {
-                console.error('Не удалось получить идентификатор пользователя');
-                this.syncInProgress = false;
-                return false;
-            }
-
-            console.log('Идентификатор пользователя:', userId);
-
-            // Ключи для синхронизации
-            const syncKeys = [
-                'userProfile',
-                'savedMaterials',
-                'calculatorSaves',
-                'characterLevelData',
-                'characterData',
-                'selectedCharacter',
-                'weaponLevelData',
-                'selectedWeapon',
-                'lang',
-                'userSettings'
-            ];
-
-            // Загружаем из локального хранилища
-            const localData = {};
-            let hasData = false;
-
-            for (const key of syncKeys) {
-                const data = localStorage.getItem(key);
-                if (data) {
-                    try {
-                        localData[key] = JSON.parse(data);
-                        hasData = true;
-                        console.log(`Данные для синхронизации: ${key}`);
-                    } catch (error) {
-                        console.error(`Ошибка парсинга ${key}:`, error);
-                    }
-                }
-            }
-
-            if (!hasData) {
-                console.log('Нет данных для синхронизации');
-                this.syncInProgress = false;
-                return false;
-            }
-
-            // Добавляем метаданные синхронизации
-            const syncData = {
-                userId,
-                data: localData,
-                lastSynced: Date.now(),
-                syncTimestamp: new Date().toISOString(),
-                version: '1.0',
-                deviceInfo: {
-                    userAgent: navigator.userAgent,
-                    platform: navigator.platform,
-                    language: navigator.language
-                }
-            };
-
-            // Сохраняем в Cloud Storage
-            const syncKey = `user_data_${userId}`;
-            const result = await this.setItem(syncKey, syncData);
-
-            if (result) {
-                console.log('✅ Все данные пользователя синхронизированы с облаком');
-                console.log('Синхронизированные ключи:', Object.keys(localData));
-                
-                // Сохраняем время последней синхронизации
-                localStorage.setItem('lastSyncTime', Date.now().toString());
-                localStorage.setItem('lastSyncStatus', 'success');
-            } else {
-                console.log('⚠️ Синхронизация выполнена, но данные сохранены локально');
-                localStorage.setItem('lastSyncStatus', 'partial');
-            }
-
-            this.syncInProgress = false;
-            return true;
-
+          localData[key] = JSON.parse(data);
+          hasData = true;
+          console.log(`Данные для синхронизации: ${key} (размер: ${data.length} байт)`);
         } catch (error) {
-            console.error('❌ Ошибка синхронизации данных пользователя:', error);
-            localStorage.setItem('lastSyncStatus', 'error');
-            localStorage.setItem('lastSyncError', error.message);
-            this.syncInProgress = false;
-            return false;
+          console.error(`Ошибка парсинга ${key}:`, error);
         }
+      }
+    }
+
+    if (!hasData) {
+      console.log('Нет данных для синхронизации');
+      this.syncInProgress = false;
+      return false;
+    }
+
+    // Проверяем общий размер данных
+    const totalSize = JSON.stringify(localData).length;
+    console.log('Общий размер данных для синхронизации:', totalSize, 'байт');
+    
+    // Telegram Cloud Storage имеет ограничения:
+    // - 4096 байт на ключ
+    // - 65536 байт всего
+    if (totalSize > 4000) {
+      console.warn('⚠️ Данные слишком большие для одного ключа, оптимизируем...');
+      
+      // Разделяем данные если нужно
+      if (localData.savedMaterials && JSON.stringify(localData.savedMaterials).length > 4000) {
+        console.warn('Сохранения слишком большие, сохраняем только первые 10');
+        if (Array.isArray(localData.savedMaterials)) {
+          localData.savedMaterials = localData.savedMaterials.slice(0, 10);
+        }
+      }
+    }
+
+    // Добавляем метаданные синхронизации
+    const syncData = {
+      userId,
+      data: localData,
+      lastSynced: Date.now(),
+      syncTimestamp: new Date().toISOString(),
+      version: '1.0',
+      deviceInfo: {
+        userAgent: navigator.userAgent.substring(0, 100), // Ограничиваем длину
+        platform: navigator.platform,
+        language: navigator.language
+      }
+    };
+
+    // Сохраняем в Cloud Storage
+    const syncKey = `user_data_${userId}`;
+    console.log('Сохранение в Cloud Storage, ключ:', syncKey);
+    
+    const result = await this.setItem(syncKey, syncData);
+
+    if (result === true) {
+      console.log('✅ Все данные пользователя синхронизированы с облаком');
+      console.log('Синхронизированные ключи:', Object.keys(localData));
+      
+      // Сохраняем время последней синхронизации
+      localStorage.setItem('lastSyncTime', Date.now().toString());
+      localStorage.setItem('lastSyncStatus', 'success');
+      
+      this.syncInProgress = false;
+      return true;
+    } else {
+      console.log('⚠️ Синхронизация выполнена, но данные сохранены локально (result=false)');
+      localStorage.setItem('lastSyncStatus', 'partial');
+      localStorage.setItem('lastSyncError', 'Cloud Storage вернул false');
+      
+      // В Telegram иногда Cloud Storage возвращает false даже при успехе
+      // Проверяем, сохранились ли данные на самом деле
+      try {
+        const checkData = await this.getItem(syncKey);
+        if (checkData) {
+          console.log('✅ Данные фактически сохранены в Cloud Storage (проверено)');
+          localStorage.setItem('lastSyncStatus', 'success');
+          this.syncInProgress = false;
+          return true;
+        }
+      } catch (checkError) {
+        console.error('Ошибка проверки сохраненных данных:', checkError);
+      }
+      
+      this.syncInProgress = false;
+      return false;
+    }
+
+  } catch (error) {
+    console.error('❌ Ошибка синхронизации данных пользователя:', error);
+    localStorage.setItem('lastSyncStatus', 'error');
+    localStorage.setItem('lastSyncError', error.message);
+    this.syncInProgress = false;
+    return false;
+  }
     }
 
     // Загрузка всех данных пользователя из облака

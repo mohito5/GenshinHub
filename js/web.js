@@ -2016,118 +2016,153 @@ function setupGlobalFunctions() {
 }
 
 // Инициализация приложения - ИСПРАВЛЕННАЯ ВЕРСИЯ
+// web.js - исправленный initApp для Telegram
+
+// Инициализация приложения - ИСПРАВЛЕННАЯ ВЕРСИЯ ДЛЯ TELEGRAM
 async function initApp() {
-    console.log('=== ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ ===');
-    
-    // Проверяем, в Telegram Mini App ли мы
-    const isTelegram = typeof Telegram !== 'undefined' && Telegram.WebApp;
-    
-    if (isTelegram) {
-        console.log('✅ Запуск в Telegram Mini App');
-        try {
-            // Инициализируем Telegram WebApp
-            Telegram.WebApp.ready();
-            Telegram.WebApp.expand();
-            
-            // Настраиваем тему
-            const theme = Telegram.WebApp.colorScheme;
-            document.documentElement.setAttribute('data-theme', theme);
-            console.log('Тема установлена:', theme);
-            
-            // Показываем основную кнопку если нужно
-            if (Telegram.WebApp.MainButton) {
-                Telegram.WebApp.MainButton.hide();
-            }
-            
-        } catch (error) {
-            console.error('Ошибка инициализации Telegram WebApp:', error);
-        }
-    } else {
-        console.log('🌐 Запуск в браузере');
+  console.log('=== ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ ===');
+  
+  // Проверяем, в Telegram Mini App ли мы
+  const isTelegram = typeof Telegram !== 'undefined' && Telegram.WebApp;
+  
+  if (isTelegram) {
+    console.log('✅ Запуск в Telegram Mini App');
+    try {
+      // Инициализируем Telegram WebApp
+      Telegram.WebApp.ready();
+      Telegram.WebApp.expand();
+      
+      // Настраиваем тему
+      const theme = Telegram.WebApp.colorScheme;
+      document.documentElement.setAttribute('data-theme', theme);
+      console.log('Тема установлена:', theme);
+      
+      // Показываем основную кнопку если нужно
+      if (Telegram.WebApp.MainButton) {
+        Telegram.WebApp.MainButton.hide();
+      }
+      
+      // Устанавливаем BackButton поведение
+      if (Telegram.WebApp.BackButton) {
+        Telegram.WebApp.BackButton.onClick(() => {
+          if (window.location.hash && window.location.hash !== '#/home') {
+            window.history.back();
+          } else {
+            Telegram.WebApp.close();
+          }
+        });
+      }
+      
+      // Проверяем Cloud Storage
+      if (Telegram.WebApp.CloudStorage) {
+        console.log('✅ Telegram Cloud Storage доступен');
+      } else {
+        console.log('⚠️ Telegram Cloud Storage не доступен');
+      }
+      
+    } catch (error) {
+      console.error('Ошибка инициализации Telegram WebApp:', error);
     }
-    
-    // Загружаем синхронизированные данные из облака ПЕРЕД инициализацией
-    if (isTelegram && window.telegramStorage) {
-        console.log('📥 Загрузка синхронизированных данных из облака...');
-        try {
-            await window.telegramStorage.loadUserData();
-            console.log('✅ Данные успешно загружены из облака');
-        } catch (error) {
-            console.error('❌ Ошибка загрузки данных из облака:', error);
-        }
+  } else {
+    console.log('🌐 Запуск в браузере');
+  }
+  
+  // Загружаем синхронизированные данные из облака ПЕРЕД инициализацией
+  if (isTelegram && window.telegramStorage) {
+    console.log('📥 Загрузка синхронизированных данных из облака...');
+    try {
+      const cloudData = await window.telegramStorage.loadUserData();
+      if (cloudData) {
+        console.log('✅ Данные успешно загружены из облака');
+      } else {
+        console.log('⚠️ Данных в облаке нет или ошибка загрузки');
+      }
+    } catch (error) {
+      console.error('❌ Ошибка загрузки данных из облака:', error);
     }
-    
-    // Устанавливаем глобальные функции
-    setupGlobalFunctions();
+  }
+  
+  // Устанавливаем глобальные функции
+  setupGlobalFunctions();
 
-    // Инициализируем глобальные обработчики событий
-    initGlobalEventListeners();
+  // Инициализируем глобальные обработчики событий
+  initGlobalEventListeners();
 
-    // Инициализируем менеджер сохранений
-    if (typeof initSaveManager === 'function') {
-        initSaveManager();
-    }
-    
-    // Устанавливаем язык из localStorage или по умолчанию
-    const savedLang = localStorage.getItem('lang');
-    if (savedLang && (savedLang === 'ru' || savedLang === 'en')) {
-        window.currentLang = savedLang;
+  // Инициализируем менеджер сохранений
+  if (typeof initSaveManager === 'function') {
+    initSaveManager();
+  }
+  
+  // Устанавливаем язык из localStorage или по умолчанию
+  const savedLang = localStorage.getItem('lang');
+  if (savedLang && (savedLang === 'ru' || savedLang === 'en')) {
+    window.currentLang = savedLang;
+  } else {
+    window.currentLang = 'ru';
+    localStorage.setItem('lang', 'ru');
+  }
+  
+  console.log('Установлен язык:', window.currentLang);
+  
+  // Инициализируем глобальный обработчик локализации
+  initGlobalLocaleHandler();
+  
+  // Немедленно обновляем кнопки языка
+  setTimeout(() => {
+    updateLanguageButtons(window.currentLang);
+  }, 0);
+  
+  // Применяем переводы к навигации
+  localizeNavigation(window.currentLang);
+  
+  // Настраиваем слушатели
+  setupNavigationListeners();
+  
+  // ОБНОВЛЯЕМ АКТИВНУЮ НАВИГАЦИЮ ПЕРЕД ПОКАЗОМ СТРАНИЦЫ
+  updateActiveNav();
+
+  // ВАЖНО: Получаем хэш и определяем начальную страницу
+  const hash = window.location.hash;
+  console.log('Текущий хэш при инициализации:', hash);
+  
+  let initialPage = 'home'; // По умолчанию показываем home
+  
+  if (hash && hash.length > 2) {
+    // Убираем #/ из хэша
+    const pageFromHash = hash.slice(2);
+    if (pageFromHash && pageLayouts[pageFromHash]) {
+      initialPage = pageFromHash;
+      console.log('Страница из хэша:', initialPage);
     } else {
-        window.currentLang = 'ru';
-        localStorage.setItem('lang', 'ru');
+      console.log('Страница из хэша не найдена:', pageFromHash);
     }
-    
-    console.log('Установлен язык:', window.currentLang);
-    
-    // Инициализируем глобальный обработчик локализации
-    initGlobalLocaleHandler();
-    
-    // Немедленно обновляем кнопки языка
-    setTimeout(() => {
-        updateLanguageButtons(window.currentLang);
-    }, 0);
-    
-    // Применяем переводы к навигации
-    localizeNavigation(window.currentLang);
-    
-    // Настраиваем слушатели
-    setupNavigationListeners();
-    
+  } else {
+    console.log('Хэш пустой или некорректный, используем страницу по умолчанию: home');
+  }
+  
+  console.log('Начальная страница:', initialPage);
+  
+  // Показываем начальную страницу
+  window.showPage(initialPage);
+  
+  // ЕЩЕ РАЗ ОБНОВЛЯЕМ НАВИГАЦИЮ ПОСЛЕ ПОКАЗА СТРАНИЦЫ
+  setTimeout(() => {
     updateActiveNav();
-
-    // ВАЖНО: Получаем хэш и определяем начальную страницу
-    const hash = window.location.hash;
-    console.log('Текущий хэш:', hash);
-    
-    let initialPage = 'home'; // По умолчанию показываем home
-    
-    if (hash && hash.length > 2) {
-        // Убираем #/ из хэша
-        const pageFromHash = hash.slice(2);
-        if (pageFromHash && pageLayouts[pageFromHash]) {
-            initialPage = pageFromHash;
-            console.log('Страница из хэша:', initialPage);
-        } else {
-            console.log('Страница из хэша не найдена:', pageFromHash);
-        }
-    } else {
-        console.log('Хэш пустой или некорректный, используем страницу по умолчанию: home');
-    }
-    
-    console.log('Начальная страница:', initialPage);
-    
-    // Показываем начальную страницу
-    window.showPage(initialPage);
-    
-    setTimeout(() => moveHighlight(), 200);
+    moveHighlight();
+  }, 300);
+  
+  // Для Telegram: сохраняем флаг первого запуска
+  if (isTelegram) {
+    localStorage.setItem('telegramFirstLaunch', 'true');
+  }
 }
 
 // Запуск при загрузке DOM
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initApp);
+  document.addEventListener('DOMContentLoaded', initApp);
 } else {
-    // DOM уже загружен
-    initApp();
+  // DOM уже загружен
+  initApp();
 }
 
 // Экспортируем для модулей
