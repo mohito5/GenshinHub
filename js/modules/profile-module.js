@@ -3,6 +3,7 @@ import { translations } from '../translations.js';
 import { formatNumber } from '../utils/number-utils.js';
 import { loadCalculatorSaveById } from './calculator-module.js';
 import { charsData } from '../characterData.js';
+import telegramStorage from '../telegram-storage.js';
 
 // В начале файла добавьте этот код для экспорта charsData в window
 if (typeof window !== 'undefined') {
@@ -11,6 +12,7 @@ if (typeof window !== 'undefined') {
 }
 // Инициализация модуля профиля
 // Инициализация модуля профиля
+// Обновите функцию initProfileModule
 export function initProfileModule() {
   console.log('Инициализация модуля профиля');
   
@@ -20,13 +22,11 @@ export function initProfileModule() {
   // Инициализируем профиль пользователя
   initUserProfile();
   
-  // Загружаем данные из Telegram если доступно
-  if (checkTelegramEnvironment()) {
-    loadFromTelegramStorage();
-  }
-  
-  // Рендерим сохраненные материалы
-  renderSavedMaterials();
+  // Загружаем данные из Telegram Cloud
+  setTimeout(async () => {
+    await telegramStorage.loadFromCloud();
+    renderSavedMaterials();
+  }, 500);
   
   // Добавляем обработчики событий
   setupProfileEventListeners();
@@ -44,7 +44,6 @@ export function initProfileModule() {
     preloadAvatarsInBackground();
   }, 500);
 }
-
 // Новая функция для фоновой предзагрузки аватаров
 // Обновленная функция preloadAvatarsInBackground
 // Новая функция для фоновой предзагрузки аватаров
@@ -258,11 +257,29 @@ function saveUserSettings() {
   
   localStorage.setItem('userProfile', JSON.stringify(userProfile));
   
+  // Сохраняем в Telegram Cloud
+  telegramStorage.setItem('userProfile', userProfile);
+  
+  // Синхронизируем все данные
+  telegramStorage.syncProfile();
+  
   // Показываем уведомление о сохранении
   showSaveNotification('Настройки профиля сохранены', 'success');
   
   console.log('Настройки пользователя сохранены:', userProfile);
 }
+
+// Добавьте новую функцию для обновления сохранений
+export async function updateSaveInCloud(saveData) {
+  const updatedSaves = await telegramStorage.updateSave(saveData);
+  return updatedSaves;
+}
+
+export async function deleteSaveFromCloud(saveId, type) {
+  const updatedSaves = await telegramStorage.deleteSave(saveId, type);
+  return updatedSaves;
+}
+
 // Настройка обработчиков событий профиля
 function setupProfileEventListeners() {
   // Кнопка сохранения имени
@@ -312,8 +329,81 @@ function setupProfileEventListeners() {
       }, 1000);
     });
   }
+
+  // Кнопка синхронизации
+  const syncBtn = document.getElementById('sync-profile-btn');
+  if (!syncBtn) {
+    addSyncButton();
+  } else {
+    syncBtn.addEventListener('click', syncProfile);
+  }
+}
+// Функция добавления кнопки синхронизации
+function addSyncButton() {
+  const profileHeader = document.querySelector('.profile-header');
+  if (!profileHeader) return;
+  
+  const syncBtn = document.createElement('button');
+  syncBtn.id = 'sync-profile-btn';
+  syncBtn.innerHTML = `
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path d="M12 6V3L8 7l4 4V8c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 14c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 14c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+    </svg>
+    Синхронизировать
+  `;
+  
+  syncBtn.style.cssText = `
+    background: #2196F3;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+    margin-left: auto;
+  `;
+  
+  syncBtn.addEventListener('click', syncProfile);
+  profileHeader.appendChild(syncBtn);
 }
 
+// Функция синхронизации
+async function syncProfile() {
+  const syncBtn = document.getElementById('sync-profile-btn');
+  if (syncBtn) {
+    syncBtn.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M12 4V2L8 6l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zM4 12c0-1.01.25-1.97.7-2.8L3.24 7.74A7.93 7.93 0 002 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3c-3.31 0-6-2.69-6-6z"/>
+      </svg>
+      Синхронизация...
+    `;
+    syncBtn.disabled = true;
+  }
+  
+  try {
+    await telegramStorage.syncProfile();
+    renderSavedMaterials();
+    
+    showSaveNotification('Профиль синхронизирован между устройствами!', 'success');
+  } catch (error) {
+    showSaveNotification('Ошибка синхронизации: ' + error.message, 'error');
+  } finally {
+    if (syncBtn) {
+      setTimeout(() => {
+        syncBtn.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 6V3L8 7l4 4V8c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 14c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 14c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+          </svg>
+          Синхронизировать
+        `;
+        syncBtn.disabled = false;
+      }, 1000);
+    }
+  }
+}
 // Открытие селектора аватаров
 // Обновленная функция openAvatarSelector
 function openAvatarSelector() {
@@ -695,6 +785,19 @@ function setupAutoSave() {
 // profile-module.js - обновленная функция renderSavedMaterials
 function renderSavedMaterials() {
   console.log('=== RENDER SAVED MATERIALS START ===');
+
+  // Проверяем наличие синхронизированных данных
+  setTimeout(async () => {
+    const cloudData = await telegramStorage.getItem('savedMaterials', []);
+    const localData = JSON.parse(localStorage.getItem('savedMaterials') || '[]');
+    
+    // Если в облаке есть более свежие данные, используем их
+    if (cloudData.length > 0 && cloudData.length !== localData.length) {
+      console.log('Обнаружены синхронизированные данные из облака:', cloudData.length);
+      localStorage.setItem('savedMaterials', JSON.stringify(cloudData));
+    }
+  }, 100);
+
   const container = document.getElementById('saved-materials-container');
   
   if (!container) {

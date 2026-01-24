@@ -741,24 +741,24 @@ export const pageLayouts = {
       <h1 data-i18n="pages.profile.title">Профиль</h1>
       
       <!-- Блок профиля пользователя -->
-      <section class="profile-user-section br-drk br-r4 pad-3" style="margin-bottom: 30px;">
-        <div class="user-profile-container" style="display: flex; gap: 20px; align-items: center; flex-wrap: wrap;">
+      <section class="profile-user-section br-drk br-r4">
+        <div class="user-profile-container" style="display: flex; gap: 20px;  ">
           <!-- Левая часть: Аватар -->
           <div class="user-avatar-section">
             <div class="avatar-container" style="position: relative;">
               <img id="user-avatar" src="assets/avatar-icon/default-user.png" 
                    alt="Аватар пользователя" 
-                   class="user-avatar br-r4"
+                   class="user-avatar br-r4 bg-dr"
                    style="width: 100px; height: 100px; object-fit: cover; cursor: pointer;">
               <button id="change-avatar-btn" class="avatar-change-btn br-r4"
-                      style="position: absolute; bottom: -10px; right: -10px; background: #4CAF50; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                      style="position: absolute; bottom: 0px; right: 0px; background: #4CAF50; color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;">
                 ✏️
               </button>
             </div>
             
             <!-- Меню выбора аватара (скрыто по умолчанию) -->
-            <div id="avatar-selector" class="avatar-selector-container br-drk br-r4 pad-2" 
-                 style="display: none; position: absolute; z-index: 1000; background: white; width: 300px; max-height: 400px; overflow-y: auto; box-shadow: 0 5px 20px rgba(0,0,0,0.2);">
+            <div id="avatar-selector" class="avatar-selector-container br-drk br-r4 pad-2 bg-dr" 
+                 style="display: none; position: absolute; z-index: 1000; width: 300px; max-height: 400px; overflow-y: auto;">
               <h4 style="margin: 0 0 10px 0; color: #333;">Выберите аватар</h4>
               <div class="avatar-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 15px 0;">
                 <!-- Аватары будут загружены динамически -->
@@ -789,7 +789,7 @@ export const pageLayouts = {
             <div class="profile-description">
               <p style="color: #666; margin: 0; font-style: italic;">
                 Это ваш персональный профиль. Здесь вы можете сохранять настройки персонажей, 
-                оружия и сборки калькулятора. Все данные сохраняются автоматически.
+                оружия и сборки калькулятора.
               </p>
             </div>
             
@@ -823,18 +823,6 @@ export const pageLayouts = {
           </a>
           
           <!-- Дополнительные функции можно добавить здесь -->
-          <div class="function-card br-drk br-r4 pad-3" 
-               style="display: flex; align-items: center; gap: 15px; background: #f3e5f5; opacity: 0.7; cursor: not-allowed;">
-            <div class="function-icon" style="font-size: 32px; color: #9C27B0;">
-              📊
-            </div>
-            <div class="function-info">
-              <h3 style="margin: 0 0 5px 0; color: #9C27B0;">Статистика (скоро)</h3>
-              <p style="margin: 0; color: #666; font-size: 14px;">
-                Анализ ваших сохранений и прогресса
-              </p>
-            </div>
-          </div>
           
           <div class="function-card br-drk br-r4 pad-3" 
                style="display: flex; align-items: center; gap: 15px; background: #f1f8e9; opacity: 0.7; cursor: not-allowed;">
