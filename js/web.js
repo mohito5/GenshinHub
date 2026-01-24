@@ -68,6 +68,7 @@ import { formatNumber, parseFormattedNumber } from './utils/number-utils.js';
 
 // web.js - добавьте в начало файла после других импортов
 import { charsData } from './characterData.js';
+import telegramStorage from './telegram-storage.js';
 
 // Добавьте charsData в глобальный объект window
 window.charsData = charsData;
@@ -2030,6 +2031,11 @@ function setupGlobalFunctions() {
 // Инициализация приложения
 function initApp() {
     console.log('Инициализация приложения...');
+
+    // Проверяем и загружаем данные из Telegram Cloud
+  setTimeout(async () => {
+    await telegramStorage.loadFromCloud();
+  }, 1000);
     
     // Устанавливаем глобальные функции
     setupGlobalFunctions();
