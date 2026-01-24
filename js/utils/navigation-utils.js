@@ -203,19 +203,92 @@ export function addFilterButtonForPages(pageId) {
 // Обновление активной навигации
 // navigation-utils.js - упрощенная версия
 export function updateActiveNav() {
-    const navItems = document.querySelectorAll('.nav-item');
-    const currentPage = window.location.hash.slice(2) || 'home';
-    
-    navItems.forEach(item => {
-        const pageId = item.getAttribute('data-page');
-        item.classList.remove('active');
-        
-        if (currentPage === pageId || currentPage.startsWith(pageId + '/')) {
-            item.classList.add('active');
-        }
+  console.log('updateActiveNav вызвана');
+  
+  const navLinks = document.querySelectorAll('nav a');
+  if (!navLinks.length) {
+    console.error('Навигационные ссылки не найдены');
+    return;
+  }
+  
+  // Получаем текущий хэш
+  let currentHash = window.location.hash;
+  console.log('Текущий хэш:', currentHash);
+  
+  // Если хэш пустой, определяем текущую страницу
+  if (!currentHash || currentHash === '#' || currentHash === '#/') {
+    // Проверяем, есть ли сохраненная текущая страница
+    const currentPage = localStorage.getItem('currentPage');
+    if (currentPage) {
+      currentHash = `#/${currentPage}`;
+    } else {
+      currentHash = '#/home'; // По умолчанию home
+    }
+    console.log('Хэш пустой, установлен:', currentHash);
+  }
+  
+  // Удаляем класс active у всех ссылок
+  navLinks.forEach(link => {
+    link.classList.remove('active');
+  });
+  
+  // Находим ссылку, соответствующую текущему хэшу
+  let activeLink = null;
+  
+  // Сначала пробуем точное совпадение
+  activeLink = Array.from(navLinks).find(link => {
+    const href = link.getAttribute('href');
+    return href === currentHash;
+  });
+  
+  // Если не нашли, пробуем частичное совпадение
+  if (!activeLink) {
+    activeLink = Array.from(navLinks).find(link => {
+      const href = link.getAttribute('href');
+      if (!href) return false;
+      
+      // Для подстраниц (например, characters/mat)
+      if (currentHash.startsWith('#/characters/') && href === '#/characters') {
+        return true;
+      }
+      if (currentHash.startsWith('#/weapon/') && href === '#/weapon') {
+        return true;
+      }
+      if (currentHash.startsWith('#/date/') && href === '#/date') {
+        return true;
+      }
+      if (currentHash.startsWith('#/profile/') && href === '#/profile') {
+        return true;
+      }
+      
+      return false;
     });
-
-    setTimeout(() => moveHighlight(), 50);
+  }
+  
+  // Если все еще не нашли, активируем home
+  if (!activeLink) {
+    activeLink = Array.from(navLinks).find(link => link.getAttribute('href') === '#/home');
+    if (activeLink) {
+      console.log('Активируем home как ссылку по умолчанию');
+    }
+  }
+  
+  // Активируем найденную ссылку
+  if (activeLink) {
+    activeLink.classList.add('active');
+    console.log('Активная ссылка установлена:', activeLink.getAttribute('href'));
+    
+    // Сохраняем текущую страницу
+    const page = currentHash.slice(2) || 'home';
+    localStorage.setItem('currentPage', page);
+  } else {
+    console.error('Не удалось найти активную ссылку для хэша:', currentHash);
+  }
+  
+  // Обновляем хайлайт
+  setTimeout(() => {
+    moveHighlight();
+  }, 100);
 }
 
 export function moveHighlight() {
@@ -255,11 +328,25 @@ export function handleNavigation(e) {
     }
 }
 
+// Также обновите функцию handleHashChange:
 export function handleHashChange() {
-    const pageId = window.location.hash.slice(2) || 'home';
-    if (typeof window.showPage === 'function') {
-        window.showPage(pageId);
-    }
+  console.log('handleHashChange вызвана, хэш:', window.location.hash);
+  
+  const hash = window.location.hash;
+  const page = hash.slice(2) || 'home';
+  
+  // Сохраняем текущую страницу
+  localStorage.setItem('currentPage', page);
+  
+  // Показываем страницу
+  if (typeof window.showPage === 'function') {
+    window.showPage(page);
+  } else {
+    console.error('Функция showPage не найдена');
+  }
+  
+  // Обновляем активную навигацию
+  updateActiveNav();
 }
 
 export function handleResize() {
