@@ -10,11 +10,10 @@ if (typeof window !== 'undefined') {
   window.charsData = charsData;
   console.log('charsData добавлен в window:', Object.keys(charsData).length, 'персонажей');
 }
+
 // Инициализация модуля профиля
-// Инициализация модуля профиля
-// Обновите функцию initProfileModule
 export function initProfileModule() {
-  console.log('Инициализация модуля профиля');
+  console.log('=== ИНИЦИАЛИЗАЦИЯ МОДУЛЯ ПРОФИЛЯ ===');
   
   // Устанавливаем идентификатор пользователя
   setupUserIdentifier();
@@ -22,11 +21,21 @@ export function initProfileModule() {
   // Инициализируем профиль пользователя
   initUserProfile();
   
-  // Загружаем данные из Telegram Cloud
+  // СНАЧАЛА отображаем сохраненные материалы
+  renderSavedMaterials();
+  
+  // ПОТОМ загружаем данные из Telegram Cloud (в фоне)
   setTimeout(async () => {
-    await telegramStorage.loadFromCloud();
-    renderSavedMaterials();
-  }, 500);
+    console.log('Фоновая загрузка данных из Telegram Cloud...');
+    try {
+      await telegramStorage.loadFromCloud();
+      // После загрузки из облака обновляем отображение
+      console.log('Данные из облака загружены, обновляем отображение...');
+      renderSavedMaterials();
+    } catch (error) {
+      console.error('Ошибка загрузки из облака:', error);
+    }
+  }, 100);
   
   // Добавляем обработчики событий
   setupProfileEventListeners();
@@ -43,9 +52,10 @@ export function initProfileModule() {
   setTimeout(() => {
     preloadAvatarsInBackground();
   }, 500);
+  
+  console.log('Модуль профиля инициализирован');
 }
-// Новая функция для фоновой предзагрузки аватаров
-// Обновленная функция preloadAvatarsInBackground
+
 // Новая функция для фоновой предзагрузки аватаров
 function preloadAvatarsInBackground() {
   console.log('Фоновая предзагрузка аватаров...');
@@ -63,14 +73,11 @@ function preloadAvatarsInBackground() {
     Object.values(charsData).forEach(character => {
       if (character && character.avatar_icon) {
         avatarUrls.add(character.avatar_icon);
-        console.log('Добавлен аватар персонажа:', character.ru_name || character.en_name, character.avatar_icon);
       }
     });
-  } else {
-    console.log('Импортированный charsData не доступен');
   }
   
-  // Добавляем общие аватары
+  // Общие аватары (элементы и дефолтный)
   const commonUrls = [
     'assets/avatar-icon/default-user.png',
     'assets/avatar-icon/anemo.png',
@@ -84,17 +91,13 @@ function preloadAvatarsInBackground() {
   
   commonUrls.forEach(url => {
     avatarUrls.add(url);
-    console.log('Добавлен общий аватар:', url);
   });
-  
-  console.log('Всего URL для предзагрузки:', avatarUrls.size);
   
   // Предзагружаем каждое изображение
   avatarUrls.forEach(url => {
     const img = new Image();
     
     img.onload = function() {
-      console.log('Аватар успешно предзагружен:', url);
       // Сохраняем в кэше
       window.avatarImageCache.set(url, img);
     };
@@ -105,8 +108,6 @@ function preloadAvatarsInBackground() {
     
     img.src = url;
   });
-  
-  console.log('Предзагрузка аватаров завершена');
 }
 
 // Локализация страницы профиля
@@ -155,6 +156,7 @@ function localizeProfilePage() {
     }
   });
 }
+
 // Инициализация профиля пользователя
 function initUserProfile() {
   console.log('Инициализация профиля пользователя');
@@ -168,6 +170,7 @@ function initUserProfile() {
     initBrowserProfile();
   }
 }
+
 // Проверка окружения Telegram
 function checkTelegramEnvironment() {
   if (typeof window.Telegram !== 'undefined' && 
@@ -181,7 +184,6 @@ function checkTelegramEnvironment() {
   const isTelegramWebView = userAgent.includes('telegram') || 
                            userAgent.includes('webview');
   
-  console.log('Telegram окружение:', isTelegramWebView);
   return isTelegramWebView;
 }
 
@@ -199,11 +201,17 @@ function initTelegramProfile() {
         ? `@${user.username}` 
         : `${user.first_name || ''} ${user.last_name || ''}`.trim();
       
-      document.getElementById('username-input').value = username;
+      const usernameInput = document.getElementById('username-input');
+      if (usernameInput) {
+        usernameInput.value = username;
+      }
       
       // Если есть фото, используем его
       if (user.photo_url) {
-        document.getElementById('user-avatar').src = user.photo_url;
+        const userAvatar = document.getElementById('user-avatar');
+        if (userAvatar) {
+          userAvatar.src = user.photo_url;
+        }
       }
       
       // Сохраняем Telegram ID для привязки данных
@@ -233,12 +241,14 @@ function initBrowserProfile() {
 function loadUserSettings() {
   const savedProfile = JSON.parse(localStorage.getItem('userProfile') || '{}');
   
-  if (savedProfile.username) {
-    document.getElementById('username-input').value = savedProfile.username;
+  const usernameInput = document.getElementById('username-input');
+  if (usernameInput && savedProfile.username) {
+    usernameInput.value = savedProfile.username;
   }
   
-  if (savedProfile.avatar) {
-    document.getElementById('user-avatar').src = savedProfile.avatar;
+  const userAvatar = document.getElementById('user-avatar');
+  if (userAvatar && savedProfile.avatar) {
+    userAvatar.src = savedProfile.avatar;
   }
   
   console.log('Настройки пользователя загружены:', savedProfile);
@@ -246,8 +256,16 @@ function loadUserSettings() {
 
 // Сохранение настроек пользователя
 function saveUserSettings() {
-  const username = document.getElementById('username-input').value.trim();
-  const avatar = document.getElementById('user-avatar').src;
+  const usernameInput = document.getElementById('username-input');
+  const userAvatar = document.getElementById('user-avatar');
+  
+  if (!usernameInput || !userAvatar) {
+    console.error('Элементы профиля не найдены');
+    return;
+  }
+  
+  const username = usernameInput.value.trim();
+  const avatar = userAvatar.src;
   
   const userProfile = {
     username: username || 'Пользователь',
@@ -258,10 +276,20 @@ function saveUserSettings() {
   localStorage.setItem('userProfile', JSON.stringify(userProfile));
   
   // Сохраняем в Telegram Cloud
-  telegramStorage.setItem('userProfile', userProfile);
+  if (window.telegramStorage) {
+    window.telegramStorage.setItem('userProfile', userProfile);
+  }
   
   // Синхронизируем все данные
-  telegramStorage.syncProfile();
+  if (window.telegramStorage) {
+    setTimeout(async () => {
+      try {
+        await window.telegramStorage.syncAllUserData();
+      } catch (error) {
+        console.error('Ошибка синхронизации:', error);
+      }
+    }, 100);
+  }
   
   // Показываем уведомление о сохранении
   showSaveNotification('Настройки профиля сохранены', 'success');
@@ -269,19 +297,10 @@ function saveUserSettings() {
   console.log('Настройки пользователя сохранены:', userProfile);
 }
 
-// Добавьте новую функцию для обновления сохранений
-export async function updateSaveInCloud(saveData) {
-  const updatedSaves = await telegramStorage.updateSave(saveData);
-  return updatedSaves;
-}
-
-export async function deleteSaveFromCloud(saveId, type) {
-  const updatedSaves = await telegramStorage.deleteSave(saveId, type);
-  return updatedSaves;
-}
-
-// Настройка обработчиков событий профиля
+// ПОЛНЫЙ КОД ФУНКЦИИ setupProfileEventListeners:
 function setupProfileEventListeners() {
+  console.log('Настройка обработчиков событий профиля');
+  
   // Кнопка сохранения имени
   const saveUsernameBtn = document.getElementById('save-username-btn');
   if (saveUsernameBtn) {
@@ -330,21 +349,45 @@ function setupProfileEventListeners() {
     });
   }
 
-  // Кнопка синхронизации
-  const syncBtn = document.getElementById('sync-profile-btn');
-  if (!syncBtn) {
-    addSyncButton();
-  } else {
-    syncBtn.addEventListener('click', syncProfile);
-  }
+  // Кнопка синхронизации - добавляем сразу
+  addSyncButton();
+  
+  // Обработчики для карточек сохранений
+  setTimeout(() => {
+    setupSaveCardEventListeners();
+  }, 500);
+  
+  console.log('Обработчики событий профиля настроены');
 }
+
 // Функция добавления кнопки синхронизации
 function addSyncButton() {
   const profileHeader = document.querySelector('.profile-header');
-  if (!profileHeader) return;
+  const profileUserSection = document.querySelector('.profile-user-section');
+  const savedContentHeader = document.querySelector('.saved-content-header');
+  
+  let container = null;
+  
+  if (profileHeader) {
+    container = profileHeader;
+  } else if (savedContentHeader) {
+    container = savedContentHeader.parentNode;
+  } else if (profileUserSection) {
+    container = profileUserSection.parentNode;
+  }
+  
+  if (!container) {
+    console.log('Контейнер для кнопки синхронизации не найден');
+    return;
+  }
+  
+  // Удаляем старую кнопку если есть
+  const oldBtn = document.getElementById('sync-profile-btn');
+  if (oldBtn) oldBtn.remove();
   
   const syncBtn = document.createElement('button');
   syncBtn.id = 'sync-profile-btn';
+  syncBtn.className = 'sync-btn';
   syncBtn.innerHTML = `
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
       <path d="M12 6V3L8 7l4 4V8c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 14c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 14c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
@@ -363,49 +406,99 @@ function addSyncButton() {
     align-items: center;
     gap: 8px;
     font-weight: bold;
-    margin-left: auto;
+    margin: 10px 0;
+    transition: background 0.3s;
   `;
   
-  syncBtn.addEventListener('click', syncProfile);
-  profileHeader.appendChild(syncBtn);
-}
-
-// Функция синхронизации
-async function syncProfile() {
-  const syncBtn = document.getElementById('sync-profile-btn');
-  if (syncBtn) {
-    syncBtn.innerHTML = `
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-        <path d="M12 4V2L8 6l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zM4 12c0-1.01.25-1.97.7-2.8L3.24 7.74A7.93 7.93 0 002 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3c-3.31 0-6-2.69-6-6z"/>
-      </svg>
-      Синхронизация...
-    `;
-    syncBtn.disabled = true;
+  syncBtn.onmouseover = () => syncBtn.style.background = '#1976D2';
+  syncBtn.onmouseout = () => syncBtn.style.background = '#2196F3';
+  syncBtn.onclick = syncProfile;
+  
+  // Вставляем кнопку в подходящее место
+  if (savedContentHeader && savedContentHeader.parentNode) {
+    // Вставляем перед блоком сохранений
+    savedContentHeader.parentNode.insertBefore(syncBtn, savedContentHeader);
+  } else {
+    // Добавляем в конец контейнера
+    container.appendChild(syncBtn);
   }
   
+  console.log('Кнопка синхронизации добавлена');
+}
+
+// Функция синхронизации профиля
+async function syncProfile() {
+  const syncBtn = document.getElementById('sync-profile-btn');
+  if (!syncBtn) return;
+  
+  const originalHTML = syncBtn.innerHTML;
+  
+  // Показываем состояние загрузки
+  syncBtn.innerHTML = `
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path d="M12 4V2L8 6l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zM4 12c0-1.01.25-1.97.7-2.8L3.24 7.74A7.93 7.93 0 002 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3c-3.31 0-6-2.69-6-6z"/>
+    </svg>
+    Синхронизация...
+  `;
+  syncBtn.disabled = true;
+  syncBtn.style.opacity = '0.7';
+  syncBtn.style.cursor = 'wait';
+  
   try {
-    await telegramStorage.syncProfile();
-    renderSavedMaterials();
-    
-    showSaveNotification('Профиль синхронизирован между устройствами!', 'success');
+    if (window.telegramStorage) {
+      console.log('Начинаем синхронизацию...');
+      
+      // Сначала загружаем данные из облака
+      console.log('1. Загрузка данных из облака...');
+      const cloudData = await window.telegramStorage.loadUserData();
+      
+      if (cloudData) {
+        console.log('✅ Данные из облака загружены:', Object.keys(cloudData.data || {}).length, 'записей');
+      }
+      
+      // Затем синхронизируем обратно
+      console.log('2. Синхронизация данных с облаком...');
+      const syncResult = await window.telegramStorage.syncAllUserData();
+      
+      if (syncResult) {
+        // Обновляем отображение профиля
+        console.log('3. Обновление отображения профиля...');
+        renderSavedMaterials();
+        
+        // Показываем статус синхронизации
+        const syncStatus = window.telegramStorage.getSyncStatus();
+        let message = 'Профиль синхронизирован!';
+        
+        if (syncStatus.lastSyncTime) {
+          const syncTime = new Date(parseInt(syncStatus.lastSyncTime)).toLocaleString();
+          message = `Синхронизировано: ${syncTime}`;
+        }
+        
+        showSaveNotification(message, 'success');
+        console.log('✅ Синхронизация завершена успешно');
+      } else {
+        showSaveNotification('Синхронизация завершена локально', 'warning');
+        console.log('⚠️ Синхронизация завершена локально');
+      }
+    } else {
+      showSaveNotification('Синхронизация доступна только в Telegram', 'warning');
+      console.log('⚠️ Telegram Storage не доступен');
+    }
   } catch (error) {
+    console.error('❌ Ошибка синхронизации:', error);
     showSaveNotification('Ошибка синхронизации: ' + error.message, 'error');
   } finally {
-    if (syncBtn) {
-      setTimeout(() => {
-        syncBtn.innerHTML = `
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M12 6V3L8 7l4 4V8c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 14c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 14c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
-          </svg>
-          Синхронизировать
-        `;
-        syncBtn.disabled = false;
-      }, 1000);
-    }
+    // Восстанавливаем кнопку
+    setTimeout(() => {
+      syncBtn.innerHTML = originalHTML;
+      syncBtn.disabled = false;
+      syncBtn.style.opacity = '1';
+      syncBtn.style.cursor = 'pointer';
+    }, 1000);
   }
 }
+
 // Открытие селектора аватаров
-// Обновленная функция openAvatarSelector
 function openAvatarSelector() {
   const selector = document.getElementById('avatar-selector');
   if (!selector) return;
@@ -436,7 +529,6 @@ function closeAvatarSelector() {
 }
 
 // Загрузка опций аватаров
-// profile-module.js - обновленная функция loadAvatarOptions
 function loadAvatarOptions() {
   const avatarGrid = document.querySelector('.avatar-grid');
   if (!avatarGrid) {
@@ -460,8 +552,6 @@ function loadAvatarOptions() {
   
   // Используем импортированный charsData
   if (charsData && typeof charsData === 'object') {
-    console.log('Найдено персонажей в charsData:', Object.keys(charsData).length);
-    
     Object.values(charsData).forEach(character => {
       if (character && character.avatar_icon) {
         avatars.push({
@@ -469,11 +559,8 @@ function loadAvatarOptions() {
           name: character.ru_name || character.en_name || 'Персонаж',
           type: 'character'
         });
-        console.log('Добавлен аватар персонажа:', character.ru_name, character.avatar_icon);
       }
     });
-  } else {
-    console.log('charsData не доступен');
   }
   
   // Общие аватары (элементы и дефолтный)
@@ -492,11 +579,8 @@ function loadAvatarOptions() {
   commonAvatars.forEach(avatar => {
     if (!avatars.some(a => a.src === avatar.src)) {
       avatars.push(avatar);
-      console.log('Добавлен общий аватар:', avatar.name);
     }
   });
-  
-  console.log('Всего доступных аватаров:', avatars.length);
   
   // Очищаем и заполняем сетку
   avatarGrid.innerHTML = '';
@@ -576,44 +660,16 @@ function createAvatarElement(avatar, avatarGrid, imageCache) {
   if (preloadedImage && preloadedImage.complete) {
     // Изображение уже загружено - сразу показываем
     img.style.opacity = '1';
-    console.log('Используем предзагруженное изображение:', avatar.src);
-  } else {
-    // Загружаем изображение
-    console.log('Начинаем загрузку изображения:', avatar.src);
   }
   
   // Обработчик загрузки
   img.onload = function() {
     this.style.opacity = '1';
-    console.log('Изображение загружено:', avatar.src);
   };
   
-  // Обработчик ошибок с защитой от бесконечных попыток
-  let errorAttempts = 0;
-  const maxErrorAttempts = 1;
-  
+  // Обработчик ошибок
   img.onerror = function() {
-    errorAttempts++;
-    if (errorAttempts <= maxErrorAttempts) {
-      console.log(`Ошибка загрузки: ${avatar.src}, попытка ${errorAttempts}`);
-      // Пробуем загрузить fallback изображение
-      this.src = 'assets/avatar-icon/default-user.png';
-    } else {
-      console.log(`Превышено количество попыток загрузки: ${avatar.src}`);
-      this.style.opacity = '0';
-      // Показываем иконку вместо изображения
-      const fallbackIcon = document.createElement('div');
-      fallbackIcon.textContent = '👤';
-      fallbackIcon.style.cssText = `
-        font-size: 24px;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        color: #999;
-      `;
-      imageContainer.appendChild(fallbackIcon);
-    }
+    this.src = 'assets/avatar-icon/default-user.png';
   };
   
   // Создаем overlay с названием
@@ -643,7 +699,10 @@ function createAvatarElement(avatar, avatarGrid, imageCache) {
   // Обработчики событий
   avatarItem.addEventListener('click', () => {
     console.log('Выбран аватар:', avatar.name, avatar.src);
-    document.getElementById('user-avatar').src = avatar.src;
+    const userAvatar = document.getElementById('user-avatar');
+    if (userAvatar) {
+      userAvatar.src = avatar.src;
+    }
     closeAvatarSelector();
   });
   
@@ -686,59 +745,6 @@ function syncWithTelegramStorage() {
   }
 }
 
-// Загрузка данных из Telegram Cloud Storage
-function loadFromTelegramStorage() {
-  if (!checkTelegramEnvironment()) return;
-  
-  try {
-    const webApp = window.Telegram.WebApp;
-    const cloudStorage = webApp.CloudStorage;
-    
-    if (cloudStorage) {
-      // Загружаем профиль
-      cloudStorage.getItem('userProfile', (error, profileData) => {
-        if (!error && profileData) {
-          try {
-            const profile = JSON.parse(profileData);
-            localStorage.setItem('userProfile', JSON.stringify(profile));
-            
-            // Применяем загруженные настройки
-            if (profile.username) {
-              document.getElementById('username-input').value = profile.username;
-            }
-            if (profile.avatar) {
-              document.getElementById('user-avatar').src = profile.avatar;
-            }
-            
-            console.log('Профиль загружен из Telegram Cloud Storage');
-          } catch (e) {
-            console.error('Ошибка парсинга профиля из Telegram:', e);
-          }
-        }
-      });
-      
-      // Загружаем сохранения
-      cloudStorage.getItem('savedMaterials', (error, materialsData) => {
-        if (!error && materialsData) {
-          try {
-            const materials = JSON.parse(materialsData);
-            localStorage.setItem('savedMaterials', JSON.stringify(materials));
-            
-            // Обновляем отображение
-            renderSavedMaterials();
-            
-            console.log('Сохранения загружены из Telegram Cloud Storage');
-          } catch (e) {
-            console.error('Ошибка парсинга сохранений из Telegram:', e);
-          }
-        }
-      });
-    }
-  } catch (error) {
-    console.error('Ошибка загрузки из Telegram Cloud Storage:', error);
-  }
-}
-
 // Проверка и установка уникального идентификатора пользователя
 function setupUserIdentifier() {
   let userId = localStorage.getItem('userId');
@@ -775,28 +781,15 @@ function setupAutoSave() {
     saveUserSettings();
     
     // Синхронизация с Telegram если доступно
-    if (checkTelegramEnvironment()) {
-      syncWithTelegramStorage();
+    if (checkTelegramEnvironment() && window.telegramStorage) {
+      window.telegramStorage.syncOnUnload();
     }
   });
 }
 
 // Рендеринг сохраненных материалов - ИСПРАВЛЕННАЯ ФУНКЦИЯ
-// profile-module.js - обновленная функция renderSavedMaterials
 function renderSavedMaterials() {
   console.log('=== RENDER SAVED MATERIALS START ===');
-
-  // Проверяем наличие синхронизированных данных
-  setTimeout(async () => {
-    const cloudData = await telegramStorage.getItem('savedMaterials', []);
-    const localData = JSON.parse(localStorage.getItem('savedMaterials') || '[]');
-    
-    // Если в облаке есть более свежие данные, используем их
-    if (cloudData.length > 0 && cloudData.length !== localData.length) {
-      console.log('Обнаружены синхронизированные данные из облака:', cloudData.length);
-      localStorage.setItem('savedMaterials', JSON.stringify(cloudData));
-    }
-  }, 100);
 
   const container = document.getElementById('saved-materials-container');
   
@@ -805,10 +798,11 @@ function renderSavedMaterials() {
     return;
   }
   
-  // ВАЖНО: Получаем ВСЕ сохранения из общего массива
+  // Получаем ВСЕ сохранения из localStorage
   const savedMaterials = JSON.parse(localStorage.getItem('savedMaterials') || '[]');
   
-  console.log('Все сохранения из savedMaterials:', savedMaterials);
+  console.log('Все сохранения из savedMaterials:', savedMaterials.length, 'записей');
+  console.log('Содержимое сохранений:', savedMaterials);
   
   // Фильтруем по типам
   const characterSaves = savedMaterials.filter(save => 
@@ -838,6 +832,65 @@ function renderSavedMaterials() {
   
   // Очищаем контейнер
   container.innerHTML = '';
+  
+  // Если нет сохранений вообще
+  if (savedMaterials.length === 0) {
+    const lang = window.currentLang || 'ru';
+    const translationsObj = translations[lang] || translations['ru'];
+    
+    container.innerHTML = `
+      <div class="no-saves-message" style="text-align: center; padding: 50px 20px;">
+        <div style="font-size: 64px; color: #ccc; margin-bottom: 20px;">📂</div>
+        <h3 style="color: #666; margin-bottom: 15px;">${translationsObj.profile?.noSaves || 'Нет сохраненных настроек'}</h3>
+        <p style="color: #888; max-width: 500px; margin: 0 auto 25px;">
+          ${translationsObj.profile?.noSavesDescription || 'Сохраните настройки персонажей, оружия или калькулятора, чтобы они появились здесь.'}
+        </p>
+        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+          <button onclick="window.location.hash = '#/characters'" style="
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+          ">
+            👤 ${translationsObj.common?.characters || 'Персонажи'}
+          </button>
+          <button onclick="window.location.hash = '#/weapon'" style="
+            background: #FF9800;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+          ">
+            ⚔️ ${translationsObj.common?.weapons || 'Оружие'}
+          </button>
+          <button onclick="window.location.hash = '#/profile/calculator'" style="
+            background: #2196F3;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+          ">
+            🧮 ${translationsObj.calculator?.title || 'Калькулятор'}
+          </button>
+        </div>
+      </div>
+    `;
+    
+    // Устанавливаем обработчики для новых кнопок
+    setTimeout(() => {
+      setupSaveCardEventListeners();
+    }, 100);
+    
+    console.log('=== RENDER SAVED MATERIALS END (нет сохранений) ===');
+    return;
+  }
   
   // СОЗДАЕМ РАЗДЕЛЫ ДЛЯ КАЖДОГО ТИПА
   
@@ -889,68 +942,26 @@ function renderSavedMaterials() {
     container.appendChild(calculatorSection);
   }
   
-  // Если нет сохранений вообще
-  if (savedMaterials.length === 0) {
-    const lang = window.currentLang || 'ru';
-    const translationsObj = translations[lang] || translations['ru'];
-    
-    container.innerHTML = `
-      <div class="no-saves-message" style="text-align: center; padding: 50px 20px;">
-        <div style="font-size: 64px; color: #ccc; margin-bottom: 20px;">📂</div>
-        <h3 style="color: #666; margin-bottom: 15px;">${translationsObj.profile?.noSaves || 'Нет сохраненных настроек'}</h3>
-        <p style="color: #888; max-width: 500px; margin: 0 auto 25px;">
-          ${translationsObj.profile?.noSavesDescription || 'Сохраните настройки персонажей, оружия или калькулятора, чтобы они появились здесь.'}
-        </p>
-        <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-          <button onclick="window.location.hash = '#/characters'" style="
-            background: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-          ">
-            👤 ${translationsObj.common?.characters || 'Персонажи'}
-          </button>
-          <button onclick="window.location.hash = '#/weapon'" style="
-            background: #FF9800;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-          ">
-            ⚔️ ${translationsObj.common?.weapons || 'Оружие'}
-          </button>
-          <button onclick="window.location.hash = '#/profile/calculator'" style="
-            background: #2196F3;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: bold;
-          ">
-            🧮 ${translationsObj.calculator?.title || 'Калькулятор'}
-          </button>
-        </div>
-      </div>
-    `;
-  }
-  
   // Удаляем старые обработчики и добавляем новые
   setTimeout(() => {
     setupSaveCardEventListeners();
   }, 100);
+  
+  console.log('=== RENDER SAVED MATERIALS END (отображено сохранений) ===');
 }
 
-// profile-module.js - обновленная функция setupSaveCardEventListeners
-// profile-module.js - добавьте эти функции
-// Обновите функцию setupSaveCardEventListeners
+// Настройка обработчиков для карточек сохранений
 function setupSaveCardEventListeners() {
   console.log('Настройка обработчиков для карточек сохранений');
+  
+  // Удаляем старые обработчики
+  document.querySelectorAll('.load-save-btn').forEach(btn => {
+    btn.replaceWith(btn.cloneNode(true));
+  });
+  
+  document.querySelectorAll('.delete-save-btn').forEach(btn => {
+    btn.replaceWith(btn.cloneNode(true));
+  });
   
   // Обработчик для кнопок "Перейти"
   document.addEventListener('click', function(e) {
@@ -1003,6 +1014,7 @@ function setupSaveCardEventListeners() {
     }
   });
 }
+
 // Рендеринг сохранений персонажей
 function renderCharacterSavesList(saves) {
   if (!saves || saves.length === 0) {
@@ -1016,22 +1028,14 @@ function renderCharacterSavesList(saves) {
     `;
   }
   
-  // Фильтруем только персонажей (не калькулятор и не оружие)
-  const characterSaves = saves.filter(save => 
-    save && 
-    typeof save === 'object' && 
-    (!save.type || save.type === 'character') &&
-    save.charKey // У персонажей есть charKey
-  );
-  
   // Сортируем по дате
-  characterSaves.sort((a, b) => {
+  saves.sort((a, b) => {
     const dateA = a.lastModified || a.date || 0;
     const dateB = b.lastModified || b.date || 0;
     return new Date(dateB) - new Date(dateA);
   });
   
-  return characterSaves.map((save, index) => 
+  return saves.map((save, index) => 
     renderSaveCard(save, 'character', index)
   ).join('');
 }
@@ -1056,7 +1060,6 @@ function renderWeaponSavesList(saves) {
     return new Date(dateB) - new Date(dateA);
   });
 
-  
   return saves.map((save, index) => 
     renderSaveCard(save, 'weapon', index)
   ).join('');
@@ -1064,7 +1067,16 @@ function renderWeaponSavesList(saves) {
 
 // Рендеринг сохранений калькулятора
 function renderCalculatorSavesList(saves) {
-  if (!saves || saves.length === 0) return '';
+  if (!saves || saves.length === 0) {
+    const lang = window.currentLang || 'ru';
+    const translationsObj = translations[lang] || translations['ru'];
+    return `
+      <div class="no-saves-message">
+        <div style="font-size: 48px; color: #ccc; margin-bottom: 20px;">🧮</div>
+        <h3>${translationsObj.profile?.noCalculatorSaves || 'Нет сохраненных сборок калькулятора'}</h3>
+      </div>
+    `;
+  }
 
   // Сортируем по дате
   saves.sort((a, b) => {
@@ -1078,8 +1090,7 @@ function renderCalculatorSavesList(saves) {
   ).join('');
 }
 
-// Рендеринг одной карточки сохранения - ИСПРАВЛЕННАЯ
-// profile-module.js - обновленная функция renderSaveCard
+// Рендеринг одной карточки сохранения
 function renderSaveCard(save, type) {
   const lang = window.currentLang || 'ru';
   const translationsObj = translations[lang] || translations['ru'];
@@ -1116,7 +1127,7 @@ function renderSaveCard(save, type) {
       
       statsText = `
         <div style="font-size: 12px; color: #666; margin-top: 5px;">
-          
+          <div>${charName}</div>
           <div>${weaponName}</div>
         </div>
       `;
@@ -1139,13 +1150,12 @@ function renderSaveCard(save, type) {
   return `
     <div class="saved-material-card br-r4 pad-2 br-drk bg-lt" data-type="${type}" data-id="${saveId}">
       <div style="display: flex; align-items: center; margin-bottom: 15px;">
-        
         <img src="${imageSrc}" 
              alt="${title}" 
              style="
                width: 50px;
                height: 50px;
-               
+               border-radius: 8px;
                object-fit: cover;
                margin-right: 15px;
              "
@@ -1167,7 +1177,7 @@ function renderSaveCard(save, type) {
                   color: white;
                   padding: 8px 0;
                   border: none;
-                  
+                  border-radius: 5px;
                   cursor: pointer;
                   font-weight: bold;
                   transition: background 0.3s;
@@ -1196,12 +1206,8 @@ function renderSaveCard(save, type) {
     </div>
   `;
 }
-// Загрузка сохраненных материалов из профиля
-// profile-module.js - обновленные функции загрузки и удаления
 
 // Загрузка сохраненных материалов из профиля по ID
-// profile-module.js - исправленная функция loadSavedMaterials
-// profile-module.js - исправленная функция loadSavedMaterials
 function loadSavedMaterials(saveId) {
   const savedMaterials = JSON.parse(localStorage.getItem('savedMaterials') || '[]');
   const save = savedMaterials.find(s => 
@@ -1222,10 +1228,6 @@ function loadSavedMaterials(saveId) {
   const attackMats = save.attackMaterials || save.characterData?.attackMaterials || {};
   const skillMats = save.skillMaterials || save.characterData?.skillMaterials || {};
   const burstMats = save.burstMaterials || save.characterData?.burstMaterials || {};
-  
-  console.log('Загруженные материалы из сохранения:', {
-    levelMats, attackMats, skillMats, burstMats
-  });
   
   const saveDataToLoad = {
     charName: save.characterName || save.name,
@@ -1264,10 +1266,6 @@ function loadSavedMaterials(saveId) {
   localStorage.setItem('characterData', JSON.stringify(saveDataToLoad));
   
   console.log('Данные загружены из профиля по ID:', saveId);
-  console.log('Материалы уровня:', levelMats);
-  console.log('Материалы атаки:', attackMats);
-  console.log('Материалы навыка:', skillMats);
-  console.log('Материалы взрыва:', burstMats);
   
   // Переходим на страницу материалов персонажа
   window.location.hash = '#/characters/mat';
@@ -1298,6 +1296,12 @@ function deleteSavedMaterials(saveId) {
   
   if (updatedMaterials.length < originalLength) {
     localStorage.setItem('savedMaterials', JSON.stringify(updatedMaterials));
+    
+    // Синхронизируем с облаком
+    if (window.telegramStorage) {
+      window.telegramStorage.setItem('savedMaterials', updatedMaterials);
+    }
+    
     renderSavedMaterials();
     showSaveNotification(translationsObj.notifications?.deleteSuccess || 'Сохранение удалено!', 'success');
   } else {
@@ -1352,6 +1356,12 @@ function deleteCalculatorSaveByID(saveId) {
   
   if (updatedMaterials.length < originalLength) {
     localStorage.setItem('savedMaterials', JSON.stringify(updatedMaterials));
+    
+    // Синхронизируем с облаком
+    if (window.telegramStorage) {
+      window.telegramStorage.setItem('savedMaterials', updatedMaterials);
+    }
+    
     renderSavedMaterials();
     showSaveNotification(translationsObj.notifications?.deleteSuccess || 'Сборка калькулятора удалена!', 'success');
   } else {
@@ -1425,52 +1435,18 @@ function deleteSavedWeapon(saveId) {
   
   if (updatedMaterials.length < originalLength) {
     localStorage.setItem('savedMaterials', JSON.stringify(updatedMaterials));
+    
+    // Синхронизируем с облаком
+    if (window.telegramStorage) {
+      window.telegramStorage.setItem('savedMaterials', updatedMaterials);
+    }
+    
     renderSavedMaterials();
     showSaveNotification(translationsObj.notifications?.deleteSuccess || 'Сохранение оружия удалено!', 'success');
   } else {
     showSaveNotification('Сохранение оружия не найдено', 'error');
   }
 }
-
-// Загрузка сборки калькулятора по индексу
-function loadCalculatorSaveByIndex(index) {
-  const calculatorSaves = JSON.parse(localStorage.getItem('calculatorSaves') || '[]');
-  const savedMaterials = JSON.parse(localStorage.getItem('savedMaterials') || '[]');
-  
-  let save = null;
-  
-  if (index >= 0 && index < calculatorSaves.length) {
-    save = calculatorSaves[index];
-  } else if (index >= 0) {
-    // Ищем в общих сохранениях
-    const calcSaves = savedMaterials.filter(s => s && s.type === 'calculator');
-    if (index < calcSaves.length) {
-      save = calcSaves[index];
-    }
-  }
-  
-  if (!save || typeof save !== 'object') {
-    console.error('Сохранение калькулятора не найдено');
-    showSaveNotification('Ошибка загрузки сборки калькулятора', 'error');
-    return;
-  }
-  
-  console.log('Загрузка сохранения калькулятора:', save);
-  
-  // Используем глобальную функцию из web.js
-  if (typeof window.loadCalculatorSaveById === 'function') {
-    window.loadCalculatorSaveById(save.id);
-  } else if (typeof loadCalculatorSaveById === 'function') {
-    loadCalculatorSaveById(save.id);
-  } else {
-    console.error('Функция loadCalculatorSaveById не найдена');
-    showSaveNotification('Ошибка загрузки калькулятора', 'error');
-  }
-}
-
-
-
-// profile-module.js - добавьте эти функции
 
 // Функция для показа модального окна подтверждения удаления
 function showDeleteConfirmationModal(saveId, type, saveName, saveData) {
@@ -1720,94 +1696,6 @@ function showDeleteConfirmationModal(saveId, type, saveName, saveData) {
     setTimeout(() => {
         cancelBtn.focus();
     }, 100);
-}
-
-
-
-// Удаление сборки калькулятора по индексу
-function deleteCalculatorSaveByIndex(index) {
-  const lang = window.currentLang || 'ru';
-  const translationsObj = translations[lang] || translations['ru'];
-  
-  if (!confirm(translationsObj.modals?.delete?.confirmCalculator || 'Удалить сборку калькулятора?')) return;
-  
-  const calculatorSaves = JSON.parse(localStorage.getItem('calculatorSaves') || '[]');
-  const savedMaterials = JSON.parse(localStorage.getItem('savedMaterials') || '[]');
-  
-  let saveToDelete = null;
-  
-  if (index >= 0 && index < calculatorSaves.length) {
-    saveToDelete = calculatorSaves[index];
-    
-    // Удаляем из массива калькулятора
-    calculatorSaves.splice(index, 1);
-    localStorage.setItem('calculatorSaves', JSON.stringify(calculatorSaves));
-    
-    // Удаляем из общего массива
-    const updatedMaterials = savedMaterials.filter(save => 
-      !(save && save.id === saveToDelete.id && save.type === 'calculator')
-    );
-    localStorage.setItem('savedMaterials', JSON.stringify(updatedMaterials));
-  } else {
-    // Ищем в общих сохранениях
-    const calcSaves = savedMaterials.filter(s => s && s.type === 'calculator');
-    if (index >= 0 && index < calcSaves.length) {
-      saveToDelete = calcSaves[index];
-      
-      // Удаляем из общего массива
-      const updatedMaterials = savedMaterials.filter(save => 
-        !(save && save.id === saveToDelete.id && save.type === 'calculator')
-      );
-      localStorage.setItem('savedMaterials', JSON.stringify(updatedMaterials));
-      
-      // Удаляем из массива калькулятора
-      const updatedCalcSaves = calculatorSaves.filter(save => 
-        !(save && save.id === saveToDelete.id)
-      );
-      localStorage.setItem('calculatorSaves', JSON.stringify(updatedCalcSaves));
-    }
-  }
-  
-  if (saveToDelete) {
-    renderSavedMaterials();
-    showSaveNotification(translationsObj.notifications?.deleteSuccess || 'Сборка калькулятора удалена!', 'success');
-  }
-}
-
-// Добавление кнопки обновления
-function addRefreshButton() {
-  const container = document.getElementById('saved-materials-container');
-  if (!container || !container.parentNode) return;
-  
-  const lang = window.currentLang || 'ru';
-  const translationsObj = translations[lang] || translations['ru'];
-  
-  // Удаляем старую кнопку если есть
-  const oldBtn = container.parentNode.querySelector('.refresh-profile-btn');
-  if (oldBtn) oldBtn.remove();
-  
-  const refreshBtn = document.createElement('button');
-  refreshBtn.className = 'refresh-profile-btn';
-  refreshBtn.textContent = translationsObj.common?.refresh || 'Обновить список';
-  refreshBtn.style.cssText = `
-    background: #2196F3;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin: 20px auto;
-    display: block;
-    transition: background 0.3s;
-  `;
-  refreshBtn.onmouseover = () => refreshBtn.style.background = '#1976D2';
-  refreshBtn.onmouseout = () => refreshBtn.style.background = '#2196F3';
-  refreshBtn.onclick = () => {
-    console.log('Ручное обновление списка сохранений');
-    renderSavedMaterials();
-  };
-  
-  container.parentNode.insertBefore(refreshBtn, container.nextSibling);
 }
 
 // Показать уведомление
