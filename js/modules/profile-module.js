@@ -12,43 +12,49 @@ if (typeof window !== 'undefined') {
 }
 
 // Инициализация модуля профиля
+// Обновленная функция initProfileModule для немедленного отображения сохранений
 export function initProfileModule() {
   console.log('=== ИНИЦИАЛИЗАЦИЯ МОДУЛЯ ПРОФИЛЯ ===');
   
-  // Устанавливаем идентификатор пользователя
-  setupUserIdentifier();
-  
-  // Инициализируем профиль пользователя
-  initUserProfile();
-  
-  // СНАЧАЛА отображаем сохраненные материалы
+  // 1. Сначала рендерим сохранения из локального хранилища НЕМЕДЛЕННО
+  console.log('Немедленный рендеринг локальных сохранений...');
   renderSavedMaterials();
   
-  // ПОТОМ загружаем данные из Telegram Cloud (в фоне)
-  setTimeout(async () => {
-    console.log('Фоновая загрузка данных из Telegram Cloud...');
-    try {
-      await telegramStorage.loadFromCloud();
-      // После загрузки из облака обновляем отображение
-      console.log('Данные из облака загружены, обновляем отображение...');
-      renderSavedMaterials();
-    } catch (error) {
-      console.error('Ошибка загрузки из облака:', error);
-    }
-  }, 100);
+  // 2. Устанавливаем идентификатор пользователя
+  setupUserIdentifier();
   
-  // Добавляем обработчики событий
+  // 3. Инициализируем профиль пользователя
+  initUserProfile();
+  
+  // 4. Загружаем данные из Telegram Cloud в фоне
+  setTimeout(async () => {
+    if (window.telegramStorage) {
+      try {
+        console.log('Фоновая загрузка данных из Telegram Cloud...');
+        const cloudData = await window.telegramStorage.loadUserData();
+        if (cloudData) {
+          console.log('Данные из облака загружены, обновляем отображение...');
+          // Обновляем сохранения с облачными данными
+          renderSavedMaterials();
+        }
+      } catch (error) {
+        console.error('Ошибка фоновой загрузки из облака:', error);
+      }
+    }
+  }, 500);
+  
+  // 5. Добавляем обработчики событий
   setupProfileEventListeners();
   
-  // Настраиваем автосохранение
+  // 6. Настраиваем автосохранение
   setupAutoSave();
   
-  // Локализация
+  // 7. Локализация
   setTimeout(() => {
     localizeProfilePage();
   }, 100);
   
-  // Предзагрузка аватаров в фоне
+  // 8. Предзагрузка аватаров в фоне
   setTimeout(() => {
     preloadAvatarsInBackground();
   }, 500);
@@ -298,6 +304,7 @@ function saveUserSettings() {
 }
 
 // ПОЛНЫЙ КОД ФУНКЦИИ setupProfileEventListeners:
+// Инициализация обработчиков событий профиля - ПОЛНАЯ ИСПРАВЛЕННАЯ ВЕРСИЯ
 function setupProfileEventListeners() {
   console.log('Настройка обработчиков событий профиля');
   
@@ -349,35 +356,82 @@ function setupProfileEventListeners() {
     });
   }
 
-  // Кнопка синхронизации - добавляем сразу
-  addSyncButton();
+  // Кнопка синхронизации
+  const syncBtn = document.getElementById('sync-profile-btn');
+  if (!syncBtn) {
+    // Добавляем кнопку синхронизации с задержкой
+    setTimeout(() => {
+      addSyncButton();
+    }, 300);
+  } else {
+    syncBtn.addEventListener('click', syncProfile);
+  }
   
-  // Обработчики для карточек сохранений
+  // Добавляем обработчик для синхронизации при загрузке страницы
   setTimeout(() => {
-    setupSaveCardEventListeners();
-  }, 500);
-  
-  console.log('Обработчики событий профиля настроены');
+    setupAutoSync();
+  }, 1000);
 }
 
+// Добавляем функцию настройки автосинхронизации
+function setupAutoSync() {
+  console.log('Настройка автосинхронизации');
+  
+  // Синхронизируем при видимости страницы
+  document.addEventListener('visibilitychange', function() {
+    if (!document.hidden && window.telegramStorage && window.telegramStorage.isTelegram) {
+      console.log('Страница стала видимой, синхронизируем...');
+      setTimeout(() => {
+        window.telegramStorage.syncAllUserData().then(success => {
+          if (success) {
+            console.log('Автосинхронизация завершена');
+          }
+        });
+      }, 2000);
+    }
+  });
+  
+  // Синхронизируем при фокусе на окне
+  window.addEventListener('focus', function() {
+    if (window.telegramStorage && window.telegramStorage.isTelegram) {
+      console.log('Окно в фокусе, проверяем синхронизацию...');
+      setTimeout(() => {
+        window.telegramStorage.loadUserData().then(data => {
+          if (data) {
+            console.log('Данные загружены при фокусе');
+            renderSavedMaterials();
+          }
+        });
+      }, 1000);
+    }
+  });
+}
+
+
 // Функция добавления кнопки синхронизации
+// Функция добавления кнопки синхронизации - ИСПРАВЛЕННАЯ
 function addSyncButton() {
-  const profileHeader = document.querySelector('.profile-header');
-  const profileUserSection = document.querySelector('.profile-user-section');
-  const savedContentHeader = document.querySelector('.saved-content-header');
+  console.log('Добавление кнопки синхронизации...');
+  
+  // Ищем различные возможные места для кнопки
+  const possibleContainers = [
+    document.querySelector('.profile-user-section'),
+    document.querySelector('.profile-header'),
+    document.querySelector('.saved-content-header'),
+    document.querySelector('.profile-functions-section'),
+    document.getElementById('saved-materials-container')?.parentElement
+  ];
   
   let container = null;
-  
-  if (profileHeader) {
-    container = profileHeader;
-  } else if (savedContentHeader) {
-    container = savedContentHeader.parentNode;
-  } else if (profileUserSection) {
-    container = profileUserSection.parentNode;
+  for (const possibleContainer of possibleContainers) {
+    if (possibleContainer) {
+      container = possibleContainer;
+      break;
+    }
   }
   
   if (!container) {
-    console.log('Контейнер для кнопки синхронизации не найден');
+    console.error('Не удалось найти контейнер для кнопки синхронизации');
     return;
   }
   
@@ -385,39 +439,68 @@ function addSyncButton() {
   const oldBtn = document.getElementById('sync-profile-btn');
   if (oldBtn) oldBtn.remove();
   
+  // Проверяем, в Telegram ли мы
+  const isTelegram = window.telegramStorage && window.telegramStorage.isTelegram;
+  
   const syncBtn = document.createElement('button');
   syncBtn.id = 'sync-profile-btn';
-  syncBtn.className = 'sync-btn';
-  syncBtn.innerHTML = `
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <path d="M12 6V3L8 7l4 4V8c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 14c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 14c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
-    </svg>
-    Синхронизировать
-  `;
+  syncBtn.className = 'sync-profile-button';
+  
+  if (isTelegram) {
+    syncBtn.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M12 6V3L8 7l4 4V8c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 14c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 14c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+      </svg>
+      Синхронизировать с Telegram Cloud
+    `;
+  } else {
+    syncBtn.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M12 6V3L8 7l4 4V8c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 14c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 14c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+      </svg>
+      Синхронизировать (только в Telegram)
+    `;
+    syncBtn.disabled = true;
+  }
   
   syncBtn.style.cssText = `
-    background: #2196F3;
+    background: ${isTelegram ? '#2196F3' : '#9e9e9e'};
     color: white;
-    padding: 10px 20px;
+    padding: 12px 24px;
     border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    border-radius: 8px;
+    cursor: ${isTelegram ? 'pointer' : 'not-allowed'};
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     font-weight: bold;
-    margin: 10px 0;
-    transition: background 0.3s;
+    font-size: 14px;
+    margin: 20px auto;
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(33, 150, 243, 0.2);
   `;
   
-  syncBtn.onmouseover = () => syncBtn.style.background = '#1976D2';
-  syncBtn.onmouseout = () => syncBtn.style.background = '#2196F3';
-  syncBtn.onclick = syncProfile;
+  if (isTelegram) {
+    syncBtn.onmouseover = () => syncBtn.style.background = '#1976D2';
+    syncBtn.onmouseout = () => syncBtn.style.background = '#2196F3';
+    syncBtn.onclick = syncProfile;
+  }
   
   // Вставляем кнопку в подходящее место
-  if (savedContentHeader && savedContentHeader.parentNode) {
-    // Вставляем перед блоком сохранений
-    savedContentHeader.parentNode.insertBefore(syncBtn, savedContentHeader);
+  if (container.classList.contains('profile-user-section')) {
+    // Добавляем после секции профиля
+    const parent = container.parentElement;
+    if (parent) {
+      const nextSibling = container.nextElementSibling;
+      if (nextSibling) {
+        parent.insertBefore(syncBtn, nextSibling);
+      } else {
+        parent.appendChild(syncBtn);
+      }
+    }
+  } else if (container.id === 'saved-materials-container') {
+    // Добавляем перед контейнером сохранений
+    container.parentElement.insertBefore(syncBtn, container);
   } else {
     // Добавляем в конец контейнера
     container.appendChild(syncBtn);
@@ -426,75 +509,165 @@ function addSyncButton() {
   console.log('Кнопка синхронизации добавлена');
 }
 
+
 // Функция синхронизации профиля
+// Функция синхронизации профиля - ИСПРАВЛЕННАЯ
 async function syncProfile() {
+  console.log('=== СИНХРОНИЗАЦИЯ ПРОФИЛЯ ===');
+  
   const syncBtn = document.getElementById('sync-profile-btn');
-  if (!syncBtn) return;
+  const originalHTML = syncBtn ? syncBtn.innerHTML : '';
   
-  const originalHTML = syncBtn.innerHTML;
-  
-  // Показываем состояние загрузки
-  syncBtn.innerHTML = `
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-      <path d="M12 4V2L8 6l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zM4 12c0-1.01.25-1.97.7-2.8L3.24 7.74A7.93 7.93 0 002 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3c-3.31 0-6-2.69-6-6z"/>
-    </svg>
-    Синхронизация...
-  `;
-  syncBtn.disabled = true;
-  syncBtn.style.opacity = '0.7';
-  syncBtn.style.cursor = 'wait';
+  if (syncBtn) {
+    syncBtn.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path d="M12 4V2L8 6l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 12c0-4.42-3.58-8-8-8zM4 12c0-1.01.25-1.97.7-2.8L3.24 7.74A7.93 7.93 0 002 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3c-3.31 0-6-2.69-6-6z"/>
+      </svg>
+      Синхронизация...
+    `;
+    syncBtn.disabled = true;
+    syncBtn.style.opacity = '0.7';
+    syncBtn.style.cursor = 'wait';
+  }
   
   try {
-    if (window.telegramStorage) {
-      console.log('Начинаем синхронизацию...');
+    if (window.telegramStorage && window.telegramStorage.isTelegram) {
+      console.log('Проверка статуса Telegram WebApp...');
       
-      // Сначала загружаем данные из облака
-      console.log('1. Загрузка данных из облака...');
+      // Получаем статус синхронизации
+      const syncStatus = window.telegramStorage.getSyncStatus();
+      console.log('Текущий статус синхронизации:', syncStatus);
+      
+      // Показываем уведомление о начале синхронизации
+      showSaveNotification('Начинаю синхронизацию с Telegram Cloud...', 'info');
+      
+      // 1. Сначала загружаем данные из облака
+      console.log('📥 Загрузка данных из Telegram Cloud...');
       const cloudData = await window.telegramStorage.loadUserData();
       
       if (cloudData) {
-        console.log('✅ Данные из облака загружены:', Object.keys(cloudData.data || {}).length, 'записей');
-      }
-      
-      // Затем синхронизируем обратно
-      console.log('2. Синхронизация данных с облаком...');
-      const syncResult = await window.telegramStorage.syncAllUserData();
-      
-      if (syncResult) {
+        console.log('✅ Данные из облака загружены:', {
+          userId: cloudData.userId,
+          lastSynced: new Date(cloudData.lastSynced).toLocaleString(),
+          keys: Object.keys(cloudData.data || {})
+        });
+        
         // Обновляем отображение профиля
-        console.log('3. Обновление отображения профиля...');
         renderSavedMaterials();
         
-        // Показываем статус синхронизации
-        const syncStatus = window.telegramStorage.getSyncStatus();
-        let message = 'Профиль синхронизирован!';
+        // 2. Затем синхронизируем обратно (объединяем данные)
+        console.log('📤 Синхронизация данных с Telegram Cloud...');
+        const syncResult = await window.telegramStorage.syncAllUserData();
         
-        if (syncStatus.lastSyncTime) {
-          const syncTime = new Date(parseInt(syncStatus.lastSyncTime)).toLocaleString();
-          message = `Синхронизировано: ${syncTime}`;
+        if (syncResult) {
+          // Показываем успешное уведомление
+          const syncTime = new Date().toLocaleString();
+          showSaveNotification(`✅ Данные синхронизированы! (${syncTime})`, 'success');
+          
+          // Обновляем статус
+          const newSyncStatus = window.telegramStorage.getSyncStatus();
+          console.log('Новый статус синхронизации:', newSyncStatus);
+          
+          // Обновляем кнопку
+          if (syncBtn) {
+            syncBtn.innerHTML = `
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+              </svg>
+              Синхронизировано
+            `;
+            syncBtn.style.background = '#4CAF50';
+          }
+          
+          // Обновляем список сохранений еще раз
+          setTimeout(() => {
+            renderSavedMaterials();
+          }, 500);
+          
+        } else {
+          // Частичная синхронизация
+          showSaveNotification('⚠️ Данные сохранены локально (не удалось синхронизировать с облаком)', 'warning');
+          
+          if (syncBtn) {
+            syncBtn.innerHTML = `
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+              </svg>
+              Только локально
+            `;
+            syncBtn.style.background = '#FF9800';
+          }
         }
-        
-        showSaveNotification(message, 'success');
-        console.log('✅ Синхронизация завершена успешно');
       } else {
-        showSaveNotification('Синхронизация завершена локально', 'warning');
-        console.log('⚠️ Синхронизация завершена локально');
+        // Нет данных в облаке, сохраняем локальные
+        console.log('⚠️ Данных в облаке нет, сохраняем локальные данные...');
+        const syncResult = await window.telegramStorage.syncAllUserData();
+        
+        if (syncResult) {
+          showSaveNotification('✅ Локальные данные сохранены в Telegram Cloud!', 'success');
+          
+          if (syncBtn) {
+            syncBtn.innerHTML = `
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+              </svg>
+              Данные загружены в облако
+            `;
+            syncBtn.style.background = '#4CAF50';
+          }
+        } else {
+          showSaveNotification('❌ Не удалось сохранить в облако', 'error');
+          
+          if (syncBtn) {
+            syncBtn.innerHTML = `
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+              </svg>
+              Ошибка синхронизации
+            `;
+            syncBtn.style.background = '#f44336';
+          }
+        }
       }
     } else {
-      showSaveNotification('Синхронизация доступна только в Telegram', 'warning');
-      console.log('⚠️ Telegram Storage не доступен');
+      // Не в Telegram
+      showSaveNotification('Синхронизация доступна только в Telegram Mini App', 'warning');
+      console.log('⚠️ Синхронизация недоступна (не в Telegram Mini App)');
+      
+      if (syncBtn) {
+        syncBtn.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+          </svg>
+          Только в Telegram
+        `;
+        syncBtn.style.background = '#9e9e9e';
+      }
     }
   } catch (error) {
-    console.error('❌ Ошибка синхронизации:', error);
-    showSaveNotification('Ошибка синхронизации: ' + error.message, 'error');
+    console.error('❌ Критическая ошибка синхронизации:', error);
+    showSaveNotification(`Ошибка синхронизации: ${error.message}`, 'error');
+    
+    if (syncBtn) {
+      syncBtn.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+        </svg>
+        Ошибка
+      `;
+      syncBtn.style.background = '#f44336';
+    }
   } finally {
-    // Восстанавливаем кнопку
-    setTimeout(() => {
-      syncBtn.innerHTML = originalHTML;
-      syncBtn.disabled = false;
-      syncBtn.style.opacity = '1';
-      syncBtn.style.cursor = 'pointer';
-    }, 1000);
+    // Восстанавливаем кнопку через 3 секунды
+    if (syncBtn) {
+      setTimeout(() => {
+        syncBtn.innerHTML = originalHTML;
+        syncBtn.disabled = false;
+        syncBtn.style.opacity = '1';
+        syncBtn.style.cursor = 'pointer';
+        syncBtn.style.background = '#2196F3';
+      }, 3000);
+    }
   }
 }
 
