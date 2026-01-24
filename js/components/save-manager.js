@@ -1,71 +1,387 @@
-// save-manager.js - полный код функций с синхронизацией Telegram
+// save-manager.js - полный исправленный файл
 import { translations } from '../translations.js';
-import { formatNumber } from '../utils/number-utils.js';
-import telegramStorage from '../telegram-storage.js';
 
-// Глобальная переменная для менеджера кнопок
-let buttonManager = null;
-
-// Инициализация менеджера сохранений
-export function initSaveManager() {
-    console.log('Инициализация менеджера сохранений');
+export const updateButtonManager = {
+    originalData: null,
+    initialized: false,
+    initTimer: null,
+    checkTimer: null,
+    updateButton: null,
+    currentLang: null,
+    currentCharacter: null,
     
-    // Проверяем и загружаем данные из Telegram Cloud при запуске
-    setTimeout(async () => {
-        try {
-            const cloudData = await telegramStorage.getItem('savedMaterials', []);
-            const localData = JSON.parse(localStorage.getItem('savedMaterials') || '[]');
-            
-            // Если в облаке есть данные, объединяем их с локальными
-            if (cloudData.length > 0) {
-                console.log('Обнаружены данные в Telegram Cloud:', cloudData.length, 'записей');
+    init: async function(character, lang, updateButton) {
+        console.log('Инициализация системы кнопки обновления', lang);
+        
+        this.updateButton = updateButton;
+        this.currentLang = lang;
+        this.currentCharacter = character;
+        
+        // Очищаем предыдущие таймеры
+        if (this.initTimer) clearTimeout(this.initTimer);
+        if (this.checkTimer) clearTimeout(this.checkTimer);
+        
+        this.initialized = false;
+        this.originalData = null;
+        
+        // Устанавливаем кнопку как неактивную по умолчанию
+        if (this.updateButton) {
+            this.updateButton.disabled = true;
+            this.updateButton.style.opacity = '0.5';
+            this.updateButton.style.cursor = 'not-allowed';
+            this.updateButton.style.filter = 'grayscale(20%)';
+        }
+        
+        // Уменьшаем задержку инициализации
+        this.initTimer = setTimeout(async () => {
+            try {
+                console.log('Захват начального состояния...');
+                await this.captureInitialState(character, lang);
+                this.setupEventListeners();
+                this.initialized = true;
                 
-                // Создаем Map для быстрого поиска по ID
-                const savesMap = new Map();
+                // Проверяем изменения сразу
+                this.checkForChanges();
                 
-                // Добавляем локальные данные
-                localData.forEach(save => {
-                    if (save.id) savesMap.set(save.id, save);
-                    else if (save.charKey) savesMap.set(save.charKey, save);
-                    else if (save.weaponKey) savesMap.set(save.weaponKey, save);
-                });
+                // Обновляем текст кнопки
+                this.updateButtonText();
                 
-                // Добавляем или обновляем из облака (приоритет у более новых)
-                cloudData.forEach(cloudSave => {
-                    const existingKey = cloudSave.id || cloudSave.charKey || cloudSave.weaponKey;
-                    if (existingKey) {
-                        const existingSave = savesMap.get(existingKey);
-                        if (!existingSave || 
-                            (cloudSave.lastModified && existingSave.lastModified && 
-                             cloudSave.lastModified > existingSave.lastModified)) {
-                            savesMap.set(existingKey, cloudSave);
-                        }
+                console.log('Система кнопки обновления инициализирована');
+            } catch (error) {
+                console.error('Ошибка инициализации кнопки обновления:', error);
+            }
+        }, 150);
+    },
+    
+    captureInitialState: async function(character, lang) {
+        console.log('Захват начального состояния');
+        
+        const levelData = JSON.parse(localStorage.getItem('characterLevelData') || '{}');
+        const charData = JSON.parse(localStorage.getItem('characterData') || '{}');
+        
+        // ОЖИДАЕМ полной загрузки DOM
+        await this.waitForFullDOM();
+        
+        // Восстанавливаем сохраненные значения СНАЧАЛА
+        if (charData.userInputs || levelData.userInputs) {
+            await this.restoreSavedInputs(charData.userInputs || levelData.userInputs);
+        }
+        
+        // Теперь, после восстановления, захватываем состояние как начальное
+        this.originalData = this.getCurrentState();
+        
+        console.log('Начальное состояние захвачено (после восстановления):', this.originalData);
+        
+        // Сразу делаем кнопку неактивной
+        if (this.updateButton) {
+            this.updateButton.disabled = true;
+            this.updateButton.style.opacity = '0.5';
+            this.updateButton.style.cursor = 'not-allowed';
+            this.updateButton.style.filter = 'grayscale(20%)';
+        }
+    },
+
+    // Новая функция для ожидания полной загрузки DOM
+    waitForFullDOM: function() {
+        return new Promise((resolve) => {
+            const checkDOM = () => {
+                const inputsExist = document.querySelectorAll('.all .materials-container input[type="number"]').length > 0;
+                const nameElement = document.getElementById('char-name');
+                const levelElements = document.getElementById('lvl') && document.getElementById('lvl-attack');
+                
+                if (inputsExist && nameElement && levelElements) {
+                    console.log('DOM полностью загружен');
+                    resolve();
+                } else {
+                    console.log('Ожидание загрузки DOM...');
+                    setTimeout(checkDOM, 100);
+                }
+            };
+            checkDOM();
+        });
+    },
+
+    // Новая функция для восстановления сохраненных вводов
+    restoreSavedInputs: async function(userInputs) {
+        console.log('Восстановление сохраненных вводов:', userInputs);
+        
+        return new Promise((resolve) => {
+            setTimeout(() => {
+                let restoredCount = 0;
+                
+                Object.entries(userInputs).forEach(([materialId, amount]) => {
+                    const inputId = `all_${materialId.replace(/\./g, '_')}`;
+                    const input = document.getElementById(inputId);
+                    
+                    if (input) {
+                        const numericAmount = parseInt(amount) || 0;
+                        input.value = numericAmount;
+                        restoredCount++;
+                        
+                        console.log(`Восстановлено: ${inputId} = ${numericAmount}`);
+                        
+                        // Диспатчим событие input для обновления расчетов
+                        const inputEvent = new Event('input', { bubbles: true });
+                        input.dispatchEvent(inputEvent);
+                    } else {
+                        console.warn(`Поле не найдено: ${inputId}`);
                     }
                 });
                 
-                // Преобразуем обратно в массив
-                const mergedSaves = Array.from(savesMap.values());
-                localStorage.setItem('savedMaterials', JSON.stringify(mergedSaves));
-                console.log('Данные объединены. Всего записей:', mergedSaves.length);
-            }
-        } catch (error) {
-            console.error('Ошибка загрузки данных из облака:', error);
-        }
-    }, 1000);
-}
+                console.log(`Всего восстановлено полей: ${restoredCount}`);
+                resolve();
+            }, 100);
+        });
+    },
 
-// Сохранение материалов в профиль
-export function saveMaterialsToProfile(character, lang) {
-    console.log('Сохранение материалов в профиль для:', character.key);
+    sanitizeInputs: function(inputs) {
+        const sanitized = {};
+        for (const key in inputs) {
+            if (inputs.hasOwnProperty(key)) {
+                const value = parseInt(inputs[key]) || 0;
+                sanitized[key] = value;
+            }
+        }
+        return sanitized;
+    },
+
+    getCurrentLevelFromDOM: function() {
+        const charLevelElement = document.getElementById('lvl');
+        return charLevelElement ? parseInt(charLevelElement.textContent) || 1 : 1;
+    },
+
+    getCurrentAttackLevelFromDOM: function() {
+        const levelElement = document.getElementById('lvl-attack');
+        return levelElement ? parseInt(levelElement.textContent) || 1 : 1;
+    },
+
+    getCurrentSkillLevelFromDOM: function() {
+        const levelElement = document.getElementById('lvl-skill');
+        return levelElement ? parseInt(levelElement.textContent) || 1 : 1;
+    },
+
+    getCurrentExplosionLevelFromDOM: function() {
+        const levelElement = document.getElementById('lvl-explosion');
+        return levelElement ? parseInt(levelElement.textContent) || 1 : 1;
+    },
+
+    getCurrentRangeValueFromDOM: function() {
+        const rangeSlider = document.getElementById('range');
+        return rangeSlider ? parseInt(rangeSlider.value) || 0 : 0;
+    },
     
-    // Получаем данные с страницы
-    const level = parseInt(document.getElementById('lvl')?.textContent) || 1;
-    const attackLevel = parseInt(document.getElementById('lvl-attack')?.textContent) || 1;
-    const skillLevel = parseInt(document.getElementById('lvl-skill')?.textContent) || 1;
-    const explosionLevel = parseInt(document.getElementById('lvl-explosion')?.textContent) || 1;
-    const rangeVal = document.getElementById('range')?.value || 0;
+    getCurrentState: function() {
+        const state = {
+            inputs: this.sanitizeInputs(this.getCurrentInputsFromDOM()),
+            levels: {
+                level: this.getCurrentLevelFromDOM(),
+                attackLevel: this.getCurrentAttackLevelFromDOM(),
+                skillLevel: this.getCurrentSkillLevelFromDOM(),
+                explosionLevel: this.getCurrentExplosionLevelFromDOM(),
+                rangeVal: this.getCurrentRangeValueFromDOM()
+            }
+        };
+        console.log('Текущее состояние:', state);
+        return state;
+    },
+
+    getCurrentInputsFromDOM: function() {
+        const inputs = {};
+        const inputElements = document.querySelectorAll('.all .materials-container input[type="number"]');
+        
+        inputElements.forEach(input => {
+            const value = parseInt(input.value) || 0;
+            const materialId = input.id.replace('all_', '').replace(/_/g, '.');
+            if (materialId && value >= 0) {
+                inputs[materialId] = value;
+            }
+        });
+        console.log('Инпуты из DOM:', inputs);
+        return inputs;
+    },
     
-    // Собираем пользовательские вводы из секции "Все материалы"
+    setupEventListeners: function() {
+        console.log('Настройка слушателей событий для кнопки обновления');
+        
+        // Слушатели для полей ввода материалов
+        document.querySelectorAll('.all .materials-container input[type="number"]').forEach(input => {
+            input.addEventListener('input', () => this.onChange());
+            input.addEventListener('change', () => this.onChange());
+            input.addEventListener('keyup', () => this.onChange());
+        });
+        
+        // Слушатели для уровней талантов
+        document.querySelectorAll('.level-group button, .arrow, .range button').forEach(button => {
+            button.addEventListener('click', () => {
+                setTimeout(() => this.onChange(), 50);
+            });
+        });
+        
+        // Слушатель для слайдера уровня
+        const rangeSlider = document.getElementById('range');
+        if (rangeSlider) {
+            rangeSlider.addEventListener('input', () => this.onChange());
+            rangeSlider.addEventListener('change', () => this.onChange());
+        }
+        
+        // Слушатели для кнопок +/-
+        const minusRangeBtn = document.getElementById('minus-range');
+        const plusRangeBtn = document.getElementById('plus-range');
+        
+        if (minusRangeBtn) minusRangeBtn.addEventListener('click', () => this.onChange());
+        if (plusRangeBtn) plusRangeBtn.addEventListener('click', () => this.onChange());
+        
+        console.log('Слушатели событий настроены');
+    },
+    
+    onChange: function() {
+        if (this.checkTimer) clearTimeout(this.checkTimer);
+        this.checkTimer = setTimeout(() => {
+            this.checkForChanges();
+        }, 150);
+    },
+    
+    checkForChanges: function() {
+        if (!this.initialized || !this.originalData) {
+            console.log('Менеджер не инициализирован или нет начальных данных');
+            return;
+        }
+        
+        const currentState = this.getCurrentState();
+        const hasInputChanges = !this.areInputsEqual(currentState.inputs, this.originalData.inputs);
+        const hasLevelChanges = !this.areLevelsEqual(currentState.levels, this.originalData.levels);
+        const hasChanges = hasInputChanges || hasLevelChanges;
+        
+        console.log('Проверка изменений:', {
+            hasInputChanges,
+            hasLevelChanges,
+            hasChanges
+        });
+        
+        this.updateButtonState(hasChanges);
+    },
+
+    areInputsEqual: function(currentInputs, originalInputs) {
+        const allKeys = new Set([
+            ...Object.keys(currentInputs || {}),
+            ...Object.keys(originalInputs || {})
+        ]);
+        
+        for (const key of allKeys) {
+            const currentValue = parseInt(currentInputs[key]) || 0;
+            const originalValue = parseInt(originalInputs[key]) || 0;
+            if (currentValue !== originalValue) {
+                console.log(`Изменение обнаружено в ${key}: ${originalValue} -> ${currentValue}`);
+                return false;
+            }
+        }
+        return true;
+    },
+
+    areLevelsEqual: function(currentLevels, originalLevels) {
+        const fields = ['level', 'attackLevel', 'skillLevel', 'explosionLevel', 'rangeVal'];
+        for (const field of fields) {
+            const currentValue = parseInt(currentLevels[field]) || 0;
+            const originalValue = parseInt(originalLevels[field]) || 0;
+            if (currentValue !== originalValue) {
+                console.log(`Изменение уровня обнаружено в ${field}: ${originalValue} -> ${currentValue}`);
+                return false;
+            }
+        }
+        return true;
+    },
+    
+    updateButtonState: function(hasChanges) {
+        if (!this.updateButton) {
+            console.error('Кнопка обновления не найдена');
+            return;
+        }
+        
+        console.log('Обновление состояния кнопки:', hasChanges);
+        
+        this.updateButton.disabled = !hasChanges;
+        if (hasChanges) {
+            this.updateButton.style.opacity = '1';
+            this.updateButton.style.cursor = 'pointer';
+            this.updateButton.style.filter = 'none';
+            console.log('Кнопка "Обновить" АКТИВИРОВАНА');
+        } else {
+            this.updateButton.style.opacity = '0.5';
+            this.updateButton.style.cursor = 'not-allowed';
+            this.updateButton.style.filter = 'grayscale(20%)';
+            console.log('Кнопка "Обновить" НЕАКТИВНА');
+        }
+    },
+    
+    updateButtonText: function() {
+        if (!this.updateButton) return;
+        
+        const lang = this.currentLang || window.currentLang || 'ru';
+        const translationsObj = translations[lang] || translations['ru'];
+        const buttonText = translationsObj.buttons?.update || 'Обновить';
+        
+        const span = this.updateButton.querySelector('span');
+        if (span) {
+            span.textContent = buttonText;
+        }
+        
+        // Обновляем aria-label
+        this.updateButton.setAttribute('aria-label', buttonText);
+    },
+    
+    updateLanguage: function(newLang) {
+        console.log('updateButtonManager: смена языка на', newLang);
+        this.currentLang = newLang;
+        
+        // Обновляем текст кнопки
+        this.updateButtonText();
+        
+        // Заново проверяем изменения
+        setTimeout(() => {
+            this.checkForChanges();
+        }, 100);
+    },
+    
+    reset: function() {
+        console.log('Сброс системы кнопки обновления');
+        this.initialized = false;
+        this.originalData = null;
+        this.updateButton = null;
+        
+        if (this.initTimer) clearTimeout(this.initTimer);
+        if (this.checkTimer) clearTimeout(this.checkTimer);
+    },
+    
+    updateAfterSave: function() {
+        console.log('Обновление данных после сохранения');
+        this.originalData = this.getCurrentState();
+        setTimeout(() => {
+            this.checkForChanges();
+        }, 100);
+    }
+};
+
+// Функция сохранения материалов в профиль с синхронизацией
+export async function saveMaterialsToProfile(character, lang) {
+    console.log('=== СОХРАНЕНИЕ МАТЕРИАЛОВ - НАЧАЛО ===');
+    console.log('Сохранение материалов для:', character.key);
+    
+    // Получаем текущие материалы со страницы
+    const levelMaterials = getMaterialsFromSection('level');
+    const attackMaterials = getMaterialsFromSection('attack');
+    const skillMaterials = getMaterialsFromSection('skill');
+    const burstMaterials = getMaterialsFromSection('explosion');
+    
+    console.log('Материалы для сохранения:', {
+        level: levelMaterials,
+        attack: attackMaterials,
+        skill: skillMaterials,
+        burst: burstMaterials
+    });
+    
+    const savedMaterials = JSON.parse(localStorage.getItem('savedMaterials') || '[]');
+    const existingIndex = savedMaterials.findIndex(save => save.charKey === character.key);
+    
     const userInputs = {};
     const inputElements = document.querySelectorAll('.all .materials-container input[type="number"]');
     
@@ -75,243 +391,92 @@ export function saveMaterialsToProfile(character, lang) {
         userInputs[materialId] = value;
     });
     
-    // Собираем материалы из всех секций
-    const levelMaterials = getMaterialsFromSection('section.level .materials-container');
-    const attackMaterials = getMaterialsFromSection('section.mat-attack .materials-container');
-    const skillMaterials = getMaterialsFromSection('section.mat-skill .materials-container');
-    const burstMaterials = getMaterialsFromSection('section.mat-explosion .materials-container');
-    
-    // Генерируем уникальный ID для сохранения
-    const saveId = `save_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
-    const newSave = {
-        id: saveId,
+    const saveData = {
+        id: Date.now().toString(),
         type: 'character',
         charKey: character.key,
         characterName: character[`${lang}_name`] || character.en_name,
         characterAvatar: character.avatar,
-        level: level,
-        attackLevel: attackLevel,
-        skillLevel: skillLevel,
-        explosionLevel: explosionLevel,
-        rangeVal: rangeVal,
-        levelMaterials: levelMaterials,
-        attackMaterials: attackMaterials,
-        skillMaterials: skillMaterials,
-        burstMaterials: burstMaterials,
-        userInputs: userInputs,
-        characterData: {
-            rangeVal: rangeVal,
-            fullCharacterData: character
-        },
         date: new Date().toLocaleString(lang),
         lastModified: Date.now(),
-        synced: false, // Будет обновлено после синхронизации
-        lang: lang
-    };
-    
-    console.log('Новое сохранение:', newSave);
-    
-    // Сохраняем в localStorage
-    const savedMaterials = JSON.parse(localStorage.getItem('savedMaterials') || '[]');
-    savedMaterials.push(newSave);
-    localStorage.setItem('savedMaterials', JSON.stringify(savedMaterials));
-    
-    // Обновляем данные персонажа с флагом загрузки из сохранения
-    const updatedCharData = {
-        charName: character[`${lang}_name`] || character.en_name,
-        charKey: character.key,
-        rangeVal: rangeVal,
-        level: level,
-        attackLevel: attackLevel,
-        skillLevel: skillLevel,
-        explosionLevel: explosionLevel,
+        level: parseInt(document.getElementById('lvl')?.textContent) || 1,
+        attackLevel: parseInt(document.getElementById('lvl-attack')?.textContent) || 1,
+        skillLevel: parseInt(document.getElementById('lvl-skill')?.textContent) || 1,
+        explosionLevel: parseInt(document.getElementById('lvl-explosion')?.textContent) || 1,
         userInputs: userInputs,
-        characterAvatar: character.avatar,
-        timestamp: Date.now(),
-        characterData: {
-            rangeVal: rangeVal,
-            fullCharacterData: character
-        },
-        // Сохраняем материалы для быстрого доступа
+        // ВАЖНО: Сохраняем материалы на верхнем уровне
         levelMaterials: levelMaterials,
         attackMaterials: attackMaterials,
         skillMaterials: skillMaterials,
         burstMaterials: burstMaterials,
-        // Флаги загрузки
-        isFromLoad: true,
-        isFromSave: true,
-        isFromProfile: true,
-        loadedFromSave: true,
-        saveId: saveId,
-        lastModified: Date.now()
+        characterData: {
+            rangeVal: document.getElementById('range')?.value || 0,
+            fullCharacterData: character,
+            // Дублируем материалы и в characterData для совместимости
+            levelMaterials: levelMaterials,
+            attackMaterials: attackMaterials,
+            skillMaterials: skillMaterials,
+            burstMaterials: burstMaterials
+        }
     };
     
-    localStorage.setItem('characterLevelData', JSON.stringify(updatedCharData));
-    localStorage.setItem('characterData', JSON.stringify(updatedCharData));
+    console.log('Данные для сохранения:', saveData);
     
-    // Синхронизируем с Telegram Cloud
-    telegramStorage.syncSavedMaterials().then(() => {
-        // Обновляем флаг синхронизации в сохранении
-        const saves = JSON.parse(localStorage.getItem('savedMaterials') || '[]');
-        const saveIndex = saves.findIndex(s => s.id === saveId);
-        if (saveIndex !== -1) {
-            saves[saveIndex].synced = true;
-            localStorage.setItem('savedMaterials', JSON.stringify(saves));
+    if (existingIndex !== -1) {
+        savedMaterials[existingIndex] = saveData;
+    } else {
+        savedMaterials.push(saveData);
+    }
+    
+    localStorage.setItem('savedMaterials', JSON.stringify(savedMaterials));
+    
+    // Также обновляем текущие данные
+    const levelData = JSON.parse(localStorage.getItem('characterLevelData') || '{}');
+    const updatedLevelData = {
+        ...levelData,
+        ...saveData.characterData,
+        levelMaterials: levelMaterials,
+        attackMaterials: attackMaterials,
+        skillMaterials: skillMaterials,
+        burstMaterials: burstMaterials,
+        userInputs: userInputs,
+        isFromSave: true,
+        isFromLoad: true
+    };
+    
+    localStorage.setItem('characterLevelData', JSON.stringify(updatedLevelData));
+    localStorage.setItem('characterData', JSON.stringify(updatedLevelData));
+    
+    console.log('Материалы успешно сохранены в localStorage');
+    
+    // СИНХРОНИЗАЦИЯ С TELEGRAM CLOUD
+    if (window.telegramStorage) {
+        try {
+            console.log('Синхронизация с Telegram Cloud...');
+            await window.telegramStorage.syncAllUserData();
+            console.log('✅ Данные синхронизированы с облаком');
+        } catch (error) {
+            console.error('❌ Ошибка синхронизации с облаком:', error);
         }
-    }).catch(error => {
-        console.error('Ошибка синхронизации с Telegram Cloud:', error);
-    });
+    }
     
-    // Показываем уведомление
-    const translationsObj = translations[lang] || translations['ru'];
-    showSaveNotification(translationsObj.notifications?.saveSuccess || 'Материалы сохранены в профиль!', 'success');
+    showSaveNotification('Материалы успешно сохранены!', 'success');
     
-    // Обновляем кнопки на странице
+    // Обновляем кнопки
     setTimeout(() => {
         if (typeof checkAndSetupSaveButton === 'function') {
             checkAndSetupSaveButton(character, lang);
         }
-    }, 500);
+    }, 300);
     
-    return newSave;
+    console.log('=== СОХРАНЕНИЕ МАТЕРИАЛОВ - КОНЕЦ ===');
+    return saveData;
 }
 
-// Обновление существующего сохранения
-export function updateExistingSave(character, lang) {
-    console.log('Обновление существующего сохранения для:', character.key);
-    
-    // Получаем текущие данные
-    const savedMaterials = JSON.parse(localStorage.getItem('savedMaterials') || '[]');
-    const existingSave = savedMaterials.find(save => save.charKey === character.key);
-    
-    if (!existingSave) {
-        console.error('Сохранение для обновления не найдено');
-        const translationsObj = translations[lang] || translations['ru'];
-        showSaveNotification(translationsObj.notifications?.saveNotFound || 'Сохранение не найдено', 'error');
-        return null;
-    }
-    
-    // Получаем обновленные данные с страницы
-    const level = parseInt(document.getElementById('lvl')?.textContent) || 1;
-    const attackLevel = parseInt(document.getElementById('lvl-attack')?.textContent) || 1;
-    const skillLevel = parseInt(document.getElementById('lvl-skill')?.textContent) || 1;
-    const explosionLevel = parseInt(document.getElementById('lvl-explosion')?.textContent) || 1;
-    const rangeVal = document.getElementById('range')?.value || 0;
-    
-    // Собираем пользовательские вводы
-    const userInputs = {};
-    const inputElements = document.querySelectorAll('.all .materials-container input[type="number"]');
-    
-    inputElements.forEach(input => {
-        const value = parseInt(input.value) || 0;
-        const materialId = input.id.replace('all_', '').replace(/_/g, '.');
-        userInputs[materialId] = value;
-    });
-    
-    // Собираем материалы из всех секций
-    const levelMaterials = getMaterialsFromSection('section.level .materials-container');
-    const attackMaterials = getMaterialsFromSection('section.mat-attack .materials-container');
-    const skillMaterials = getMaterialsFromSection('section.mat-skill .materials-container');
-    const burstMaterials = getMaterialsFromSection('section.mat-explosion .materials-container');
-    
-    const updatedSave = {
-        ...existingSave,
-        characterName: character[`${lang}_name`] || character.en_name,
-        level: level,
-        attackLevel: attackLevel,
-        skillLevel: skillLevel,
-        explosionLevel: explosionLevel,
-        rangeVal: rangeVal,
-        levelMaterials: levelMaterials,
-        attackMaterials: attackMaterials,
-        skillMaterials: skillMaterials,
-        burstMaterials: burstMaterials,
-        userInputs: userInputs,
-        characterData: {
-            ...existingSave.characterData,
-            rangeVal: rangeVal,
-            fullCharacterData: character
-        },
-        date: new Date().toLocaleString(lang),
-        lastModified: Date.now(),
-        synced: false
-    };
-    
-    // Обновляем в массиве сохранений
-    const saveIndex = savedMaterials.findIndex(save => save.charKey === character.key);
-    if (saveIndex !== -1) {
-        savedMaterials[saveIndex] = updatedSave;
-        localStorage.setItem('savedMaterials', JSON.stringify(savedMaterials));
-        
-        // Обновляем данные персонажа
-        const updatedCharData = {
-            charName: character[`${lang}_name`] || character.en_name,
-            charKey: character.key,
-            rangeVal: rangeVal,
-            level: level,
-            attackLevel: attackLevel,
-            skillLevel: skillLevel,
-            explosionLevel: explosionLevel,
-            userInputs: userInputs,
-            characterAvatar: character.avatar,
-            timestamp: Date.now(),
-            characterData: {
-                rangeVal: rangeVal,
-                fullCharacterData: character
-            },
-            levelMaterials: levelMaterials,
-            attackMaterials: attackMaterials,
-            skillMaterials: skillMaterials,
-            burstMaterials: burstMaterials,
-            isFromLoad: true,
-            isFromSave: true,
-            isFromProfile: true,
-            loadedFromSave: true,
-            saveId: existingSave.id,
-            lastModified: Date.now()
-        };
-        
-        localStorage.setItem('characterLevelData', JSON.stringify(updatedCharData));
-        localStorage.setItem('characterData', JSON.stringify(updatedCharData));
-        
-        // Синхронизируем с Telegram Cloud через метод updateSave
-        telegramStorage.updateSave(updatedSave).then(updatedSaves => {
-            // Обновляем локальное хранилище с синхронизированными данными
-            localStorage.setItem('savedMaterials', JSON.stringify(updatedSaves));
-            
-            // Обновляем флаг синхронизации в сохранении
-            const saves = JSON.parse(localStorage.getItem('savedMaterials') || '[]');
-            const updatedIndex = saves.findIndex(s => s.id === existingSave.id);
-            if (updatedIndex !== -1) {
-                saves[updatedIndex].synced = true;
-                localStorage.setItem('savedMaterials', JSON.stringify(saves));
-            }
-        }).catch(error => {
-            console.error('Ошибка синхронизации обновления:', error);
-        });
-        
-        // Показываем уведомление
-        const translationsObj = translations[lang] || translations['ru'];
-        showSaveNotification(translationsObj.notifications?.updateSuccess || 'Сохранение обновлено!', 'success');
-        
-        // Обновляем кнопки на странице
-        setTimeout(() => {
-            if (typeof checkAndSetupSaveButton === 'function') {
-                checkAndSetupSaveButton(character, lang);
-            }
-        }, 500);
-        
-        return updatedSave;
-    }
-    
-    return null;
-}
-
-// Получение материалов из секции
-function getMaterialsFromSection(selector) {
+// Вспомогательная функция для получения материалов из секции
+function getMaterialsFromSection(sectionType) {
+    const container = document.querySelector(`.materials-container[data-type="${sectionType}"]`);
     const materials = {};
-    const container = document.querySelector(selector);
     
     if (container) {
         container.querySelectorAll('.material-item').forEach(item => {
@@ -329,80 +494,202 @@ function getMaterialsFromSection(selector) {
     return materials;
 }
 
-// Показать уведомление о сохранении
-export function showSaveNotification(message, type = 'success') {
-    console.log('Показать уведомление:', message, type);
+// Функция обновления существующего сохранения с синхронизацией
+export async function updateExistingSave(character, lang) {
+    console.log('updateExistingSave вызвана');
     
-    // Удаляем старые уведомления
-    document.querySelectorAll('.save-notification').forEach(el => el.remove());
+    // Проверяем, что кнопка не была случайно кликнута когда неактивна
+    const updateBtn = document.getElementById('update-materials-btn');
+    if (updateBtn && updateBtn.disabled) {
+        console.log('Кнопка обновления неактивна - игнорируем вызов');
+        return;
+    }
+    
+    const savedMaterials = JSON.parse(localStorage.getItem('savedMaterials') || '[]');
+    const existingSaveIndex = savedMaterials.findIndex(save => save.charKey === character.key);
+    
+    if (existingSaveIndex === -1) {
+        saveMaterialsToProfile(character, lang);
+        return;
+    }
+    
+    // Ждем полной загрузки DOM перед сбором данных
+    const updatedSave = await new Promise((resolve) => {
+        setTimeout(async () => {
+            const userInputs = {};
+            const inputElements = document.querySelectorAll('section.all .materials-container input[type="number"]');
+            
+            console.log('Найдено инпутов для обновления:', inputElements.length);
+            
+            inputElements.forEach(input => {
+                const value = parseInt(input.value) || 0;
+                const materialId = input.id.replace('all_', '').replace(/_/g, '.');
+                
+                if (materialId && !materialId.includes('undefined')) {
+                    userInputs[materialId] = value;
+                    console.log(`Собран инпут для обновления: ${materialId} = ${value}`);
+                }
+            });
+            
+            const storedData = localStorage.getItem('characterData');
+            const levelData = localStorage.getItem('characterLevelData');
+            
+            let data, levelDataObj;
+            
+            if (storedData) {
+                try {
+                    data = JSON.parse(storedData);
+                } catch (error) {
+                    console.error('Ошибка парсинга characterData:', error);
+                    showSaveNotification(translations[lang]?.errors?.saveFailed || 'Ошибка при сохранении', 'error');
+                    resolve(null);
+                    return;
+                }
+            }
+            
+            if (levelData) {
+                try {
+                    levelDataObj = JSON.parse(levelData);
+                } catch (error) {
+                    console.error('Ошибка парсинга characterLevelData:', error);
+                    showSaveNotification(translations[lang]?.errors?.saveFailed || 'Ошибка при сохранении', 'error');
+                    resolve(null);
+                    return;
+                }
+            }
+            
+            const charName = character[`${lang}_name`] || character.en_name;
+            const charKey = character.key || 'Flins';
+            
+            const updatedSave = {
+                ...savedMaterials[existingSaveIndex],
+                characterName: charName,
+                characterAvatar: character.avatar,
+                date: new Date().toLocaleString(),
+                lastModified: Date.now(),
+                level: data?.level || levelDataObj?.level || 1,
+                attackLevel: data?.attackLevel || levelDataObj?.attackLevel || 1,
+                skillLevel: data?.skillLevel || levelDataObj?.skillLevel || 1,
+                explosionLevel: data?.explosionLevel || levelDataObj?.explosionLevel || 1,
+                userInputs: userInputs,
+                characterData: {
+                    rangeVal: data?.rangeVal || levelDataObj?.rangeVal || 0,
+                    fullCharacterData: character
+                }
+            };
+            
+            savedMaterials[existingSaveIndex] = updatedSave;
+            localStorage.setItem('savedMaterials', JSON.stringify(savedMaterials));
+            
+            const currentCharData = JSON.parse(localStorage.getItem('characterData') || '{}');
+            currentCharData.userInputs = userInputs;
+            currentCharData.isFromLoad = true;
+            currentCharData.isFromSave = true;
+            localStorage.setItem('characterData', JSON.stringify(currentCharData));
+            
+            const currentLevelData = JSON.parse(localStorage.getItem('characterLevelData') || '{}');
+            currentLevelData.userInputs = userInputs;
+            currentLevelData.isFromLoad = true;
+            currentLevelData.isFromSave = true;
+            localStorage.setItem('characterLevelData', JSON.stringify(currentLevelData));
+            
+            // Обновляем менеджер кнопок после обновления
+            if (window.updateButtonManager && window.updateButtonManager.updateAfterSave) {
+                setTimeout(() => {
+                    window.updateButtonManager.updateAfterSave();
+                }, 200);
+            }
+            
+            setTimeout(() => {
+                if (typeof window.checkAndSetupSaveButton === 'function') {
+                    window.checkAndSetupSaveButton(character, lang);
+                }
+            }, 300);
+            
+            // СИНХРОНИЗАЦИЯ С TELEGRAM CLOUD
+            if (window.telegramStorage) {
+                try {
+                    console.log('Синхронизация обновления с Telegram Cloud...');
+                    await window.telegramStorage.syncAllUserData();
+                    console.log('✅ Обновление синхронизировано с облаком');
+                } catch (error) {
+                    console.error('❌ Ошибка синхронизации обновления:', error);
+                }
+            }
+            
+            showSaveNotification(translations[lang]?.notifications?.updateSuccess || 'Сохранение успешно обновлено!', 'success');
+            
+            console.log('Сохранение обновлено для персонажа:', charName);
+            resolve(updatedSave);
+        }, 300);
+    });
+    
+    return updatedSave;
+}
+
+// Функция показа уведомления
+export function showSaveNotification(message, type = 'success') {
+    console.log('Показ уведомления:', message, type);
+    
+    const lang = window.currentLang || 'ru';
+    const translationsObj = translations[lang] || translations['ru'];
+    
+    // Проверяем, есть ли уже уведомление
+    const existingNotification = document.querySelector('.save-notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
     
     const notification = document.createElement('div');
     notification.className = `save-notification ${type}`;
     notification.textContent = message;
+    notification.setAttribute('data-lang', lang);
+    
+    // Стили для уведомления
     notification.style.cssText = `
         position: fixed;
         top: 20px;
         right: 20px;
-        padding: 15px 25px;
-        border-radius: 8px;
+        padding: 12px 20px;
+        background: ${type === 'success' ? '#4CAF50' : 
+                     type === 'error' ? '#f44336' : 
+                     type === 'warning' ? '#ff9800' : '#2196F3'};
         color: white;
-        font-weight: bold;
+        border-radius: 4px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         z-index: 10000;
-        animation: slideInRight 0.3s ease;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        max-width: 350px;
-        word-break: break-word;
+        font-size: 14px;
+        font-weight: 500;
+        animation: slideIn 0.3s ease;
+        max-width: 300px;
     `;
     
-    // Добавляем иконку в зависимости от типа
-    let icon = '✅';
-    let bgColor = '#4CAF50';
-    
-    switch(type) {
-        case 'success':
-            icon = '✅';
-            bgColor = '#4CAF50';
-            break;
-        case 'error':
-            icon = '❌';
-            bgColor = '#f44336';
-            break;
-        case 'warning':
-            icon = '⚠️';
-            bgColor = '#FF9800';
-            break;
-        case 'info':
-            icon = 'ℹ️';
-            bgColor = '#2196F3';
-            break;
+    // Добавляем уведомление в modalManager для перевода
+    if (window.modalManager) {
+        window.modalManager.registerNotification(notification);
     }
     
-    notification.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <span style="font-size: 20px;">${icon}</span>
-            <span>${message}</span>
-        </div>
-    `;
-    notification.style.background = bgColor;
-    
-    document.body.appendChild(notification);
-    
-    // Автоматическое скрытие через 3 секунды
+    // Автоматическое скрытие
     setTimeout(() => {
-        notification.style.animation = 'slideOutRight 0.3s ease';
+        notification.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => {
             if (notification.parentNode) {
                 notification.parentNode.removeChild(notification);
             }
+            if (window.modalManager) {
+                window.modalManager.unregisterNotification(notification);
+            }
         }, 300);
-    }, 3000);
+    }, 4000);
     
-    // Добавляем стили для анимаций если их еще нет
+    document.body.appendChild(notification);
+    
+    // Добавляем анимации если их нет
     if (!document.querySelector('#notification-styles')) {
         const style = document.createElement('style');
         style.id = 'notification-styles';
         style.textContent = `
-            @keyframes slideInRight {
+            @keyframes slideIn {
                 from {
                     transform: translateX(100%);
                     opacity: 0;
@@ -412,7 +699,7 @@ export function showSaveNotification(message, type = 'success') {
                     opacity: 1;
                 }
             }
-            @keyframes slideOutRight {
+            @keyframes slideOut {
                 from {
                     transform: translateX(0);
                     opacity: 1;
@@ -425,200 +712,31 @@ export function showSaveNotification(message, type = 'success') {
         `;
         document.head.appendChild(style);
     }
+}
+
+// Инициализация менеджера сохранений
+export function initSaveManager() {
+    window.updateButtonManager = updateButtonManager;
+    window.saveMaterialsToProfile = saveMaterialsToProfile;
+    window.updateExistingSave = updateExistingSave;
+    window.showSaveNotification = showSaveNotification;
     
-    // Добавляем возможность закрытия по клику
-    notification.addEventListener('click', () => {
-        notification.style.animation = 'slideOutRight 0.3s ease';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
+    // Добавляем слушатель события смены языка
+    document.addEventListener('languageChanged', (e) => {
+        const newLang = e.detail.lang;
+        console.log('save-manager: смена языка на', newLang);
+        
+        // Обновляем менеджер кнопок
+        if (window.updateButtonManager && window.updateButtonManager.updateLanguage) {
+            window.updateButtonManager.updateLanguage(newLang);
+        }
+        
+        // Обновляем текст в уведомлениях
+        const notifications = document.querySelectorAll('.save-notification');
+        notifications.forEach(notification => {
+            if (notification.translate && typeof notification.translate === 'function') {
+                notification.translate(newLang);
             }
-        }, 300);
+        });
     });
 }
-
-// Инициализация менеджера кнопок обновления
-export class UpdateButtonManager {
-    constructor() {
-        this.initialized = false;
-        this.updateButton = null;
-        this.character = null;
-        this.lang = null;
-        this.originalData = null;
-    }
-    
-    init(character, lang, updateButton) {
-        this.character = character;
-        this.lang = lang;
-        this.updateButton = updateButton;
-        
-        // Сохраняем исходные данные для сравнения
-        this.originalData = this.getCurrentPageData();
-        
-        // Настраиваем кнопку
-        this.setupUpdateButton();
-        
-        this.initialized = true;
-        console.log('UpdateButtonManager инициализирован для:', character.key);
-    }
-    
-    getCurrentPageData() {
-        const level = parseInt(document.getElementById('lvl')?.textContent) || 1;
-        const attackLevel = parseInt(document.getElementById('lvl-attack')?.textContent) || 1;
-        const skillLevel = parseInt(document.getElementById('lvl-skill')?.textContent) || 1;
-        const explosionLevel = parseInt(document.getElementById('lvl-explosion')?.textContent) || 1;
-        const rangeVal = document.getElementById('range')?.value || 0;
-        
-        // Собираем пользовательские вводы
-        const userInputs = {};
-        const inputElements = document.querySelectorAll('.all .materials-container input[type="number"]');
-        
-        inputElements.forEach(input => {
-            const value = parseInt(input.value) || 0;
-            const materialId = input.id.replace('all_', '').replace(/_/g, '.');
-            userInputs[materialId] = value;
-        });
-        
-        return {
-            level,
-            attackLevel,
-            skillLevel,
-            explosionLevel,
-            rangeVal,
-            userInputs
-        };
-    }
-    
-    setupUpdateButton() {
-        if (!this.updateButton) return;
-        
-        // Начальное состояние - неактивна
-        this.updateButton.disabled = true;
-        this.updateButton.style.opacity = '0.5';
-        this.updateButton.style.cursor = 'not-allowed';
-        
-        // Добавляем обработчики изменений на странице
-        this.addChangeListeners();
-        
-        console.log('Кнопка "Обновить" настроена');
-    }
-    
-    addChangeListeners() {
-        // Слайдер уровня персонажа
-        const rangeInput = document.getElementById('range');
-        if (rangeInput) {
-            rangeInput.addEventListener('input', () => this.checkForChanges());
-            rangeInput.addEventListener('change', () => this.checkForChanges());
-        }
-        
-        // Слайдеры талантов
-        const attackRange = document.querySelector('section.mat-attack input[type="range"]');
-        const skillRange = document.querySelector('section.mat-skill input[type="range"]');
-        const burstRange = document.querySelector('section.mat-explosion input[type="range"]');
-        
-        [attackRange, skillRange, burstRange].forEach(slider => {
-            if (slider) {
-                slider.addEventListener('input', () => this.checkForChanges());
-                slider.addEventListener('change', () => this.checkForChanges());
-            }
-        });
-        
-        // Поля ввода материалов
-        const materialInputs = document.querySelectorAll('.all .materials-container input[type="number"]');
-        materialInputs.forEach(input => {
-            input.addEventListener('input', () => this.checkForChanges());
-            input.addEventListener('change', () => this.checkForChanges());
-        });
-        
-        // Также проверяем изменения периодически
-        setInterval(() => this.checkForChanges(), 1000);
-    }
-    
-    checkForChanges() {
-        if (!this.initialized || !this.updateButton) return;
-        
-        const currentData = this.getCurrentPageData();
-        const hasChanges = this.hasDataChanged(currentData);
-        
-        console.log('Проверка изменений:', {
-            original: this.originalData,
-            current: currentData,
-            hasChanges: hasChanges
-        });
-        
-        if (hasChanges) {
-            // Есть изменения - активируем кнопку
-            this.updateButton.disabled = false;
-            this.updateButton.style.opacity = '1';
-            this.updateButton.style.cursor = 'pointer';
-            this.updateButton.style.filter = 'none';
-            
-            // Добавляем визуальный индикатор изменений
-            if (!this.updateButton.querySelector('.change-indicator')) {
-                const indicator = document.createElement('span');
-                indicator.className = 'change-indicator';
-                indicator.innerHTML = ' •';
-                indicator.style.color = '#FF9800';
-                indicator.style.fontSize = '24px';
-                indicator.style.verticalAlign = 'middle';
-                this.updateButton.appendChild(indicator);
-            }
-        } else {
-            // Нет изменений - деактивируем кнопку
-            this.updateButton.disabled = true;
-            this.updateButton.style.opacity = '0.5';
-            this.updateButton.style.cursor = 'not-allowed';
-            
-            // Убираем индикатор изменений
-            const indicator = this.updateButton.querySelector('.change-indicator');
-            if (indicator) {
-                indicator.remove();
-            }
-        }
-    }
-    
-    hasDataChanged(currentData) {
-        // Сравниваем уровни
-        if (currentData.level !== this.originalData.level ||
-            currentData.attackLevel !== this.originalData.attackLevel ||
-            currentData.skillLevel !== this.originalData.skillLevel ||
-            currentData.explosionLevel !== this.originalData.explosionLevel ||
-            currentData.rangeVal !== this.originalData.rangeVal) {
-            return true;
-        }
-        
-        // Сравниваем пользовательские вводы
-        const originalKeys = Object.keys(this.originalData.userInputs || {});
-        const currentKeys = Object.keys(currentData.userInputs || {});
-        
-        if (originalKeys.length !== currentKeys.length) {
-            return true;
-        }
-        
-        for (const key of originalKeys) {
-            if (this.originalData.userInputs[key] !== currentData.userInputs[key]) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-    
-    updateLanguage(newLang) {
-        this.lang = newLang;
-        // Обновляем текст кнопки
-        if (this.updateButton) {
-            const span = this.updateButton.querySelector('span');
-            if (span) {
-                const translationsObj = translations[newLang] || translations['ru'];
-                span.textContent = translationsObj.buttons?.update || 'Обновить';
-            }
-        }
-    }
-}
-
-// Создаем и экспортируем глобальный экземпляр менеджера
-export const updateButtonManager = new UpdateButtonManager();
-
-// Экспортируем для использования в других модулях
-export { updateButtonManager as default };
