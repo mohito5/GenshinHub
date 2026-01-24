@@ -7,8 +7,7 @@ import { ServerTimer } from './serverTimer.js';
 import { renderMiniCalendar } from './utils/calendar-utils.js';
 import { initGlobalLocaleHandler } from './global-locale-handler.js';
 import { dateManager } from './date-manager.js';
-// web.js - добавьте в начало файла с другими импортами
-import { setupGlobalEventListeners } from './global-events.js';
+import telegramStorage from './telegram-storage.js';
 
 // Импорт модулей
 import { initHomeModule } from './modules/home-module.js';
@@ -63,16 +62,17 @@ import {
     initSaveManager
 } from './components/save-manager.js';
 
-// УДАЛЕН ДУБЛИРУЮЩИЙСЯ ИМПОРТ - оставляем только один импорт formatNumber
 import { formatNumber, parseFormattedNumber } from './utils/number-utils.js';
 
-// web.js - добавьте в начало файла после других импортов
 import { charsData } from './characterData.js';
-import telegramStorage from './telegram-storage.js';
 
 // Добавьте charsData в глобальный объект window
 window.charsData = charsData;
 console.log('charsData добавлен в глобальную область видимости:', Object.keys(charsData).length, 'персонажей');
+
+// Делаем telegramStorage глобально доступным
+window.telegramStorage = telegramStorage;
+console.log('telegramStorage добавлен в глобальную область видимости');
 
 // Глобальные переменные
 let currentPageId = 'home';
@@ -172,8 +172,6 @@ window.showPage = function(pageId) {
 };
 
 // Инициализация контента страницы
-// Инициализация контента страницы
-// web.js - исправленный фрагмент (только инициализация страниц)
 function initPageContent(pageId) {
     console.log('Инициализация контента для страницы:', pageId);
     
@@ -248,27 +246,6 @@ function initPageContent(pageId) {
             }
         }, 150);
     }
-    // web.js - в initPageContent для profile/calculator
-if (pageId === 'profile/calculator') {
-  // Инициализируем калькулятор
-  setTimeout(() => {
-    if (typeof initCalculatorModule === 'function') {
-      initCalculatorModule();
-      window.calculatorModuleInitialized = true;
-      
-      // Проверяем, нужно ли загрузить сохранение
-      const saveId = localStorage.getItem('loadCalculatorSaveId');
-      if (saveId) {
-        setTimeout(() => {
-          if (typeof loadCalculatorSaveById === 'function') {
-            loadCalculatorSaveById(saveId);
-          }
-          localStorage.removeItem('loadCalculatorSaveId');
-        }, 500);
-      }
-    }
-  }, 100);
-}
 }
 
 // Функция для показа сообщения об ошибке
@@ -287,10 +264,6 @@ function showErrorMessage(message) {
 }
 
 // Функция для рендеринга страницы материалов
-
-// web.js - обновленная функция renderMaterialsPage
-
-// web.js - исправленная проверка наличия материалов
 function renderMaterialsPage() {
     console.log('=== RENDER MATERIALS PAGE - НАЧАЛО ===');
     
@@ -457,6 +430,7 @@ function renderMaterialsPage() {
         resetLoadFlags();
     }, 1000);
 }
+
 // Добавьте новую вспомогательную функцию
 function getAllMaterialsFromSections(levelMats, attackMats, skillMats, burstMats) {
     const allMaterials = {};
@@ -631,7 +605,8 @@ function renderRealMaterials(data, characterData) {
     
     renderAllMaterials(levelMaterials, attackMaterials, skillMaterials, burstMaterials, characterData);
 }
-// web.js - добавьте эту функцию
+
+// Добавьте эту функцию
 function restoreMaterialsFromSave(savedMaterialsData) {
     console.log('Восстановление материалов из сохранения:', savedMaterialsData);
     
@@ -713,6 +688,7 @@ function renderAllMaterialsSection(allMaterials, characterData) {
         container.appendChild(materialElement);
     });
 }
+
 // Функция для получения материалов уровня
 function getLevelMaterials(realLevel) {
     if (!materialCategories.amountsPerLevel) return {};
@@ -1394,6 +1370,7 @@ function refreshSaveButtons(lang) {
         }
     });
 }
+
 // Функция для принудительной проверки изменений (можно вызывать в консоли для тестирования)
 function forceCheckChanges() {
     if (window.updateButtonManager && window.updateButtonManager.checkForChanges) {
@@ -1403,6 +1380,7 @@ function forceCheckChanges() {
         console.error('updateButtonManager не доступен');
     }
 }
+
 // Сделайте ее глобальной
 window.forceCheckChanges = forceCheckChanges;
 
@@ -1551,6 +1529,18 @@ function showOverwriteConfirm(character, lang, existingSave) {
                 currentLevelData.isFromLoad = true;
                 currentLevelData.isFromSave = true;
                 localStorage.setItem('characterLevelData', JSON.stringify(currentLevelData));
+                
+                // Синхронизируем с Telegram Cloud
+                if (window.telegramStorage) {
+                    setTimeout(async () => {
+                        try {
+                            await window.telegramStorage.syncAllUserData();
+                            console.log('Синхронизировано после перезаписи');
+                        } catch (error) {
+                            console.error('Ошибка синхронизации:', error);
+                        }
+                    }, 100);
+                }
                 
                 // Показываем уведомление
                 showSaveNotification(currentTranslations.notifications?.overwriteSuccess || 'Сохранение успешно перезаписано!', 'success');
@@ -2014,28 +2004,58 @@ function setupGlobalFunctions() {
     window.initProfileModule = initProfileModule;
     window.renderSavedMaterials = renderSavedMaterials;
    
-  
-  // Функция для принудительного обновления профиля
-  window.forceRefreshProfile = function() {
-    console.log('Принудительное обновление профиля...');
-    if (typeof renderSavedMaterials === 'function') {
-      renderSavedMaterials();
-    }
-  };
-  
-
+    // Функция для принудительного обновления профиля
+    window.forceRefreshProfile = function() {
+        console.log('Принудительное обновление профиля...');
+        if (typeof renderSavedMaterials === 'function') {
+            renderSavedMaterials();
+        }
+    };
     
     console.log('Глобальные функции установлены');
 }
 
-// Инициализация приложения
-function initApp() {
-    console.log('Инициализация приложения...');
-
-    // Проверяем и загружаем данные из Telegram Cloud
-  setTimeout(async () => {
-    await telegramStorage.loadFromCloud();
-  }, 1000);
+// Инициализация приложения - ИСПРАВЛЕННАЯ ВЕРСИЯ
+async function initApp() {
+    console.log('=== ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ ===');
+    
+    // Проверяем, в Telegram Mini App ли мы
+    const isTelegram = typeof Telegram !== 'undefined' && Telegram.WebApp;
+    
+    if (isTelegram) {
+        console.log('✅ Запуск в Telegram Mini App');
+        try {
+            // Инициализируем Telegram WebApp
+            Telegram.WebApp.ready();
+            Telegram.WebApp.expand();
+            
+            // Настраиваем тему
+            const theme = Telegram.WebApp.colorScheme;
+            document.documentElement.setAttribute('data-theme', theme);
+            console.log('Тема установлена:', theme);
+            
+            // Показываем основную кнопку если нужно
+            if (Telegram.WebApp.MainButton) {
+                Telegram.WebApp.MainButton.hide();
+            }
+            
+        } catch (error) {
+            console.error('Ошибка инициализации Telegram WebApp:', error);
+        }
+    } else {
+        console.log('🌐 Запуск в браузере');
+    }
+    
+    // Загружаем синхронизированные данные из облака ПЕРЕД инициализацией
+    if (isTelegram && window.telegramStorage) {
+        console.log('📥 Загрузка синхронизированных данных из облака...');
+        try {
+            await window.telegramStorage.loadUserData();
+            console.log('✅ Данные успешно загружены из облака');
+        } catch (error) {
+            console.error('❌ Ошибка загрузки данных из облака:', error);
+        }
+    }
     
     // Устанавливаем глобальные функции
     setupGlobalFunctions();
@@ -2075,15 +2095,40 @@ function initApp() {
     
     updateActiveNav();
 
+    // ВАЖНО: Получаем хэш и определяем начальную страницу
     const hash = window.location.hash;
-    const initialPage = hash.slice(2) || 'home';
+    console.log('Текущий хэш:', hash);
+    
+    let initialPage = 'home'; // По умолчанию показываем home
+    
+    if (hash && hash.length > 2) {
+        // Убираем #/ из хэша
+        const pageFromHash = hash.slice(2);
+        if (pageFromHash && pageLayouts[pageFromHash]) {
+            initialPage = pageFromHash;
+            console.log('Страница из хэша:', initialPage);
+        } else {
+            console.log('Страница из хэша не найдена:', pageFromHash);
+        }
+    } else {
+        console.log('Хэш пустой или некорректный, используем страницу по умолчанию: home');
+    }
+    
+    console.log('Начальная страница:', initialPage);
+    
+    // Показываем начальную страницу
     window.showPage(initialPage);
     
     setTimeout(() => moveHighlight(), 200);
 }
 
 // Запуск при загрузке DOM
-document.addEventListener('DOMContentLoaded', initApp);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initApp);
+} else {
+    // DOM уже загружен
+    initApp();
+}
 
 // Экспортируем для модулей
 export {
