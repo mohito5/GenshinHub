@@ -1,4 +1,5 @@
 // web.js - полный исправленный файл
+import { initTelegramDebug } from './telegram-debug.js';
 import { modalManager } from './components/modal-manager.js';
 import { initFilterButtonSystem } from './components/filter-button-system.js';
 import { pageLayouts } from './modules/common-module.js';
@@ -2021,6 +2022,11 @@ function setupGlobalFunctions() {
 // Инициализация приложения - ИСПРАВЛЕННАЯ ВЕРСИЯ ДЛЯ TELEGRAM
 async function initApp() {
   console.log('=== ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ ===');
+
+  // Инициализация отладки Telegram
+  setTimeout(() => {
+    initTelegramDebug();
+  }, 500);
 
   // УСИЛЕННАЯ ПРОВЕРКА TELEGRAM
     console.log('=== ПРОВЕРКА TELEGRAM МИНИ-ПРИЛОЖЕНИЯ ===');
