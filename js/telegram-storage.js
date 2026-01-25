@@ -1,9 +1,61 @@
 // telegram-storage.js - полный исправленный файл с синхронизацией
 export class TelegramStorage {
     constructor() {
-        this.isTelegram = false;
+        this.isTelegram = this.detectTelegram();
         this.syncInProgress = false;
         this.init();
+    }
+
+    // Новая функция для определения Telegram
+    detectTelegram() {
+        // Вариант 1: Через глобальный объект Telegram (стандартный способ)
+        if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
+            console.log('✅ Telegram обнаружен через window.Telegram');
+            return true;
+        }
+        
+        // Вариант 2: Через window.parent (если в iframe)
+        try {
+            if (window.parent && window.parent.Telegram && window.parent.Telegram.WebApp) {
+                console.log('✅ Telegram обнаружен через window.parent');
+                return true;
+            }
+        } catch (e) {
+            // Не можем получить доступ к parent
+        }
+        
+        // Вариант 3: Через window.opener (если открыто из Telegram)
+        try {
+            if (window.opener && window.opener.Telegram && window.opener.Telegram.WebApp) {
+                console.log('✅ Telegram обнаружен через window.opener');
+                return true;
+            }
+        } catch (e) {
+            // Не можем получить доступ к opener
+        }
+        
+        // Вариант 4: Через параметры URL (Telegram Mini App передает параметры)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('tgWebAppData') || urlParams.has('tgWebAppVersion')) {
+            console.log('✅ Telegram обнаружен по параметрам URL');
+            return true;
+        }
+        
+        // Вариант 5: Через hash URL (Telegram также может передавать в hash)
+        if (window.location.hash.includes('tgWebAppData=')) {
+            console.log('✅ Telegram обнаружен по hash URL');
+            return true;
+        }
+        
+        // Вариант 6: По User-Agent
+        const userAgent = navigator.userAgent.toLowerCase();
+        if (userAgent.includes('telegram') || userAgent.includes('webview')) {
+            console.log('✅ Telegram обнаружен по User-Agent');
+            return true;
+        }
+        
+        console.log('❌ Telegram не обнаружен');
+        return false;
     }
 
     init() {

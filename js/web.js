@@ -2022,20 +2022,84 @@ function setupGlobalFunctions() {
 async function initApp() {
   console.log('=== ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ ===');
 
-  // ОТЛАДОЧНАЯ ИНФОРМАЦИЯ
-  console.log('Отладочная информация:');
-  console.log('- URL:', window.location.href);
-  console.log('- User Agent:', navigator.userAgent);
-  console.log('- Telegram в window:', typeof window.Telegram !== 'undefined');
-  
-  if (typeof window.Telegram !== 'undefined') {
-    console.log('- Telegram.WebApp:', Telegram.WebApp);
-    console.log('- Telegram.WebApp.version:', Telegram.WebApp.version);
-    console.log('- Telegram.WebApp.platform:', Telegram.WebApp.platform);
-    console.log('- Telegram.WebApp.initData:', Telegram.WebApp.initData);
-    console.log('- Telegram.WebApp.initDataUnsafe.user:', Telegram.WebApp.initDataUnsafe?.user);
-  }
-  
+  // УСИЛЕННАЯ ПРОВЕРКА TELEGRAM
+    console.log('=== ПРОВЕРКА TELEGRAM МИНИ-ПРИЛОЖЕНИЯ ===');
+    console.log('URL:', window.location.href);
+    console.log('Origin:', window.location.origin);
+    console.log('User-Agent:', navigator.userAgent);
+    
+    // Проверяем все возможные способы определения Telegram
+    let isTelegramDetected = false;
+    
+    // 1. Проверяем стандартный способ
+    if (typeof window.Telegram !== 'undefined') {
+        console.log('✅ Telegram объект найден в window');
+        if (Telegram.WebApp) {
+            console.log('✅ Telegram.WebApp доступен');
+            isTelegramDetected = true;
+            
+            // Инициализируем Telegram WebApp
+            try {
+                Telegram.WebApp.ready();
+                Telegram.WebApp.expand();
+                console.log('✅ Telegram.WebApp инициализирован');
+                
+                // Показываем информацию о пользователе
+                const user = Telegram.WebApp.initDataUnsafe?.user;
+                if (user) {
+                    console.log('✅ Пользователь Telegram:', {
+                        id: user.id,
+                        username: user.username,
+                        firstName: user.first_name
+                    });
+                }
+            } catch (error) {
+                console.error('❌ Ошибка инициализации Telegram:', error);
+            }
+        }
+    }
+    
+    // 2. Проверяем параметры URL (Telegram передает данные так)
+    const urlParams = new URLSearchParams(window.location.search);
+    console.log('Параметры URL:', Object.fromEntries(urlParams));
+    
+    if (urlParams.has('tgWebAppData') || urlParams.has('tgWebAppVersion')) {
+        console.log('✅ Telegram параметры найдены в URL');
+        isTelegramDetected = true;
+    }
+    
+    // 3. Проверяем hash (еще один способ передачи данных)
+    if (window.location.hash) {
+        console.log('Hash URL:', window.location.hash);
+        if (window.location.hash.includes('tgWebAppData=')) {
+            console.log('✅ Telegram параметры найдены в hash');
+            isTelegramDetected = true;
+        }
+    }
+    
+    // 4. Проверяем window.parent (если в iframe)
+    try {
+        if (window.parent && window.parent.Telegram) {
+            console.log('✅ Telegram найден в window.parent');
+            isTelegramDetected = true;
+        }
+    } catch (e) {
+        console.log('window.parent недоступен:', e.message);
+    }
+    
+    console.log('Итог проверки Telegram:', isTelegramDetected ? '✅ Обнаружен' : '❌ Не обнаружен');
+    
+    // Если Telegram не обнаружен, проверяем локальное хранилище
+    if (!isTelegramDetected) {
+        const isManualTelegram = localStorage.getItem('forceTelegramMode') === 'true';
+        if (isManualTelegram) {
+            console.log('⚠️ Режим Telegram принудительно включен вручную');
+            isTelegramDetected = true;
+        }
+    }
+    
+    // Сохраняем статус в глобальной переменной
+    window.isTelegramMiniApp = isTelegramDetected;
   // Проверяем, в Telegram Mini App ли мы
   const isTelegram = typeof Telegram !== 'undefined' && Telegram.WebApp;
   
