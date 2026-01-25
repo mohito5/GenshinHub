@@ -4,6 +4,7 @@ import { formatNumber } from '../utils/number-utils.js';
 import { loadCalculatorSaveById } from './calculator-module.js';
 import { charsData } from '../characterData.js';
 import telegramStorage from '../telegram-storage.js';
+import telegramHelper from './telegram-webapp.js';
 
 // В начале файла добавьте этот код для экспорта charsData в window
 if (typeof window !== 'undefined') {
@@ -534,12 +535,16 @@ function setupAutoSync() {
 function addSyncButton() {
   console.log('Добавление кнопки синхронизации...');
   
+  // Используем telegramHelper
+  const isTelegram = telegramHelper.isInTelegram();
+  
+  console.log('Telegram статус через helper:', isTelegram);
+  console.log('Telegram URL:', window.location.href);
+  
   // Удаляем старую кнопку если есть
   const oldBtn = document.getElementById('sync-profile-btn');
   if (oldBtn) oldBtn.remove();
   
-  // ОСНОВНОЕ ИСПРАВЛЕНИЕ: Проверяем Telegram несколькими способами
-  let isTelegram = false;
   
   // 1. Проверяем прямой доступ к Telegram WebApp
   if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
@@ -673,6 +678,14 @@ function addSyncButton() {
 // Функция синхронизации профиля - ОКОНЧАТЕЛЬНАЯ ИСПРАВЛЕННАЯ ВЕРСИЯ
 async function syncProfile() {
   console.log('=== СИНХРОНИЗАЦИЯ ПРОФИЛЯ ===');
+  console.log('=== СИНХРОНИЗАЦИЯ ПРОФИЛЯ ===');
+  
+  // Проверяем через telegramHelper
+  if (!telegramHelper.isInTelegram()) {
+    showSaveNotification('Синхронизация доступна только в Telegram Mini App', 'warning');
+    console.log('❌ Telegram не обнаружен через helper');
+    return;
+  }
   
   const syncBtn = document.getElementById('sync-profile-btn');
   if (!syncBtn) {
@@ -846,7 +859,48 @@ async function syncProfile() {
     }, 2000);
   }
 }
-
+// Добавьте эту функцию в profile-module.js
+function addManualTelegramButton() {
+  const container = document.querySelector('.profile-user-section');
+  if (!container) return;
+  
+  const manualBtn = document.createElement('button');
+  manualBtn.id = 'manual-telegram-btn';
+  manualBtn.innerHTML = `
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+    </svg>
+    Включить режим Telegram (тест)
+  `;
+  manualBtn.style.cssText = `
+    background: #9C27B0;
+    color: white;
+    padding: 10px 15px;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+  `;
+  
+  manualBtn.onclick = function() {
+    if (confirm('Включить тестовый режим Telegram?\nЭто позволит тестировать синхронизацию в браузере.')) {
+      telegramHelper.enableTelegramMode();
+      localStorage.setItem('telegramTestMode', 'true');
+      showSaveNotification('Режим Telegram включен! Обновите страницу.', 'success');
+      
+      // Обновляем кнопку синхронизации
+      setTimeout(() => {
+        addSyncButton();
+      }, 500);
+    }
+  };
+  
+  container.appendChild(manualBtn);
+}
 // Открытие селектора аватаров
 function openAvatarSelector() {
   const selector = document.getElementById('avatar-selector');
