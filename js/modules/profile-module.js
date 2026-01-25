@@ -16,6 +16,14 @@ if (typeof window !== 'undefined') {
 // Обновленная функция initProfileModule
 export function initProfileModule() {
   console.log('=== ИНИЦИАЛИЗАЦИЯ МОДУЛЯ ПРОФИЛЯ ===');
+
+  // ДОБАВЬТЕ ЭТУ ПРОВЕРКУ ПЕРВЫМ ДЕЛОМ:
+  console.log('Проверка окружения Telegram...');
+  console.log('Telegram в window:', typeof window.Telegram !== 'undefined');
+  console.log('Telegram.WebApp:', typeof window.Telegram !== 'undefined' ? window.Telegram.WebApp : 'нет');
+  console.log('telegramStorage:', window.telegramStorage ? window.telegramStorage.isTelegram : 'нет');
+  console.log('User Agent:', navigator.userAgent);
+  console.log('URL:', window.location.href);
   
   // 1. Сначала рендерим сохранения из локального хранилища НЕМЕДЛЕННО
   console.log('Немедленный рендеринг локальных сохранений...');
@@ -62,6 +70,11 @@ export function initProfileModule() {
   
   // 9. Добавляем кнопку синхронизации СРАЗУ
   addSyncButton();
+
+  // Добавьте вызов отладочной функции
+  setTimeout(() => {
+    addDebugButton();
+  }, 1000);
   
   console.log('Модуль профиля инициализирован');
 }
@@ -182,17 +195,31 @@ function initUserProfile() {
 }
 
 // Проверка окружения Telegram
+// Исправленная функция проверки Telegram в profile-module.js
 function checkTelegramEnvironment() {
-  if (typeof window.Telegram !== 'undefined' && 
-      typeof window.Telegram.WebApp !== 'undefined') {
-    console.log('Обнаружен Telegram WebApp');
+  // Вариант 1: Проверяем глобальный объект Telegram
+  if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
+    console.log('Telegram WebApp обнаружен через глобальный объект');
     return true;
   }
   
-  // Проверка по user agent
+  // Вариант 2: Проверяем через telegramStorage
+  if (window.telegramStorage && window.telegramStorage.isTelegram) {
+    console.log('Telegram WebApp обнаружен через telegramStorage');
+    return true;
+  }
+  
+  // Вариант 3: Проверяем по user agent (для тестирования в браузере)
   const userAgent = navigator.userAgent.toLowerCase();
   const isTelegramWebView = userAgent.includes('telegram') || 
                            userAgent.includes('webview');
+  
+  console.log('Проверка Telegram:', {
+    hasTelegram: typeof window.Telegram !== 'undefined',
+    hasWebApp: typeof window.Telegram !== 'undefined' && window.Telegram.WebApp,
+    telegramStorage: window.telegramStorage ? window.telegramStorage.isTelegram : 'нет',
+    userAgent: navigator.userAgent
+  });
   
   return isTelegramWebView;
 }
@@ -240,7 +267,45 @@ function initTelegramProfile() {
     initBrowserProfile(); // Резервный вариант
   }
 }
-
+// Добавьте эту функцию в profile-module.js для тестирования
+function addDebugButton() {
+  const debugBtn = document.createElement('button');
+  debugBtn.textContent = 'Отладка Telegram';
+  debugBtn.style.cssText = `
+    background: #9C27B0;
+    color: white;
+    padding: 10px 15px;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  `;
+  
+  debugBtn.onclick = function() {
+    console.log('=== ОТЛАДКА TELEGRAM ===');
+    console.log('1. Telegram объект:', typeof window.Telegram !== 'undefined' ? window.Telegram : 'не найден');
+    console.log('2. Telegram.WebApp:', typeof window.Telegram !== 'undefined' ? window.Telegram.WebApp : 'не найден');
+    console.log('3. telegramStorage:', window.telegramStorage);
+    console.log('4. telegramStorage.isTelegram:', window.telegramStorage ? window.telegramStorage.isTelegram : 'нет');
+    console.log('5. URL:', window.location.href);
+    console.log('6. User Agent:', navigator.userAgent);
+    
+    if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
+      console.log('7. Telegram.WebApp готов?');
+      try {
+        Telegram.WebApp.ready();
+        console.log('✅ Telegram.WebApp готов!');
+      } catch (e) {
+        console.log('❌ Ошибка Telegram.WebApp.ready():', e);
+      }
+    }
+    
+    // Показываем сообщение
+    alert(`Отладка Telegram:\nTelegram объект: ${typeof window.Telegram !== 'undefined' ? 'Да' : 'Нет'}\nURL: ${window.location.href}`);
+  };
+  
+  document.querySelector('.profile-user-section')?.appendChild(debugBtn);
+}
 // Инициализация профиля для браузера
 function initBrowserProfile() {
   console.log('Инициализация профиля для браузера');
@@ -465,6 +530,7 @@ function setupAutoSync() {
 // Функция добавления кнопки синхронизации
 // Функция добавления кнопки синхронизации - ИСПРАВЛЕННАЯ
 // Функция добавления кнопки синхронизации - ИСПРАВЛЕННАЯ
+// Исправленная функция добавления кнопки синхронизации
 function addSyncButton() {
   console.log('Добавление кнопки синхронизации...');
   
@@ -472,10 +538,34 @@ function addSyncButton() {
   const oldBtn = document.getElementById('sync-profile-btn');
   if (oldBtn) oldBtn.remove();
   
-  // Проверяем, в Telegram ли мы (используем глобальную проверку)
-  const isTelegram = typeof Telegram !== 'undefined' && Telegram.WebApp;
+  // ОСНОВНОЕ ИСПРАВЛЕНИЕ: Проверяем Telegram несколькими способами
+  let isTelegram = false;
   
-  console.log('Telegram статус:', isTelegram);
+  // 1. Проверяем прямой доступ к Telegram WebApp
+  if (typeof window.Telegram !== 'undefined' && window.Telegram.WebApp) {
+    isTelegram = true;
+    console.log('✅ Telegram WebApp доступен напрямую');
+  } 
+  // 2. Проверяем через telegramStorage
+  else if (window.telegramStorage && window.telegramStorage.isTelegram) {
+    isTelegram = true;
+    console.log('✅ Telegram WebApp доступен через telegramStorage');
+  }
+  // 3. Проверяем по URL (для отладки)
+  else if (window.location.href.includes('t.me') || window.location.href.includes('telegram')) {
+    isTelegram = true;
+    console.log('✅ Telegram WebApp обнаружен по URL');
+  }
+  // 4. Проверяем по user agent
+  else {
+    const userAgent = navigator.userAgent.toLowerCase();
+    if (userAgent.includes('telegram') || userAgent.includes('webview')) {
+      isTelegram = true;
+      console.log('✅ Telegram WebApp обнаружен по User-Agent');
+    }
+  }
+  
+  console.log('Окончательный статус Telegram:', isTelegram);
   
   // Ищем контейнер для кнопки
   const profileSection = document.querySelector('.profile-user-section');
@@ -496,6 +586,7 @@ function addSyncButton() {
   const syncBtn = document.createElement('button');
   syncBtn.id = 'sync-profile-btn';
   syncBtn.className = 'sync-profile-button';
+  syncBtn.title = isTelegram ? 'Синхронизировать с Telegram Cloud' : 'Синхронизация доступна только в Telegram';
   
   if (isTelegram) {
     // В Telegram Mini App - кнопка активна
@@ -503,9 +594,9 @@ function addSyncButton() {
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
         <path d="M12 6V3L8 7l4 4V8c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46A7.93 7.93 0 0020 14c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74A7.93 7.93 0 004 14c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
       </svg>
-      Синхронизировать с Telegram Cloud
+      <span>Синхронизировать с Telegram Cloud</span>
     `;
-    syncBtn.disabled = false; // Кнопка активна!
+    syncBtn.disabled = false;
     syncBtn.style.cssText = `
       background: #2196F3;
       color: white;
@@ -536,14 +627,19 @@ function addSyncButton() {
     };
     
     // Добавляем обработчик клика
-    syncBtn.onclick = syncProfile;
+    syncBtn.onclick = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      syncProfile();
+    };
+    
   } else {
     // Не в Telegram - кнопка неактивна
     syncBtn.innerHTML = `
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
       </svg>
-      Синхронизация доступна только в Telegram
+      <span>Синхронизация доступна только в Telegram</span>
     `;
     syncBtn.disabled = true;
     syncBtn.style.cssText = `
@@ -569,24 +665,8 @@ function addSyncButton() {
   
   console.log('Кнопка синхронизации добавлена, статус:', isTelegram ? 'АКТИВНА' : 'НЕАКТИВНА');
   
-  // Добавляем стили для кнопки при необходимости
-  if (!document.getElementById('sync-button-styles')) {
-    const style = document.createElement('style');
-    style.id = 'sync-button-styles';
-    style.textContent = `
-      .sync-profile-button:active {
-        transform: scale(0.98);
-      }
-      
-      .sync-profile-button:disabled {
-        opacity: 0.6;
-        cursor: not-allowed !important;
-      }
-    `;
-    document.head.appendChild(style);
-  }
+  return isTelegram;
 }
-
 
 // Функция синхронизации профиля
 // Функция синхронизации профиля - ИСПРАВЛЕННАЯ
