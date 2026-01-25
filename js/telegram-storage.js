@@ -69,27 +69,28 @@ export class TelegramStorage {
 
     // Сохранение данных
     // Исправленный метод setItem для Telegram
+    // В telegram-storage.js исправьте метод setItem:
     async setItem(key, value) {
-        if (this.isTelegram) {
-            return new Promise((resolve, reject) => {
-                try {
+    if (this.isTelegram) {
+        return new Promise((resolve, reject) => {
+            try {
                 const stringValue = JSON.stringify(value);
-        
+                
                 // Проверяем размер данных
                 if (stringValue.length > 4096) {
                     console.error(`Данные слишком большие для ключа ${key}: ${stringValue.length} байт (макс. 4096)`);
-                    resolve(false);
+                    resolve(false); // Возвращаем false при превышении лимита
                     return;
                 }
-        
+                
                 Telegram.WebApp.CloudStorage.setItem(key, stringValue, (error) => {
                     if (error) {
-                        console.error(`Ошибка сохранения ${key} в Telegram Cloud:`, error);
+                        console.error(`❌ Ошибка сохранения ${key} в Telegram Cloud:`, error);
                         // Пробуем сохранить в localStorage как резерв
                         try {
                             localStorage.setItem(key, stringValue);
-                            console.log(`Данные ${key} сохранены локально как резерв`);
-                            resolve(false); // Возвращаем false, т.к. в Cloud не сохранилось
+                            console.log(`⚠️ Данные ${key} сохранены локально как резерв`);
+                            resolve(false); // false = не сохранено в Cloud
                         } catch (localError) {
                             console.error(`Ошибка сохранения ${key} в localStorage:`, localError);
                             resolve(false);
@@ -98,7 +99,7 @@ export class TelegramStorage {
                         console.log(`✅ Данные ${key} успешно сохранены в Telegram Cloud (${stringValue.length} байт)`);
                         // Также сохраняем локально для быстрого доступа
                         localStorage.setItem(key, stringValue);
-                        resolve(true);
+                        resolve(true); // true = успешно сохранено в Cloud
                     }
                 });
             } catch (e) {
@@ -110,20 +111,20 @@ export class TelegramStorage {
                 } catch (localError) {
                     console.error('Ошибка сохранения в localStorage:', localError);
                     resolve(false);
-                    }
                 }
-                });
-            } else {
-            // В браузере просто сохраняем в localStorage
-            try {
-                localStorage.setItem(key, JSON.stringify(value));
-                console.log(`Данные ${key} сохранены в localStorage`);
-                return Promise.resolve(false); // false = не в Telegram Cloud
-            } catch (error) {
-                console.error(`Ошибка сохранения ${key} в localStorage:`, error);
-                return Promise.resolve(false);
             }
+        });
+    } else {
+        // В браузере просто сохраняем в localStorage
+        try {
+            localStorage.setItem(key, JSON.stringify(value));
+            console.log(`Данные ${key} сохранены в localStorage`);
+            return Promise.resolve(false); // false = не в Telegram Cloud
+        } catch (error) {
+            console.error(`Ошибка сохранения ${key} в localStorage:`, error);
+            return Promise.resolve(false);
         }
+    }
     }
     // Получение данных
     async getItem(key, defaultValue = null) {
