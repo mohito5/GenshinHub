@@ -18,11 +18,7 @@ if (typeof window !== 'undefined') {
 export function initProfileModule() {
   console.log('=== ИНИЦИАЛИЗАЦИЯ МОДУЛЯ ПРОФИЛЯ ===');
 
-    // Добавляем тестовую кнопку СРАЗУ
-  addTestTelegramButton();
-  
-  // Добавляем кнопку синхронизации СРАЗУ
-  addSyncButton();
+
 
   // ДОБАВЬТЕ ЭТУ ПРОВЕРКУ ПЕРВЫМ ДЕЛОМ:
   console.log('Проверка окружения Telegram...');
@@ -76,12 +72,18 @@ export function initProfileModule() {
   }, 500);
   
   // 9. Добавляем кнопку синхронизации СРАЗУ
-  addSyncButton();
+  
 
   // Добавьте вызов отладочной функции
   setTimeout(() => {
     addDebugButton();
   }, 1000);
+
+  // Добавляем тестовую кнопку СРАЗУ
+  addTestTelegramButton();
+  
+  // Добавляем кнопку синхронизации СРАЗУ
+  addSyncButton();
   
   console.log('Модуль профиля инициализирован');
 }
