@@ -18,6 +18,12 @@ if (typeof window !== 'undefined') {
 export function initProfileModule() {
   console.log('=== ИНИЦИАЛИЗАЦИЯ МОДУЛЯ ПРОФИЛЯ ===');
 
+    // Добавляем тестовую кнопку СРАЗУ
+  addTestTelegramButton();
+  
+  // Добавляем кнопку синхронизации СРАЗУ
+  addSyncButton();
+
   // ДОБАВЬТЕ ЭТУ ПРОВЕРКУ ПЕРВЫМ ДЕЛОМ:
   console.log('Проверка окружения Telegram...');
   console.log('Telegram в window:', typeof window.Telegram !== 'undefined');
@@ -79,7 +85,150 @@ export function initProfileModule() {
   
   console.log('Модуль профиля инициализирован');
 }
-
+// Добавление тестовой кнопки Telegram
+function addTestTelegramButton() {
+  console.log('Добавление тестовой кнопки Telegram...');
+  
+  // Удаляем старую кнопку если есть
+  const oldBtn = document.getElementById('test-telegram-btn');
+  if (oldBtn) oldBtn.remove();
+  
+  // Создаем контейнер
+  const testContainer = document.createElement('div');
+  testContainer.className = 'test-telegram-container';
+  testContainer.style.cssText = `
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+  `;
+  
+  const testBtn = document.createElement('button');
+  testBtn.id = 'test-telegram-btn';
+  testBtn.className = 'test-telegram-button';
+  testBtn.innerHTML = `
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+    </svg>
+    <span>Тест Telegram WebApp</span>
+  `;
+  
+  testBtn.style.cssText = `
+    background: #9C27B0;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    font-size: 14px;
+    transition: all 0.3s;
+    box-shadow: 0 2px 8px rgba(156, 39, 176, 0.2);
+  `;
+  
+  testBtn.onmouseover = () => {
+    testBtn.style.background = '#7B1FA2';
+  };
+  
+  testBtn.onmouseout = () => {
+    testBtn.style.background = '#9C27B0';
+  };
+  
+  testBtn.onclick = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    console.log('=== ТЕСТ TELEGRAM WEBBAPP ===');
+    
+    // Проверяем различные методы
+    const checks = {
+      'window.Telegram': typeof window.Telegram !== 'undefined',
+      'Telegram.WebApp': typeof window.Telegram !== 'undefined' && window.Telegram.WebApp,
+      'CloudStorage': typeof window.Telegram !== 'undefined' && window.Telegram.WebApp && window.Telegram.WebApp.CloudStorage,
+      'URL параметры': new URLSearchParams(window.location.search).get('tgWebAppVersion'),
+      'LocalStorage флаг': localStorage.getItem('isTelegramMiniApp')
+    };
+    
+    console.table(checks);
+    
+    // Показываем результат
+    const isTelegram = checks['window.Telegram'] || checks['URL параметры'];
+    
+    let message = isTelegram ? 
+      '✅ Telegram Mini App обнаружен!\n\n' : 
+      '❌ Telegram Mini App не обнаружен.\n\n';
+    
+    Object.entries(checks).forEach(([key, value]) => {
+      message += `${key}: ${value ? '✅ Да' : '❌ Нет'}\n`;
+    });
+    
+    alert(message);
+    
+    // Если Telegram обнаружен, показываем дополнительные возможности
+    if (isTelegram && window.Telegram && window.Telegram.WebApp) {
+      const syncTestBtn = document.createElement('button');
+      syncTestBtn.textContent = 'Тест Cloud Storage';
+      syncTestBtn.style.cssText = `
+        background: #2196F3;
+        color: white;
+        padding: 10px 15px;
+        margin: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      `;
+      
+      syncTestBtn.onclick = async function() {
+        try {
+          // Пробуем сохранить тестовые данные
+          const testData = {
+            test: 'Hello from Telegram Mini App!',
+            timestamp: new Date().toISOString()
+          };
+          
+          if (window.Telegram.WebApp.CloudStorage) {
+            window.Telegram.WebApp.CloudStorage.setItem('test_data', JSON.stringify(testData), (error) => {
+              if (error) {
+                alert('❌ Ошибка сохранения: ' + error.message);
+              } else {
+                alert('✅ Данные сохранены в Cloud Storage!\n\nПроверьте с другого устройства.');
+              }
+            });
+          } else {
+            alert('❌ Cloud Storage недоступен');
+          }
+        } catch (error) {
+          alert('❌ Ошибка: ' + error.message);
+        }
+      };
+      
+      // Добавляем кнопку в модальное окно или на страницу
+      const existingSyncBtn = document.getElementById('sync-test-btn');
+      if (!existingSyncBtn) {
+        testBtn.parentNode.appendChild(syncTestBtn);
+        syncTestBtn.id = 'sync-test-btn';
+      }
+    }
+  };
+  
+  testContainer.appendChild(testBtn);
+  
+  // Вставляем в начало секции профиля
+  const profileSection = document.querySelector('.profile-user-section');
+  if (profileSection) {
+    profileSection.parentNode.insertBefore(testContainer, profileSection);
+  } else {
+    // Или в контейнер сохранений
+    const container = document.getElementById('saved-materials-container');
+    if (container) {
+      container.parentNode.insertBefore(testContainer, container);
+    }
+  }
+  
+  console.log('Тестовая кнопка Telegram добавлена');
+}
 // Новая функция для фоновой предзагрузки аватаров
 function preloadAvatarsInBackground() {
   console.log('Фоновая предзагрузка аватаров...');
