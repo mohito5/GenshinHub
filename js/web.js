@@ -2021,6 +2021,20 @@ function setupGlobalFunctions() {
 // Инициализация приложения - ИСПРАВЛЕННАЯ ВЕРСИЯ ДЛЯ TELEGRAM
 async function initApp() {
   console.log('=== ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ ===');
+
+  // ОТЛАДОЧНАЯ ИНФОРМАЦИЯ
+  console.log('Отладочная информация:');
+  console.log('- URL:', window.location.href);
+  console.log('- User Agent:', navigator.userAgent);
+  console.log('- Telegram в window:', typeof window.Telegram !== 'undefined');
+  
+  if (typeof window.Telegram !== 'undefined') {
+    console.log('- Telegram.WebApp:', Telegram.WebApp);
+    console.log('- Telegram.WebApp.version:', Telegram.WebApp.version);
+    console.log('- Telegram.WebApp.platform:', Telegram.WebApp.platform);
+    console.log('- Telegram.WebApp.initData:', Telegram.WebApp.initData);
+    console.log('- Telegram.WebApp.initDataUnsafe.user:', Telegram.WebApp.initDataUnsafe?.user);
+  }
   
   // Проверяем, в Telegram Mini App ли мы
   const isTelegram = typeof Telegram !== 'undefined' && Telegram.WebApp;
