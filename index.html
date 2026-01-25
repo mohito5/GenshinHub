@@ -20,6 +20,46 @@
   <link rel="stylesheet" href="css/button.css">
   <link rel="stylesheet" href="css/calculator.css">
   <!-- JavaScript -->
+   <!-- В index.html добавьте перед вашим основным скриптом -->
+<script>
+  // Telegram WebApp detection for GitHub Pages
+  (function() {
+    console.log('Telegram WebApp Detection Script');
+    
+    // Проверяем параметры URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.slice(1));
+    
+    const hasTelegramData = 
+      urlParams.has('tgWebAppData') || 
+      urlParams.has('tgWebAppVersion') ||
+      hashParams.has('tgWebAppData');
+    
+    if (hasTelegramData) {
+      console.log('Telegram Mini App detected on GitHub Pages');
+      
+      // Сохраняем флаг для приложения
+      localStorage.setItem('isTelegramMiniApp', 'true');
+      
+      // Если нет глобального объекта Telegram, создаем базовый
+      if (typeof Telegram === 'undefined') {
+        window.Telegram = {
+          WebApp: {
+            ready: function() {
+              console.log('Telegram WebApp ready (GitHub Pages)');
+            },
+            expand: function() {
+              console.log('Telegram WebApp expand (GitHub Pages)');
+            },
+            colorScheme: 'light',
+            initDataUnsafe: {},
+            platform: 'web'
+          }
+        };
+      }
+    }
+  })();
+</script>
   <script type="module" src="js/web.js"></script>
 </head>
 <body>
