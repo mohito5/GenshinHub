@@ -4,6 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lumos</title>
+
+  <!-- JavaScript -->
+  <!-- Telegram WebApp скрипт (ОЧЕНЬ ВАЖНО - поставьте его ПЕРВЫМ) -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  
   <!-- css -->
   <link rel="stylesheet" href="css/main.css">
   <link rel="stylesheet" href="css/colors.css">
@@ -19,47 +24,91 @@
   <link rel="stylesheet" href="css/modal.css">
   <link rel="stylesheet" href="css/button.css">
   <link rel="stylesheet" href="css/calculator.css">
-  <!-- JavaScript -->
-   <!-- В index.html добавьте перед вашим основным скриптом -->
-<script>
-  // Telegram WebApp detection for GitHub Pages
-  (function() {
-    console.log('Telegram WebApp Detection Script');
-    
-    // Проверяем параметры URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const hashParams = new URLSearchParams(window.location.hash.slice(1));
-    
-    const hasTelegramData = 
-      urlParams.has('tgWebAppData') || 
-      urlParams.has('tgWebAppVersion') ||
-      hashParams.has('tgWebAppData');
-    
-    if (hasTelegramData) {
-      console.log('Telegram Mini App detected on GitHub Pages');
+  
+  <!-- Упрощенный скрипт для определения Telegram -->
+  <script>
+    (function() {
+      console.log('=== TELEGRAM DETECTION START ===');
+      console.log('URL:', window.location.href);
+      console.log('Origin:', window.location.origin);
       
-      // Сохраняем флаг для приложения
-      localStorage.setItem('isTelegramMiniApp', 'true');
+      // Проверка параметров URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const tgWebAppVersion = urlParams.get('tgWebAppVersion');
+      const tgWebAppData = urlParams.get('tgWebAppData');
       
-      // Если нет глобального объекта Telegram, создаем базовый
-      if (typeof Telegram === 'undefined') {
-        window.Telegram = {
-          WebApp: {
-            ready: function() {
-              console.log('Telegram WebApp ready (GitHub Pages)');
-            },
-            expand: function() {
-              console.log('Telegram WebApp expand (GitHub Pages)');
-            },
-            colorScheme: 'light',
-            initDataUnsafe: {},
-            platform: 'web'
-          }
-        };
+      console.log('URL Params - tgWebAppVersion:', tgWebAppVersion);
+      console.log('URL Params - tgWebAppData:', tgWebAppData ? 'Да (скрыто)' : 'Нет');
+      
+      // Проверка hash
+      const hash = window.location.hash;
+      console.log('Hash:', hash);
+      
+      // Проверка Telegram объекта
+      console.log('Telegram object exists:', typeof Telegram !== 'undefined');
+      if (typeof Telegram !== 'undefined') {
+        console.log('Telegram.WebApp exists:', typeof Telegram.WebApp !== 'undefined');
+        if (Telegram.WebApp) {
+          console.log('Telegram.WebApp.platform:', Telegram.WebApp.platform);
+          console.log('Telegram.WebApp.version:', Telegram.WebApp.version);
+        }
       }
-    }
-  })();
-</script>
+      
+      // Простая проверка: если есть Telegram объект ИЛИ параметры в URL
+      const isTelegram = typeof Telegram !== 'undefined' && Telegram.WebApp || 
+                        tgWebAppVersion || 
+                        tgWebAppData ||
+                        hash.includes('tgWebAppData');
+      
+      console.log('Telegram detected:', isTelegram);
+      
+      if (isTelegram) {
+        // Сохраняем флаг в localStorage для доступа в других скриптах
+        localStorage.setItem('isTelegramMiniApp', 'true');
+        console.log('Telegram Mini App detected - flag saved');
+        
+        // Если нет Telegram объекта, но есть параметры в URL, создаем минимальный объект
+        if (typeof Telegram === 'undefined') {
+          console.log('Creating minimal Telegram WebApp object for GitHub Pages');
+          window.Telegram = {
+            WebApp: {
+              ready: function() {
+                console.log('Telegram WebApp ready (simulated)');
+              },
+              expand: function() {
+                console.log('Telegram WebApp expand (simulated)');
+              },
+              colorScheme: 'light',
+              initDataUnsafe: {},
+              platform: 'web',
+              version: tgWebAppVersion || '7.0',
+              CloudStorage: {
+                setItem: function(key, value, callback) {
+                  console.log('Simulated CloudStorage.setItem:', key, value);
+                  localStorage.setItem('tg_' + key, value);
+                  if (callback) setTimeout(() => callback(null), 100);
+                },
+                getItem: function(key, callback) {
+                  console.log('Simulated CloudStorage.getItem:', key);
+                  const data = localStorage.getItem('tg_' + key);
+                  if (callback) setTimeout(() => callback(null, data), 100);
+                },
+                removeItem: function(key, callback) {
+                  console.log('Simulated CloudStorage.removeItem:', key);
+                  localStorage.removeItem('tg_' + key);
+                  if (callback) setTimeout(() => callback(null), 100);
+                }
+              }
+            }
+          };
+        }
+      }
+      
+      console.log('=== TELEGRAM DETECTION END ===');
+    })();
+  </script>
+  
+  <!-- JavaScript -->
   <script type="module" src="js/web.js"></script>
 </head>
 <body>
