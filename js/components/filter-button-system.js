@@ -13,28 +13,27 @@ export const filterButtonSystem = {
     },
     
     // Обновление кнопок при смене страницы
-updateForPage: function(pageId) {
-    console.log('Обновление кнопок фильтра для страницы:', pageId);
-    this.currentPageId = pageId;
+    updateForPage: function(pageId) {
+        console.log('Обновление кнопок фильтра для страницы:', pageId);
+        this.currentPageId = pageId;
     
-    // Очищаем все существующие кнопки
-    this.clearAllButtons();
+        // Очищаем все существующие кнопки
+        this.clearAllButtons();
     
-    // Определяем, какие кнопки нужны для этой страницы
-    if (pageId === 'characters' || pageId === 'weapon') {
-        // Главная страница с фильтром
-        this.createFilterButton(pageId);
-    } else if (pageId.startsWith('characters/') || 
-               pageId.startsWith('weapon/')) {
-        // Подстраница - нужна кнопка "Назад"
-        this.createBackButton(pageId);
-    } else if (pageId.startsWith('date/')) {
-        // Подстраница базы знаний - нужна кнопка "Назад" И кнопка фильтра
-        this.createBackButton(pageId);
-        this.createDateSubpageFilterButton(pageId);
-    }
-    // Для home, profile и главной date ничего не создаем
-},
+        // Определяем, какие кнопки нужны для этой страницы
+        if (pageId === 'characters' || pageId === 'weapon') {
+            // Главная страница с фильтром
+            this.createFilterButton(pageId);
+        } else if (pageId.startsWith('characters/') || pageId.startsWith('weapon/')) {
+                // Подстраница - нужна кнопка "Назад"
+                this.createBackButton(pageId);
+        } else if (pageId.startsWith('date/')) {
+            // Подстраница базы знаний - нужна кнопка "Назад" И кнопка фильтра
+            this.createBackButton(pageId);
+            this.createDateSubpageFilterButton(pageId);
+        }
+        // Для home, profile и главной date ничего не создаем
+    },
     // Создание кнопки фильтра для подстраниц date
 createDateSubpageFilterButton: function(pageId) {
     const navLeftArea = document.querySelector('.nav-left-area');
@@ -43,8 +42,8 @@ createDateSubpageFilterButton: function(pageId) {
         return;
     }
     
-    const lang = window.currentLang || 'ru';
-    const translationsObj = translations[lang] || translations['ru'];
+    
+   
     
     // Удаляем существующую кнопку фильтра (если есть)
     const existingFilterBtn = navLeftArea.querySelector('.filter-button.date-filter');
@@ -58,53 +57,24 @@ createDateSubpageFilterButton: function(pageId) {
     filterBtn.setAttribute('data-page', pageId);
     
     // Определяем текст в зависимости от подстраницы
-    let filterText = translationsObj['filter.title'] || 'Фильтр';
+    
     const subpageType = pageId.replace('date/', '');
     
     switch(subpageType) {
         case 'fish':
-            filterText = translationsObj['filter.fish'] || 'Фильтр рыб';
+            
             break;
         case 'creatures':
-            filterText = translationsObj['filter.creatures'] || 'Фильтр существ';
+            
             break;
         case 'artifacts':
-            filterText = translationsObj['filter.artifacts'] || 'Фильтр артефактов';
+            
             break;
     }
     
-    filterBtn.innerHTML = `
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/>
-        </svg>
-    `;
+    filterBtn.innerHTML = `<svg><use href="#icon-filter"></use></svg>`;
     
-    filterBtn.style.cssText = `
-        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 20px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        transition: all 0.3s ease;
-        margin-left: 10px;
-    `;
     
-    filterBtn.addEventListener('mouseenter', () => {
-        filterBtn.style.background = 'linear-gradient(135deg, #138496, #117a8b)';
-        filterBtn.style.transform = 'scale(1.05)';
-    });
-    
-    filterBtn.addEventListener('mouseleave', () => {
-        filterBtn.style.background = 'linear-gradient(135deg, #17a2b8, #138496)';
-        filterBtn.style.transform = 'scale(1)';
-    });
     
     filterBtn.addEventListener('click', (e) => {
         e.preventDefault();
@@ -199,37 +169,8 @@ createDefaultFilterButton: function(pageId, translationsObj) {
     filterBtn.setAttribute('aria-label', translationsObj['filter.title'] || 'Фильтр');
     
     filterBtn.innerHTML = `
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/>
-        </svg>
+        <svg><use href="#icon-filter"></use></svg>
     `;
-    
-    // Стили и обработчики
-    filterBtn.style.cssText = `
-        
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 20px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        transition: all 0.3s ease;
-    `;
-    
-    filterBtn.addEventListener('mouseenter', () => {
-        
-        filterBtn.style.transform = 'translateY(-2px)';
-    });
-    
-    filterBtn.addEventListener('mouseleave', () => {
-        
-        filterBtn.style.transform = 'translateY(0)';
-    });
     
     // Обработчик клика
     filterBtn.addEventListener('click', (e) => {
@@ -274,48 +215,20 @@ getOrCreateNavLeftArea: function() {
         const navTopBar = document.querySelector('.nav-top-bar');
         if (!navTopBar) return;
         
-        const lang = window.currentLang || 'ru';
-        const buttons = translations[lang]?.buttons || translations['ru'].buttons;
-        
         const backBtn = document.createElement('button');
         backBtn.className = 'back-button';
         
         // Определяем текст и страницу для возврата
-        let backText = buttons.backToCharacters || 'Назад к персонажам';
+        
         let backToPage = 'characters';
         
         if (pageId.startsWith('weapon/')) {
-            backText = buttons.backToWeapons || 'Назад к оружию';
             backToPage = 'weapon';
         } else if (pageId.startsWith('date/')) {
-            backText = buttons.backToDate || 'Назад к базе знаний';
             backToPage = 'date';
         }
         
-        backBtn.innerHTML = `
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            <span>${backText}</span>
-        `;
-        
-        // Стили
-        backBtn.style.cssText = `
-            background: linear-gradient(135deg, var(--light) 0%, #6c757d 100%);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
-            z-index: 100;
-        `;
+        backBtn.innerHTML = `<svg <svg><use href="#icon-arrow"></use></svg>`;
         
         // Анимации
         backBtn.addEventListener('mouseenter', () => {

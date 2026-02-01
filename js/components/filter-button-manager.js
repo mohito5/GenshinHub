@@ -48,9 +48,7 @@ export const filterButtonSystem = {
         filterBtn.setAttribute('aria-label', translationsObj['filter.title'] || 'Фильтр');
         
         filterBtn.innerHTML = `
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"/>
-            </svg>
+            <svg <svg><use href="#icon-filter"></use></svg>
         `;
         
         // Обработчик клика
@@ -92,40 +90,13 @@ export const filterButtonSystem = {
         }
         
         backBtn.innerHTML = `
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            <span>${backText}</span>
+            <svg <svg><use href="#icon-arrow"></use></svg>
+            
         `;
         
-        // Стили
-        backBtn.style.cssText = `
-            background: linear-gradient(135deg, var(--light) 0%, #6c757d 100%);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            transition: all 0.3s ease;
-            z-index: 100;
-        `;
         
-        // Анимации
-        backBtn.addEventListener('mouseenter', () => {
-            backBtn.style.background = 'linear-gradient(135deg, #495057, #343a40)';
-            backBtn.style.transform = 'scale(1.05)';
-        });
         
-        backBtn.addEventListener('mouseleave', () => {
-            backBtn.style.background = 'linear-gradient(135deg, var(--light), #6c757d)';
-            backBtn.style.transform = 'scale(1)';
-        });
+        
         
         // Обработчик клика
         backBtn.addEventListener('click', () => {
