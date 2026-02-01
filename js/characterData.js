@@ -4,8 +4,8 @@ export const charsData = {
     key: "Varka",
     ru_name: "Варка",
     en_name: "Varka",
-    avatar: "assets/avatar-icon/i (22).webp",
-    avatar_icon: "assets/avatar-icon/i (22).webp",
+    avatar: "assets/avatar/varka.png",
+    avatar_icon: "assets/avatar-icon/varka.webp",
     rarity: "5",
     element: "Anemo",
     weapon: "Claymore",
@@ -17,13 +17,13 @@ export const charsData = {
       chunk: ["Anemo"],
       gemstone: ["Anemo"],
       bossMaterial: ["kuuvyaka"],
-      localSpecialty: ["frostlampFlower"],
+      localSpecialty: ["Wolfhook"],
       EnemyDropsSt1: ["Shaft"],
       EnemyDropsSt2: ["Shaft"],
       EnemyDropsSt3: ["Shaft"],
-      teachings: ["vagrancy"],
-      guide: ["vagrancy"],
-      philosophies: ["vagrancy"]
+      teachings: ["Freedom"],
+      guide: ["Freedom"],
+      philosophies: ["Freedom"]
     }
   },
   Flins: {

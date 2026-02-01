@@ -14,11 +14,12 @@ export const materialCategories = {
     },
     50: { mora: 0 },
     60: { mora: 0 },
+    // 90 level
     70: { 
       mora: 2000000, 
       sliver: 1,
       fragment: 9,
-      chunk: 6,
+      chunk: 9,
       gemstone: 6,
       EnemyDropsSt1: 18,
       EnemyDropsSt2: 30,
@@ -90,7 +91,7 @@ export const materialCategories = {
       EnemyDropsSt3: 19,
       teachings: 3,
       guide: 21,
-      philosophies: 22,
+      Philosophies: 22,
       weeklyBossDrops: 4
     },
     10: { 
@@ -267,7 +268,7 @@ export const materialsInfo = {
       ru: "Мора",
       en: "Mora"
     },
-    icon: "assets/i (3).webp"
+    icon: "assets/mora.png"
   },
   
   sliver: {
@@ -275,13 +276,20 @@ export const materialsInfo = {
       ru: "Серебряный кусок",
       en: "Silver Sliver"
     },
-    icon: "assets/unknown.png",
+    
     Electro: { 
       name: {
         ru: "Серебряный кусок Электро",
         en: "Electro Silver Sliver"
       },
       icon: "assets/tmp256.png"
+    },
+    Anemo: {
+      name: {
+        ru: "Осколок бирюзы Вайюда",
+        en: "Vayuda Turquoise Sliver"
+      },
+      icon: 'assets/gems/anemo/sl-anemo.png'
     }
   },
   
@@ -290,13 +298,20 @@ export const materialsInfo = {
       ru: "Фрагмент",
       en: "Fragment"
     },
-    icon: "assets/unknown.png",
+    
     Electro: { 
       name: {
         ru: "Фрагмент Электро",
         en: "Electro Fragment"
       },
       icon: "assets/tmp256 (1).png"
+    },
+    Anemo: {
+      name: {
+        ru: "Фрагмент бирюзы Вайюда",
+        en: "Vayuda Turquoise Fragment"
+      },
+      icon: "assets/gems/anemo/fr-anemo.png"
     }
   },
   
@@ -312,6 +327,13 @@ export const materialsInfo = {
         en: "Electro Chunk"
       },
       icon: "assets/tmp256 (2).png"
+    },
+    Anemo: {
+      name: {
+        ru: "Кусок бирюзы Вайюда",
+        en: "Vayuda Turquoise Chunk"
+      },
+      icon: "assets/gems/anemo/ch-anemo.png"
     }
   },
   
@@ -327,6 +349,13 @@ export const materialsInfo = {
         en: "Electro Gemstone"
       },
       icon: "assets/tmp256 (3).png"
+    },
+    Anemo: {
+      name: {
+        ru: "Драгоценная бирюза Вайюда",
+        en: "Vayuda Turquoise Gemstone"
+      },
+      icon: "assets/gems/anemo/ge-anemo.png"
     }
   },
   
@@ -341,7 +370,7 @@ export const materialsInfo = {
         ru: "Сломанный приводной вал",
         en: "Broken Drive Shaft"
       },
-      icon: "assets/drops/brokenShaft.webp"
+      icon: "assets/drops/shaft1.webp"
     }
   },
   
@@ -350,13 +379,13 @@ export const materialsInfo = {
       ru: "Дропы уровня 2",
       en: "Level 2 Drops"
     },
-    icon: "assets/unknown.png",
+    
     Shaft: {
       name: {
         ru: "Усиленный приводной вал",
         en: "Reinforced Drive Shaft"
       },
-      icon: "assets/drops/ReinforcedShaft.webp"
+      icon: "assets/drops/shaft2.webp"
     }
   },
   
@@ -371,7 +400,7 @@ export const materialsInfo = {
         ru: "Точный приводной вал",
         en: "Precision Drive Shaft"
       },
-      icon: "assets/drops/PrecisionShaft.webp"
+      icon: "assets/drops/shaft3.webp"
     }
   },
   
@@ -381,6 +410,14 @@ export const materialsInfo = {
       en: "Teachings"
     },
     icon: "assets/unknown.png",
+    // монд
+    Freedom: {
+      name:{
+        ru: "Учения о Свободе",
+        en: "Teachings of Freedom",
+      },
+      icon: "assets/book/freedom1.png"
+    },
     vagrancy: {
       name: {
         ru: "Учения странствий",
@@ -396,6 +433,13 @@ export const materialsInfo = {
       en: "Guide"
     },
     icon: "assets/unknown.png",
+    Freedom: {
+      name:{
+        ru: "Руководство о Свободе",
+        en: "Guides of Freedom",
+      },
+      icon: "assets/book/freedom1.png"
+    },
     vagrancy: {
       name: {
         ru: "Руководство по странствиям",
@@ -411,6 +455,13 @@ export const materialsInfo = {
       en: "Philosophies"
     },
     icon: "assets/unknown.png",
+    Freedom: {
+      name:{
+        ru: "Философия о Свободе",
+        en: "Philosophies of Freedom",
+      },
+      icon: "assets/book/freedom3.png"
+    },
     vagrancy: {
       name: {
         ru: "Философия странствий",
@@ -485,6 +536,13 @@ export const materialsInfo = {
       },
       icon: "assets/localSpecial/frostlampFlower.webp"
     },
+    Wolfhook:{
+      name: { 
+        ru: "Волчий клык",
+        en: "Wolfhook"
+      },
+      icon: "assets/local-spec/wolfhook.png"
+    },
     local2: {
       name: {
         ru: "Локальный материал 2",
@@ -499,7 +557,7 @@ export const materialsInfo = {
       ru: "Опыт",
       en: "Experience"
     },
-    icon: "assets/unknown.png"
+    icon: "assets/exp.png"
   }
 };
 

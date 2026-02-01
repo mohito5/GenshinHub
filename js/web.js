@@ -670,6 +670,7 @@ function getAllMaterialsFromPage() {
 }
 
 // Функция рендеринга секции "Все материалы"
+// Функция рендеринга секции "Все материалы" с СТРОГОЙ СОРТИРОВКОЙ
 function renderAllMaterialsSection(allMaterials, characterData) {
     const container = document.querySelector('section.all .materials-container');
     if (!container) return;
@@ -681,13 +682,84 @@ function renderAllMaterialsSection(allMaterials, characterData) {
         return;
     }
     
-    const sortedMaterials = Object.entries(allMaterials)
-        .sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
+    // СТРОГИЙ ПОРЯДОК СОРТИРОВКИ МАТЕРИАЛОВ
+    const materialOrder = [
+        // Элементарные камни
+        'sliver',
+        'fragment', 
+        'chunk',
+        'gemstone',
+        
+        // Локальные материалы
+        'localSpecialty',
+        
+        // Дропы врагов
+        'EnemyDropsSt1',
+        'EnemyDropsSt2',
+        'EnemyDropsSt3',
+        
+        // Материалы босса
+        'bossMaterial',
+        
+        // Книги талантов
+        'teachings',
+        'guide',
+        'philosophies',
+        
+        // Дропы еженедельного босса
+        'weeklyBossDrops',
+        
+        // Особые материалы
+        'crown',
+        
+        // Опыт
+        'experience',
+        
+        // Мора
+        'mora'
+    ];
     
-    sortedMaterials.forEach(([materialKey, amount]) => {
-        const materialElement = createMaterialElement(materialKey, amount, 'all', characterData);
-        container.appendChild(materialElement);
+    // Сортируем материалы в указанном порядке
+    const sortedMaterials = Object.entries(allMaterials)
+        .sort(([keyA], [keyB]) => {
+            // Извлекаем основную категорию материала (часть до точки)
+            const categoryA = keyA.split('.')[0];
+            const categoryB = keyB.split('.')[0];
+            
+            // Ищем индексы в порядке сортировки
+            const indexA = materialOrder.indexOf(categoryA);
+            const indexB = materialOrder.indexOf(categoryB);
+            
+            // Если оба найдены в порядке, сортируем по нему
+            if (indexA !== -1 && indexB !== -1) {
+                return indexA - indexB;
+            }
+            
+            // Если только первый найден, он идет раньше
+            if (indexA !== -1) return -1;
+            // Если только второй найден, он идет позже
+            if (indexB !== -1) return 1;
+            
+            // Если оба не найдены, сортируем по алфавиту
+            return categoryA.localeCompare(categoryB);
+        });
+    
+    // Для отладки выводим отсортированные материалы
+    console.log('Сортированные материалы для секции "all":');
+    sortedMaterials.forEach(([key, amount]) => {
+        console.log(`  ${key}: ${amount}`);
     });
+    
+    // Рендерим материалы в указанном порядке
+    sortedMaterials.forEach(([materialKey, amount]) => {
+        if (amount > 0) {
+            const materialElement = createMaterialElement(materialKey, amount, 'all', characterData);
+            container.appendChild(materialElement);
+        }
+    });
+    
+    // Добавляем CSS класс для grid-расположения
+    container.classList.add('all-materials-grid');
 }
 
 // Функция для получения материалов уровня
@@ -731,6 +803,7 @@ function getTalentMaterials(talentType, level) {
 }
 
 // Функция для рендеринга материалов в контейнер
+// Обновленная функция для отображения материалов
 function renderMaterialsToContainer(selector, materials, sectionType, characterData) {
     const container = document.querySelector(selector);
     if (!container) {
@@ -738,20 +811,36 @@ function renderMaterialsToContainer(selector, materials, sectionType, characterD
         return;
     }
     
+    // Очищаем контейнер и добавляем класс стиля
     container.innerHTML = '';
+    container.className = 'materials-container'; // Сбрасываем классы
+    container.classList.add(sectionType === 'all' ? 'grid-style' : 'scroll-style');
     
     if (!materials || Object.keys(materials).length === 0) {
         container.textContent = translations[window.currentLang]?.material?.none || 'Нет материалов';
         return;
     }
     
+    // Определяем стиль для material-item
+    const itemStyle = sectionType === 'all' ? 'grid-item' : 'scroll-item';
+    
     Object.entries(materials).forEach(([materialKey, amount]) => {
         if (amount > 0) {
             const materialElement = createMaterialElement(materialKey, amount, sectionType, characterData);
+            
+            // Добавляем дополнительный класс в зависимости от типа секции
+            if (sectionType === 'all') {
+                materialElement.classList.add('grid-item');
+            } else {
+                materialElement.classList.add('scroll-item');
+            }
+            
             container.appendChild(materialElement);
         }
     });
 }
+
+
 
 // Функция для инициализации скрипта материалов
 async function initMaterialsScript(character, lang) {
@@ -796,9 +885,18 @@ async function initMaterialsScript(character, lang) {
 }
 
 // Функция для создания элемента материала
+// Функция для создания элемента материала - ИСПРАВЛЕННАЯ ВЕРСИЯ
+// Функция для создания элемента материала - ФИНАЛЬНАЯ ВЕРСИЯ
 function createMaterialElement(materialKey, amount, sectionType, characterData) {
     const div = document.createElement('div');
-    div.className = 'material-item';
+    
+    // Добавляем класс в зависимости от типа секции
+    if (sectionType === 'all') {
+        div.className = 'material-item all-grid-item';
+    } else {
+        div.className = 'material-item scroll-item';
+    }
+    
     div.dataset.materialKey = materialKey;
     
     const materialInfo = getMaterialInfo(materialKey, characterData);
@@ -806,54 +904,126 @@ function createMaterialElement(materialKey, amount, sectionType, characterData) 
     const translationsObj = translations[lang] || translations['ru'];
     const formattedAmount = formatNumber(amount, lang);
     
-    div.innerHTML = `
-        <img src="${materialInfo.icon || 'assets/unknown.png'}" 
-             alt="${materialInfo.name}" 
-             class="material-icon"
-             data-key="${materialKey}"
-             onerror="this.src='assets/unknown.png'">
-        <div class="material-info">
-            <span class="material-name" data-key="${materialKey}">${materialInfo.name}</span>
-            <span class="material-amount" data-amount="${amount}">${formattedAmount}</span>
-        </div>
-    `;
-    
+    // Для секции "all" создаем другую структуру
     if (sectionType === 'all') {
+        // Создаем основной контейнер для иконки и текста
+        const mainContent = document.createElement('div');
+        mainContent.className = 'material-main-content';
+        
+        // Иконка
+        const img = document.createElement('img');
+        img.src = materialInfo.icon || 'assets/unknown.png';
+        img.alt = materialInfo.name;
+        img.className = 'material-icon';
+        img.dataset.key = materialKey;
+        img.onerror = function() {
+            this.src = 'assets/unknown.png';
+        };
+        
+        // Текстовая информация (название + количество)
+        const textContent = document.createElement('div');
+        textContent.className = 'material-text-content';
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'material-name';
+        nameSpan.dataset.key = materialKey;
+        nameSpan.textContent = materialInfo.name;
+        nameSpan.title = materialInfo.name;
+        
+        const amountSpan = document.createElement('span');
+        amountSpan.className = 'material-amount';
+        amountSpan.dataset.amount = amount;
+        amountSpan.textContent = formattedAmount;
+        amountSpan.title = formattedAmount;
+        
+        textContent.appendChild(nameSpan);
+        textContent.appendChild(amountSpan);
+        
+        mainContent.appendChild(img);
+        mainContent.appendChild(textContent);
+        
+        // Инпут с текстом "Осталось"
+        const inputDiv = document.createElement('div');
+        inputDiv.className = 'material-input-container';
+        
         const safeId = materialKey.replace(/[^a-zA-Z0-9]/g, '_');
         const inputId = `all_${safeId}`;
         
-        div.innerHTML += `
-            <div class="material-input">
-                <input type="number" id="${inputId}" min="0" value="0" 
-                       placeholder="${translationsObj.input?.placeholder || 'Имеется'}"
-                       data-amount="${amount}"
-                       data-lang="${lang}">
-                <span class="material-remaining" data-lang="${lang}">
-                    ${translationsObj.material?.remaining || 'Осталось'}: ${formattedAmount}
-                </span>
-            </div>
-        `;
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.id = inputId;
+        input.min = 0;
+        input.value = 0;
+        input.placeholder = translationsObj.input?.placeholder || 'Имеется';
+        input.dataset.amount = amount;
+        input.dataset.lang = lang;
+        input.className = 'material-input-field';
         
-        // Обработчик input с сохранением языка
-        setTimeout(() => {
-            const input = div.querySelector(`#${inputId}`);
-            if (input) {
-                input.addEventListener('input', function() {
-                    const have = parseInt(this.value) || 0;
-                    const amount = parseInt(this.dataset.amount) || 0;
-                    const remaining = Math.max(0, amount - have);
-                    const remainingSpan = this.parentElement.querySelector('.material-remaining');
-                    
-                    if (remainingSpan) {
-                        const currentLang = remainingSpan.getAttribute('data-lang') || lang;
-                        const currentTranslations = translations[currentLang] || translations['ru'];
-                        const formattedRemaining = formatNumber(remaining, currentLang);
-                        remainingSpan.textContent = 
-                            `${currentTranslations.material?.remaining || 'Осталось'}: ${formattedRemaining}`;
-                    }
-                });
-            }
-        }, 10);
+        const remainingSpan = document.createElement('span');
+        remainingSpan.className = 'material-remaining';
+        remainingSpan.dataset.lang = lang;
+        remainingSpan.textContent = `${translationsObj.material?.remaining || 'Осталось'}: ${formattedAmount}`;
+        remainingSpan.title = `${translationsObj.material?.remaining || 'Осталось'}: ${formattedAmount}`;
+        
+        inputDiv.appendChild(input);
+        inputDiv.appendChild(remainingSpan);
+        
+        // Добавляем все в основной div
+        div.appendChild(mainContent);
+        div.appendChild(inputDiv);
+        
+        // Обработчик input
+        input.addEventListener('input', function() {
+            const have = parseInt(this.value) || 0;
+            const amount = parseInt(this.dataset.amount) || 0;
+            const remaining = Math.max(0, amount - have);
+            
+            const currentLang = remainingSpan.getAttribute('data-lang') || lang;
+            const currentTranslations = translations[currentLang] || translations['ru'];
+            const formattedRemaining = formatNumber(remaining, currentLang);
+            
+            remainingSpan.textContent = 
+                `${currentTranslations.material?.remaining || 'Осталось'}: ${formattedRemaining}`;
+            remainingSpan.title = 
+                `${currentTranslations.material?.remaining || 'Осталось'}: ${formattedRemaining}`;
+        });
+        
+    } else {
+        // Для других секций используем старую структуру
+        const contentContainer = document.createElement('div');
+        contentContainer.className = 'material-content';
+        
+        const img = document.createElement('img');
+        img.src = materialInfo.icon || 'assets/unknown.png';
+        img.alt = materialInfo.name;
+        img.className = 'material-icon';
+        img.dataset.key = materialKey;
+        img.onerror = function() {
+            this.src = 'assets/unknown.png';
+        };
+        
+        const materialInfoDiv = document.createElement('div');
+        materialInfoDiv.className = 'material-info';
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'material-name';
+        nameSpan.dataset.key = materialKey;
+        nameSpan.textContent = materialInfo.name;
+        nameSpan.title = materialInfo.name;
+        
+        const amountSpan = document.createElement('span');
+        amountSpan.className = 'material-amount';
+        amountSpan.dataset.amount = amount;
+        amountSpan.textContent = formattedAmount;
+        amountSpan.title = formattedAmount;
+        
+        materialInfoDiv.appendChild(nameSpan);
+        materialInfoDiv.appendChild(amountSpan);
+        
+        contentContainer.appendChild(img);
+        contentContainer.appendChild(materialInfoDiv);
+        
+        div.appendChild(contentContainer);
     }
     
     return div;
@@ -992,75 +1162,141 @@ function updateDynamicTexts(lang) {
 }
 
 // Функция для получения информации о материале
+// Функция для получения информации о материале - ИСПРАВЛЕННАЯ ВЕРСИЯ
+// УНИВЕРСАЛЬНАЯ функция для получения информации о материале
 function getMaterialInfo(materialKey, character = null) {
     const lang = window.currentLang || 'ru';
     
-    // Сначала попробуем найти в materialsInfo
-    let materialInfo = null;
-    let materialName = materialKey; // fallback
+    // Резервные значения
+    let materialName = materialKey;
+    let materialIcon = 'assets/unknown.png';
     
+    // Разделяем ключ на части
     const parts = materialKey.split('.');
-    if (parts.length === 1) {
-        // Простой ключ
-        if (materialsInfo[materialKey]) {
-            materialInfo = materialsInfo[materialKey];
-            if (typeof materialInfo === 'object' && materialInfo.name) {
-                // materialInfo.name - это объект {ru: "...", en: "..."}
-                if (materialInfo.name[lang]) {
-                    materialName = materialInfo.name[lang];
-                } else if (materialInfo.name.ru) {
-                    materialName = materialInfo.name.ru;
-                } else if (materialInfo.name.en) {
-                    materialName = materialInfo.name.en;
-                }
-            }
-        }
-    } else if (parts.length === 2) {
-        // Вложенный ключ
-        const [category, subKey] = parts;
-        if (materialsInfo[category] && materialsInfo[category][subKey]) {
-            materialInfo = materialsInfo[category][subKey];
-            if (typeof materialInfo === 'object' && materialInfo.name) {
-                // materialInfo.name - это объект {ru: "...", en: "..."}
-                if (materialInfo.name[lang]) {
-                    materialName = materialInfo.name[lang];
-                } else if (materialInfo.name.ru) {
-                    materialName = materialInfo.name.ru;
-                } else if (materialInfo.name.en) {
-                    materialName = materialInfo.name.en;
-                }
-            }
-        }
-    }
     
-    // Если это элементный материал (sliver, fragment, etc.), используем элемент персонажа
-    if (character && character.element) {
-        const element = character.element.toLowerCase();
-        const elementMaterials = {
-            'sliver': element,
-            'fragment': element,
-            'chunk': element,
-            'gemstone': element
-        };
+    // СЛУЧАЙ 1: Простой ключ (например, "mora")
+    if (parts.length === 1) {
+        const simpleKey = parts[0];
         
-        for (const [materialType, elementType] of Object.entries(elementMaterials)) {
-            if (materialKey.toLowerCase().includes(materialType)) {
-                const elementMaterial = materialsInfo[materialType]?.[character.element];
-                if (elementMaterial && elementMaterial.name) {
-                    if (elementMaterial.name[lang]) {
-                        materialName = elementMaterial.name[lang];
-                    } else if (elementMaterial.name.ru) {
-                        materialName = elementMaterial.name.ru;
+        // Проверяем, существует ли материал в materialsInfo
+        if (materialsInfo[simpleKey]) {
+            const material = materialsInfo[simpleKey];
+            
+            // Получаем имя
+            materialName = getMaterialNameFromObject(material, lang, simpleKey);
+            
+            // Получаем иконку
+            materialIcon = getMaterialIconFromObject(material);
+            
+            // Пытаемся найти более специфичную информацию для персонажа
+            if (character && character.element) {
+                // Для элементарных материалов
+                const elementMaterials = ['sliver', 'fragment', 'chunk', 'gemstone'];
+                if (elementMaterials.includes(simpleKey)) {
+                    const element = character.element;
+                    if (material[element]) {
+                        const elementMaterial = material[element];
+                        materialName = getMaterialNameFromObject(elementMaterial, lang, `${simpleKey}.${element}`);
+                        materialIcon = getMaterialIconFromObject(elementMaterial) || materialIcon;
+                    }
+                }
+                
+                // Для других материалов, которые могут быть связаны с персонажем
+                if (character.ascensionMaterials && character.ascensionMaterials[simpleKey]) {
+                    const specificKey = character.ascensionMaterials[simpleKey][0];
+                    if (material[specificKey]) {
+                        const specificMaterial = material[specificKey];
+                        materialName = getMaterialNameFromObject(specificMaterial, lang, `${simpleKey}.${specificKey}`);
+                        materialIcon = getMaterialIconFromObject(specificMaterial) || materialIcon;
                     }
                 }
             }
         }
+    } 
+    // СЛУЧАЙ 2: Составной ключ (например, "sliver.Anemo" или "EnemyDropsSt1.Shaft")
+    else if (parts.length === 2) {
+        const [category, subKey] = parts;
+        
+        // Проверяем, существует ли категория
+        if (materialsInfo[category]) {
+            const categoryData = materialsInfo[category];
+            
+            // Если есть прямая вложенность
+            if (categoryData[subKey]) {
+                const material = categoryData[subKey];
+                materialName = getMaterialNameFromObject(material, lang, `${category}.${subKey}`);
+                materialIcon = getMaterialIconFromObject(material);
+            } 
+            // Если это элементный материал (например, "sliver.Anemo")
+            else if (categoryData.name && typeof categoryData.name === 'object') {
+                // Используем общие данные категории
+                materialName = getMaterialNameFromObject(categoryData, lang, category);
+                materialIcon = getMaterialIconFromObject(categoryData);
+                
+                // Пробуем найти по элементу персонажа
+                if (character && character.element && categoryData[character.element]) {
+                    const elementMaterial = categoryData[character.element];
+                    materialName = getMaterialNameFromObject(elementMaterial, lang, `${category}.${character.element}`);
+                    materialIcon = getMaterialIconFromObject(elementMaterial) || materialIcon;
+                }
+            }
+        }
     }
+    
+    // Исправляем путь к иконке
+    materialIcon = normalizeIconPath(materialIcon);
     
     return {
         name: materialName,
-        icon: (materialInfo && materialInfo.icon) || 'assets/unknown.png'
+        icon: materialIcon
     };
+}
+
+// Вспомогательная функция для получения имени материала
+function getMaterialNameFromObject(materialObj, lang, fallbackKey) {
+    if (!materialObj) return fallbackKey;
+    
+    if (materialObj.name) {
+        if (typeof materialObj.name === 'object') {
+            return materialObj.name[lang] || 
+                   materialObj.name.ru || 
+                   materialObj.name.en || 
+                   fallbackKey;
+        } else if (typeof materialObj.name === 'string') {
+            return materialObj.name;
+        }
+    }
+    
+    return fallbackKey;
+}
+
+// Вспомогательная функция для получения иконки материала
+function getMaterialIconFromObject(materialObj) {
+    if (!materialObj) return null;
+    
+    if (materialObj.icon) {
+        return materialObj.icon;
+    }
+    
+    return null;
+}
+
+// Вспомогательная функция для нормализации пути к иконке
+function normalizeIconPath(iconPath) {
+    if (!iconPath) return 'assets/unknown.png';
+    
+    // Удаляем лишние точки
+    let normalized = iconPath.replace(/^\.+\//, '');
+    
+    // Проверяем, начинается ли с assets/ или http
+    if (!normalized.startsWith('assets/') && !normalized.startsWith('http')) {
+        normalized = 'assets/' + normalized;
+    }
+    
+    // Убираем дублирующиеся слеши
+    normalized = normalized.replace(/\/+/g, '/');
+    
+    return normalized;
 }
 
 // Функция для рендеринга всех материалов
@@ -2020,6 +2256,7 @@ function setupGlobalFunctions() {
 // web.js - исправленный initApp для Telegram
 
 // Инициализация приложения - ИСПРАВЛЕННАЯ ВЕРСИЯ ДЛЯ TELEGRAM
+// web.js - полная исправленная функция initApp
 async function initApp() {
   console.log('=== ИНИЦИАЛИЗАЦИЯ ПРИЛОЖЕНИЯ ===');
 
@@ -2029,83 +2266,84 @@ async function initApp() {
   }, 500);
 
   // УСИЛЕННАЯ ПРОВЕРКА TELEGRAM
-    console.log('=== ПРОВЕРКА TELEGRAM МИНИ-ПРИЛОЖЕНИЯ ===');
-    console.log('URL:', window.location.href);
-    console.log('Origin:', window.location.origin);
-    console.log('User-Agent:', navigator.userAgent);
-    
-    // Проверяем все возможные способы определения Telegram
-    let isTelegramDetected = false;
-    
-    // 1. Проверяем стандартный способ
-    if (typeof window.Telegram !== 'undefined') {
-        console.log('✅ Telegram объект найден в window');
-        if (Telegram.WebApp) {
-            console.log('✅ Telegram.WebApp доступен');
-            isTelegramDetected = true;
-            
-            // Инициализируем Telegram WebApp
-            try {
-                Telegram.WebApp.ready();
-                Telegram.WebApp.expand();
-                console.log('✅ Telegram.WebApp инициализирован');
-                
-                // Показываем информацию о пользователе
-                const user = Telegram.WebApp.initDataUnsafe?.user;
-                if (user) {
-                    console.log('✅ Пользователь Telegram:', {
-                        id: user.id,
-                        username: user.username,
-                        firstName: user.first_name
-                    });
-                }
-            } catch (error) {
-                console.error('❌ Ошибка инициализации Telegram:', error);
-            }
+  console.log('=== ПРОВЕРКА TELEGRAM МИНИ-ПРИЛОЖЕНИЯ ===');
+  console.log('URL:', window.location.href);
+  console.log('Origin:', window.location.origin);
+  console.log('User-Agent:', navigator.userAgent);
+  
+  // Проверяем все возможные способы определения Telegram
+  let isTelegramDetected = false;
+  
+  // 1. Проверяем стандартный способ
+  if (typeof window.Telegram !== 'undefined') {
+    console.log('✅ Telegram объект найден в window');
+    if (Telegram.WebApp) {
+      console.log('✅ Telegram.WebApp доступен');
+      isTelegramDetected = true;
+      
+      // Инициализируем Telegram WebApp
+      try {
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+        console.log('✅ Telegram.WebApp инициализирован');
+        
+        // Показываем информацию о пользователе
+        const user = Telegram.WebApp.initDataUnsafe?.user;
+        if (user) {
+          console.log('✅ Пользователь Telegram:', {
+            id: user.id,
+            username: user.username,
+            firstName: user.first_name
+          });
         }
+      } catch (error) {
+        console.error('❌ Ошибка инициализации Telegram:', error);
+      }
     }
-    
-    // 2. Проверяем параметры URL (Telegram передает данные так)
-    const urlParams = new URLSearchParams(window.location.search);
-    console.log('Параметры URL:', Object.fromEntries(urlParams));
-    
-    if (urlParams.has('tgWebAppData') || urlParams.has('tgWebAppVersion')) {
-        console.log('✅ Telegram параметры найдены в URL');
-        isTelegramDetected = true;
+  }
+  
+  // 2. Проверяем параметры URL (Telegram передает данные так)
+  const urlParams = new URLSearchParams(window.location.search);
+  console.log('Параметры URL:', Object.fromEntries(urlParams));
+  
+  if (urlParams.has('tgWebAppData') || urlParams.has('tgWebAppVersion')) {
+    console.log('✅ Telegram параметры найдены в URL');
+    isTelegramDetected = true;
+  }
+  
+  // 3. Проверяем hash (еще один способ передачи данных)
+  if (window.location.hash) {
+    console.log('Hash URL:', window.location.hash);
+    if (window.location.hash.includes('tgWebAppData=')) {
+      console.log('✅ Telegram параметры найдены в hash');
+      isTelegramDetected = true;
     }
-    
-    // 3. Проверяем hash (еще один способ передачи данных)
-    if (window.location.hash) {
-        console.log('Hash URL:', window.location.hash);
-        if (window.location.hash.includes('tgWebAppData=')) {
-            console.log('✅ Telegram параметры найдены в hash');
-            isTelegramDetected = true;
-        }
+  }
+  
+  // 4. Проверяем window.parent (если в iframe)
+  try {
+    if (window.parent && window.parent.Telegram) {
+      console.log('✅ Telegram найден в window.parent');
+      isTelegramDetected = true;
     }
-    
-    // 4. Проверяем window.parent (если в iframe)
-    try {
-        if (window.parent && window.parent.Telegram) {
-            console.log('✅ Telegram найден в window.parent');
-            isTelegramDetected = true;
-        }
-    } catch (e) {
-        console.log('window.parent недоступен:', e.message);
+  } catch (e) {
+    console.log('window.parent недоступен:', e.message);
+  }
+  
+  console.log('Итог проверки Telegram:', isTelegramDetected ? '✅ Обнаружен' : '❌ Не обнаружен');
+  
+  // Если Telegram не обнаружен, проверяем локальное хранилище
+  if (!isTelegramDetected) {
+    const isManualTelegram = localStorage.getItem('forceTelegramMode') === 'true';
+    if (isManualTelegram) {
+      console.log('⚠️ Режим Telegram принудительно включен вручную');
+      isTelegramDetected = true;
     }
-    
-    console.log('Итог проверки Telegram:', isTelegramDetected ? '✅ Обнаружен' : '❌ Не обнаружен');
-    
-    // Если Telegram не обнаружен, проверяем локальное хранилище
-    if (!isTelegramDetected) {
-        const isManualTelegram = localStorage.getItem('forceTelegramMode') === 'true';
-        if (isManualTelegram) {
-            console.log('⚠️ Режим Telegram принудительно включен вручную');
-            isTelegramDetected = true;
-        }
-    }
-    
-    // Сохраняем статус в глобальной переменной
-    window.isTelegramMiniApp = isTelegramDetected;
+  }
+  
+  // Сохраняем статус в глобальной переменной
+  window.isTelegramMiniApp = isTelegramDetected;
+  
   // Проверяем, в Telegram Mini App ли мы
   const isTelegram = typeof Telegram !== 'undefined' && Telegram.WebApp;
   
@@ -2166,6 +2404,25 @@ async function initApp() {
     }
   }
   
+  // ВАЖНО: Первым делом устанавливаем язык и навигацию
+  const savedLang = localStorage.getItem('lang');
+  if (savedLang && (savedLang === 'ru' || savedLang === 'en')) {
+    window.currentLang = savedLang;
+  } else {
+    window.currentLang = 'ru';
+    localStorage.setItem('lang', 'ru');
+  }
+  
+  console.log('Установлен язык:', window.currentLang);
+  
+  // Немедленно обновляем кнопки языка
+  setTimeout(() => {
+    updateLanguageButtons(window.currentLang);
+  }, 0);
+  
+  // Применяем переводы к навигации
+  localizeNavigation(window.currentLang);
+  
   // Устанавливаем глобальные функции
   setupGlobalFunctions();
 
@@ -2177,59 +2434,93 @@ async function initApp() {
     initSaveManager();
   }
   
-  // Устанавливаем язык из localStorage или по умолчанию
-  const savedLang = localStorage.getItem('lang');
-  if (savedLang && (savedLang === 'ru' || savedLang === 'en')) {
-    window.currentLang = savedLang;
-  } else {
-    window.currentLang = 'ru';
-    localStorage.setItem('lang', 'ru');
-  }
-  
-  console.log('Установлен язык:', window.currentLang);
-  
   // Инициализируем глобальный обработчик локализации
   initGlobalLocaleHandler();
   
-  // Немедленно обновляем кнопки языка
-  setTimeout(() => {
-    updateLanguageButtons(window.currentLang);
-  }, 0);
-  
-  // Применяем переводы к навигации
-  localizeNavigation(window.currentLang);
-  
-  // Настраиваем слушатели
+  // Настраиваем слушатели навигации
   setupNavigationListeners();
   
-  // ОБНОВЛЯЕМ АКТИВНУЮ НАВИГАЦИЮ ПЕРЕД ПОКАЗОМ СТРАНИЦЫ
-  updateActiveNav();
-
-  // ВАЖНО: Получаем хэш и определяем начальную страницу
+  // ВАЖНО: Получаем хэш и определяем начальную страницу из сохраненного состояния
+  let initialPage = 'home';
+  const savedPage = localStorage.getItem('currentPage');
+  
+  // Проверяем хэш URL в первую очередь
   const hash = window.location.hash;
   console.log('Текущий хэш при инициализации:', hash);
   
-  let initialPage = 'home'; // По умолчанию показываем home
-  
   if (hash && hash.length > 2) {
-    // Убираем #/ из хэша
+    // Если есть хэш в URL, используем его
     const pageFromHash = hash.slice(2);
+    console.log('Страница из хэша (сырая):', pageFromHash);
+    
+    // Проверяем, есть ли такая страница в pageLayouts
     if (pageFromHash && pageLayouts[pageFromHash]) {
       initialPage = pageFromHash;
-      console.log('Страница из хэша:', initialPage);
+      console.log('✅ Страница из хэша подтверждена:', initialPage);
     } else {
-      console.log('Страница из хэша не найдена:', pageFromHash);
+      console.log('⚠️ Страница из хэша не найдена в pageLayouts:', pageFromHash);
+      
+      // Пробуем найти основную страницу для подстраниц
+      if (pageFromHash.startsWith('characters/')) {
+        initialPage = 'characters';
+      } else if (pageFromHash.startsWith('weapon/')) {
+        initialPage = 'weapon';
+      } else if (pageFromHash.startsWith('date/')) {
+        initialPage = 'date';
+      } else if (pageFromHash.startsWith('profile/')) {
+        initialPage = 'profile';
+      } else if (pageFromHash.startsWith('home/')) {
+        initialPage = 'home';
+      }
+      console.log('📌 Используем основную страницу:', initialPage);
     }
-  } else {
-    console.log('Хэш пустой или некорректный, используем страницу по умолчанию: home');
+  } else if (savedPage && pageLayouts[savedPage]) {
+    // Если нет хэша, но есть сохраненная страница
+    initialPage = savedPage;
+    console.log('✅ Страница из сохранения:', initialPage);
+    
+    // Обновляем URL, чтобы соответствовать сохраненной странице
+    history.replaceState({}, '', `#/${initialPage}`);
+  } else if (savedPage) {
+    // Если сохраненная страница не существует в pageLayouts, но есть сохранение
+    console.log('⚠️ Сохраненная страница не найдена:', savedPage);
+    
+    // Определяем основную страницу на основе сохраненной
+    if (savedPage.startsWith('characters')) {
+      initialPage = 'characters';
+    } else if (savedPage.startsWith('weapon')) {
+      initialPage = 'weapon';
+    } else if (savedPage.startsWith('date')) {
+      initialPage = 'date';
+    } else if (savedPage.startsWith('profile')) {
+      initialPage = 'profile';
+    } else if (savedPage.startsWith('home')) {
+      initialPage = 'home';
+    }
+    console.log('📌 Используем основную страницу:', initialPage);
   }
   
   console.log('Начальная страница:', initialPage);
   
-  // Показываем начальную страницу
-  window.showPage(initialPage);
+  // ВАЖНО: Сначала показываем страницу, ТОЛЬКО ПОТОМ обновляем навигацию
+  if (typeof window.showPage === 'function') {
+    window.showPage(initialPage);
+  } else {
+    console.error('❌ Функция showPage не найдена!');
+    // Аварийное отображение контента
+    const content = document.getElementById('content');
+    if (content) {
+      content.innerHTML = `
+        <div style="padding: 40px; text-align: center;">
+          <h1 style="color: #dc3545;">Ошибка инициализации</h1>
+          <p>Функция showPage не найдена.</p>
+          <button onclick="location.reload()">Перезагрузить страницу</button>
+        </div>
+      `;
+    }
+  }
   
-  // ЕЩЕ РАЗ ОБНОВЛЯЕМ НАВИГАЦИЮ ПОСЛЕ ПОКАЗА СТРАНИЦЫ
+  // ОБНОВЛЯЕМ АКТИВНУЮ НАВИГАЦИЮ ПОСЛЕ ПОКАЗА СТРАНИЦЫ
   setTimeout(() => {
     updateActiveNav();
     moveHighlight();
@@ -2239,6 +2530,8 @@ async function initApp() {
   if (isTelegram) {
     localStorage.setItem('telegramFirstLaunch', 'true');
   }
+  
+  console.log('=== ИНИЦИАЛИЗАЦИЯ ЗАВЕРШЕНА ===');
 }
 
 // Запуск при загрузке DOM
@@ -2248,6 +2541,8 @@ if (document.readyState === 'loading') {
   // DOM уже загружен
   initApp();
 }
+
+
 
 // Экспортируем для модулей
 export {
