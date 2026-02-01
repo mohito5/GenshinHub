@@ -18,8 +18,6 @@ if (typeof window !== 'undefined') {
 export function initProfileModule() {
   console.log('=== ИНИЦИАЛИЗАЦИЯ МОДУЛЯ ПРОФИЛЯ ===');
 
-
-
   // ДОБАВЬТЕ ЭТУ ПРОВЕРКУ ПЕРВЫМ ДЕЛОМ:
   console.log('Проверка окружения Telegram...');
   console.log('Telegram в window:', typeof window.Telegram !== 'undefined');
