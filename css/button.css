@@ -92,7 +92,7 @@
   color: white;
 }
 
-.filter-button{background-color: black;}
+
 
 @keyframes slideIn {
   from {
@@ -115,3 +115,7 @@
     opacity: 0;
   }
 }
+
+
+.filter-button.date-filter,
+.filter-button  {background-color:var(--dark);border: none;}

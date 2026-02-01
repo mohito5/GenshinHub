@@ -4,7 +4,7 @@
   margin: 0;
 }
 .character-detail-page .characters #char-icon { 
-  width: 100%; display: flex;
+  width: 100%; display: flex; border-radius: 2vw; outline: var(--light) 2px dashed; outline-offset: -5px;
   border: var(--dark) 1px solid; background-color: var(--dark);
 }
 .character-detail-page #char-icon img {
@@ -12,7 +12,7 @@
   transition: transform 0.3s ease;
 }
 
-.characters{display: flex;flex-direction: column;}
+.characters{display: flex;flex-direction: column; padding: 2vw;}
 
 .character-detail-page #char-name {
   
@@ -30,6 +30,14 @@
   
   gap: 2vw;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+section.all .materials-container.all-materials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(24vw, 1fr));
+    gap: 1vw;
+    
+    width: 100%;
+    box-sizing: border-box;
 }
 
 
@@ -49,9 +57,9 @@
 
 .character-detail-page section h2:last-child {
   
-  font-size: 2rem;
+  
   font-weight: 700;
-  background: linear-gradient(45deg, #4CAF50, #45a049);
+  background-color: var(--dark);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -61,21 +69,38 @@
 .materials-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(24vw, 1fr));
-  gap: 2vw; 
+  gap: 1vw; 
   
 }
-
+@media only screen and (orientation: landscape) {.materials-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(12vw, 1fr));
+  gap: 2vw; 
+  
+}}
 /* Material item styling */
 .material-item {
-  display: flex;
-  align-items: center;
+  display: flex; 
+  
   padding: 2vw;
-  border-radius: 10px;
+  border-radius: 4vw;
   flex-direction: column;
   transition: all 0.3s ease;
   border: 1px solid var(--dark);
-  gap: 15px;
+  gap: 2vw; 
 }
+
+.material-item.horizontal {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    min-width: 200px;
+    max-width: 280px;
+}
+
+
 
 .material-item:hover {
   transform: translateY(-3px);
@@ -86,8 +111,8 @@
 .material-icon {
   aspect-ratio: 1/1; width: 100%;
   object-fit: contain;
-  border-radius: 8px;
-  padding: 5px;
+  border-radius: 2vw;
+  
   background-color: var(--dark);
 }
 
@@ -108,7 +133,7 @@
 .material-amount {
   font-weight: 700;
   color: #4CAF50;
-  font-size: 1.2rem;
+  
   background: rgba(76, 175, 80, 0.1);
   padding: 3px 8px;
   border-radius: 20px;
@@ -146,20 +171,15 @@
 
 .material-remaining {
   display: block;
-  font-size: 0.85rem;
+  
   color: #666;
   font-style: italic;
   text-align: center;
 }
 
-/* Section-specific colors */
-section.level .material-item {
-  border-left-color: #4CAF50;
-}
 
-section.level .material-amount {
-  color: #4CAF50;
-}
+
+
 
 section.mat-attack .material-item {
   border-left-color: #FF5722;
@@ -185,13 +205,9 @@ section.mat-explosion .material-amount {
   color: #9C27B0;
 }
 
-section.all .material-item {
-  border-left-color: #FF9800;
-}
 
-section.all .material-amount {
-  color: #FF9800;
-}
+
+
 
 /* No materials message */
 .materials-container:empty::before {
@@ -297,23 +313,138 @@ section.all .material-amount {
   100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
-/* Scrollbar styling */
-.character-detail-page ::-webkit-scrollbar {
-  width: 8px;
+
+
+
+/* Секция "Все материалы" */
+section.all .materials-container.all-materials-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(32vw, 1fr));
+    gap: 1vw;
+    
+    width: 100%;
+    box-sizing: border-box;
+    
 }
 
-.character-detail-page ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
+/* Элементы в grid (для секции "all") - КОЛОНОЧНАЯ СТРУКТУРА */
+section.all .materials-container.all-materials-grid .all-grid-item {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    aspect-ratio: 4/3;
+    border-radius: 4vw;
+    padding: 2vw;
+    
+    
+    
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
-.character-detail-page ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 10px;
+/* Верхняя часть: иконка + текст (горизонтально) */
+section.all .materials-container.all-materials-grid .all-grid-item .material-main-content {
+    display: flex;
+    flex-direction: row;
+    
+    gap: 2vw;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
 }
 
-.character-detail-page ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.5);
+/* Иконка в grid */
+section.all .materials-container.all-materials-grid .all-grid-item .material-icon {
+    width: auto; height: auto;
+     aspect-ratio: 1/1;
+    object-fit: contain;
+    border-radius: 2vw;
+    flex-shrink: 0;
 }
 
+/* Текстовая часть (название + количество) */
+section.all .materials-container.all-materials-grid .all-grid-item .material-text-content {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    border: #333 1px solid;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* Название материала в grid */
+section.all .materials-container.all-materials-grid .all-grid-item .material-name {
+    
+    flex: 1;
+    text-overflow: ellipsis;
+    min-width: 0;
+    overflow: hidden;
+    
+    
+    line-height: 1.3;
+    text-align: left;
+}
+
+/* Количество материала в grid */
+section.all .materials-container.all-materials-grid .all-grid-item .material-amount {
+    display: block;
+     flex-shrink: 0;
+    white-space: nowrap;
+    text-align: right;
+    min-width: fit-content;
+    overflow: hidden;
+    
+    max-width: 100%;
+    text-align: left;
+}
+
+/* Нижняя часть: инпут + текст "Осталось" */
+section.all .materials-container.all-materials-grid .all-grid-item .material-input-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    
+    
+    border-top: 1px solid #eee;
+}
+
+/* Инпут в grid - ширина 100% */
+section.all .materials-container.all-materials-grid .all-grid-item .material-input-field {
+    width: 100%;
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    font-size: 14px;
+    text-align: center;
+    box-sizing: border-box;
+    
+}
+
+/* Текст "Осталось" в grid */
+section.all .materials-container.all-materials-grid .all-grid-item .material-remaining {
+    font-size: 12px;
+    color: #888;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+}
+
+
+
+
+
+
+
+
+
+
+
+.materials-container.scroll-style .scroll-item .material-name {
+    
+    text-align: center;
+    
+}
 

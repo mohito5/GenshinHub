@@ -39,8 +39,8 @@
   padding: 1vw;
   overflow: hidden;
   box-sizing: border-box;
-}
-.nav-item {
+  }
+  .nav-item {
   position: relative;
   display: flex;
   justify-content: center;
@@ -56,12 +56,12 @@
   box-sizing: border-box;
   z-index: 1; 
   color: var(--light);
-}
-.nav-icon {
-  width: 5vw;
-  height: 5vw;
-  transition: transform 0.3s ease;
-}
+  }
+  .nav-icon {
+    width: 5vw;
+    height: 5vw;
+    transition: transform 0.3s ease;
+  }
   /* Стили для переключателя языка */
 .language-switcher {
   flex-direction: row;
@@ -80,8 +80,8 @@
 @media only screen and (orientation: landscape) {
   /* Навигация */
   header {
-    top: 0; left: 0; 
-    height: 100vh; 
+     left: 0; 
+    height: 100dvh; 
   }
   .main-nav { 
     flex-direction: row-reverse;  
@@ -97,16 +97,16 @@
     box-sizing: border-box;
 }
   .nav-item {
-    justify-content: center;
+    
     align-items: center;
-    gap: 2vw;
+    gap: 0.66vw;
     width: 100%;
-    padding: 1vw 2vw;
+    padding: 0.66vw;
     text-decoration: none;
     border-radius: 1.5vw;
     transition: all 0.3s ease;
     flex: 1 1 auto;
-    height: min-content;
+    
     box-sizing: border-box;
     z-index: 1; 
     color: var(--light);
@@ -132,7 +132,7 @@
 header { 
   position: sticky; 
   display: flex; 
-  margin: 0; 
+  margin: 0;  
   transform: translateZ(0); 
 }
 /* Навигация */
@@ -153,8 +153,6 @@ header {
 .nav-item {
   position: relative;
   display: flex;
-  justify-content: center;
-  align-items: center;
   width: 100%;
   text-decoration: none;
   transition: all 0.3s ease;
@@ -176,7 +174,7 @@ header {
   width: 0;
   height: 0;
   background-color: var(--light);
-  border-radius: 3vw;
+  
   z-index: 0;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   pointer-events: none;
